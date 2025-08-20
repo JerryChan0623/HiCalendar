@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cute Calendar UI 规范 · Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      /* Brand & Accent (马卡龙系) */
+      --color-primary-pink: #FFB6C1;
+      --color-primary-blue: #A3D8F4;
+      --color-secondary-yellow: #FFF6B7;
+      --color-secondary-mint: #C1E1C1;
+
+      /* Semantic */
+      --color-success: #8BD9A3;   /* 柔和绿 */
+      --color-warning: #F9D162;   /* 奶油黄橙 */
+      --color-danger:  #FF9AA2;   /* 可爱红粉 */
+
+      /* Neutrals */
+      --neutral-900: #1F2937;
+      --neutral-700: #374151;
+      --neutral-500: #6B7280;
+      --neutral-300: #D1D5DB;
+      --neutral-200: #E5E7EB;
+      --neutral-100: #F5F7FA;
+      --white: #FFFFFF;
+
+      /* Gradients (粉→白、蓝→白) */
+      --grad-pink-soft: linear-gradient(180deg, #FFE8EE 0%, #FFFFFF 100%);
+      --grad-blue-soft: linear-gradient(180deg, #EAF6FF 0%, #FFFFFF 100%);
+      --grad-pink-solid: linear-gradient(180deg, #FFB6C1 0%, #FFC6CF 100%);
+      --grad-blue-solid: linear-gradient(180deg, #A3D8F4 0%, #C9E9FF 100%);
+
+      /* Typography */
+      --font-display: "Baloo 2", "Nunito", system-ui, -apple-system, "SF Pro Rounded", "Segoe UI", sans-serif;
+      --font-sans: "Nunito", system-ui, -apple-system, "SF Pro Rounded", "Segoe UI", sans-serif;
+      --text-xs: 12px;  --lh-xs: 18px;
+      --text-sm: 14px;  --lh-sm: 20px;
+      --text-md: 16px;  --lh-md: 24px;
+      --text-lg: 18px;  --lh-lg: 28px;
+      --text-xl: 24px;  --lh-xl: 32px;
+      --text-2xl: 32px; --lh-2xl: 40px;
+
+      /* Radius & Shadow */
+      --radius-card: 20px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 8px 20px rgba(16, 24, 40, 0.08);
+
+      /* Spacing scale */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+    }
+
+    /* Base */
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: var(--font-sans);
+      color: var(--neutral-900);
+      background: var(--grad-blue-soft);
+    }
+    .container{
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-4);
+    }
+    .h1{font-family:var(--font-display); font-size:var(--text-2xl); line-height:var(--lh-2xl); margin: 0 0 var(--space-4);} 
+    .h2{font-family:var(--font-display); font-size:var(--text-xl);  line-height:var(--lh-xl);  margin: var(--space-6) 0 var(--space-3);} 
+    .h3{font-weight:700; font-size:var(--text-lg); line-height:var(--lh-lg); margin: var(--space-4) 0 var(--space-2);} 
+    .muted{color:var(--neutral-500); font-size:var(--text-sm); line-height:var(--lh-sm);} 
+    .grid{display:grid; gap: var(--space-4);} 
+    .grid.cols-2{grid-template-columns: repeat(2, minmax(0,1fr));} 
+    .grid.cols-3{grid-template-columns: repeat(3, minmax(0,1fr));} 
+    .grid.cols-4{grid-template-columns: repeat(4, minmax(0,1fr));} 
+    @media (max-width: 800px){ .grid.cols-4,.grid.cols-3{grid-template-columns: repeat(2, minmax(0,1fr));} }
+
+    /* Color Swatches */
+    .swatch{
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      background: var(--white);
+    }
+    .swatch .tone{height: 72px;}
+    .swatch .meta{padding: var(--space-3); font-size: var(--text-sm);} 
+    .tone.pink{background: var(--color-primary-pink);} 
+    .tone.blue{background: var(--color-primary-blue);} 
+    .tone.yellow{background: var(--color-secondary-yellow);} 
+    .tone.mint{background: var(--color-secondary-mint);} 
+    .tone.success{background: var(--color-success);} 
+    .tone.warning{background: var(--color-warning);} 
+    .tone.danger{background: var(--color-danger);} 
+    .tone.n900{background: var(--neutral-900);} 
+    .tone.n700{background: var(--neutral-700);} 
+    .tone.n500{background: var(--neutral-500);} 
+    .tone.n300{background: var(--neutral-300);} 
+    .tone.n200{background: var(--neutral-200);} 
+    .tone.n100{background: var(--neutral-100);} 
+
+    /* Buttons */
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap: var(--space-2);
+      height: 44px; padding: 0 var(--space-6);
+      border-radius: var(--radius-pill);
+      border: 0; cursor: pointer; user-select: none;
+      font-weight: 700; font-size: var(--text-md);
+      transition: transform .06s ease, filter .2s ease, opacity .2s ease;
+      box-shadow: var(--shadow-soft);
+      color: #fff;
+    }
+    .btn:active{ transform: translateY(1px) scale(0.99); }
+    .btn.pink{ background: var(--grad-pink-solid); }
+    .btn.blue{ background: var(--grad-blue-solid); }
+    .btn.secondary{
+      background: var(--white);
+      color: var(--neutral-900);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--neutral-200);
+    }
+    .btn.ghost{
+      background: transparent; color: var(--neutral-900);
+      border: 1px dashed var(--neutral-300); box-shadow: none;
+    }
+    .btn:disabled{ opacity: .5; cursor: not-allowed; box-shadow: none; }
+
+    /* Card */
+    .card{
+      background: var(--grad-pink-soft);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-soft);
+      padding: var(--space-6);
+    }
+    .card.blue{ background: var(--grad-blue-soft); }
+
+    /* Input */
+    .field{display:flex; flex-direction:column; gap: var(--space-2);} 
+    .label{font-weight:700; font-size: var(--text-sm);} 
+    .input{
+      height: 48px; padding: 0 var(--space-4);
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--neutral-200);
+      background: var(--white);
+      font-size: var(--text-md);
+      outline: none;
+      transition: box-shadow .2s ease, border-color .2s ease;
+    }
+    .input:focus{
+      border-color: var(--color-primary-pink);
+      box-shadow: 0 0 0 4px rgba(255, 182, 193, .25);
+    }
+    .helper{font-size: var(--text-xs); color: var(--neutral-500);} 
+
+    /* Badges (冲突状态条/徽标) */
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding: 6px 10px; border-radius: var(--radius-pill);
+      font-weight:700; font-size: var(--text-sm);
+    }
+    .badge.success{ background: rgba(139,217,163,.2); color:#1C6D45; }
+    .badge.warning{ background: rgba(249,209,98,.2); color:#835800; }
+    .badge.danger{  background: rgba(255,154,162,.22); color:#7A1E2C; }
+
+    /* Calendar tiny demo */
+    .calendar{
+      display:grid; grid-template-columns: repeat(7, 1fr);
+      gap: var(--space-2); padding: var(--space-4);
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+    }
+    .day{
+      aspect-ratio:1/1; background: var(--neutral-100);
+      border-radius: 14px; position: relative;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; color: var(--neutral-700);
+    }
+    .day.today{ background: var(--grad-pink-soft); }
+    .dot{position:absolute; bottom:8px; width:8px; height:8px; border-radius:50%;}
+    .dot.success{ background: var(--color-success); }
+    .dot.warning{ background: var(--color-warning); }
+    .dot.danger{  background: var(--color-danger);  }
+    .section{margin-top: var(--space-8);} 
+    .row{display:flex; gap: var(--space-3); flex-wrap: wrap; align-items:center;} 
+  </style>
+  
+</head>
+<body>
+  <div class="container">
+    <div class="h1">Cute Calendar · UI 规范 Demo</div>
+    <div class="muted">马卡龙配色 · 胶囊按钮 · 渐变卡片 · 柔和阴影 · 圆润字体（Baloo 2 / Nunito）</div>
+
+    <div class="section">
+      <div class="h2">1. 色彩（设计令牌）</div>
+      <div class="grid cols-4">
+        <div class="swatch"><div class="tone pink"></div><div class="meta">Primary Pink · #FFB6C1</div></div>
+        <div class="swatch"><div class="tone blue"></div><div class="meta">Primary Blue · #A3D8F4</div></div>
+        <div class="swatch"><div class="tone yellow"></div><div class="meta">Secondary Yellow · #FFF6B7</div></div>
+        <div class="swatch"><div class="tone mint"></div><div class="meta">Secondary Mint · #C1E1C1</div></div>
+
+        <div class="swatch"><div class="tone success"></div><div class="meta">Success · #8BD9A3</div></div>
+        <div class="swatch"><div class="tone warning"></div><div class="meta">Warning · #F9D162</div></div>
+        <div class="swatch"><div class="tone danger"></div><div class="meta">Danger · #FF9AA2</div></div>
+        <div class="swatch"><div class="tone n100"></div><div class="meta">Background Soft · #F5F7FA</div></div>
+
+        <div class="swatch"><div class="tone n900"></div><div class="meta">Neutral 900 · #1F2937</div></div>
+        <div class="swatch"><div class="tone n700"></div><div class="meta">Neutral 700 · #374151</div></div>
+        <div class="swatch"><div class="tone n500"></div><div class="meta">Neutral 500 · #6B7280</div></div>
+        <div class="swatch"><div class="tone n200"></div><div class="meta">Neutral 200 · #E5E7EB</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="h2">2. 字体与层级</div>
+      <div class="h3" style="font-family:var(--font-display)">标题（Baloo 2）· 32/40</div>
+      <div style="font-family:var(--font-display); font-size:var(--text-2xl); line-height:var(--lh-2xl)">今天你有 2 个会 + 1 个摸鱼时段 🐣</div>
+      <div class="h3">正文（Nunito）· 16/24</div>
+      <div style="font-size:var(--text-md); line-height:var(--lh-md)">一句话就能创建/查询/修改日程，AI 自动检测冲突并提醒。</div>
+      <div class="muted">说明文字（12/18）：浅色、可爱风。</div>
+    </div>
+
+    <div class="section">
+      <div class="h2">3. 按钮（胶囊）</div>
+      <div class="row">
+        <button class="btn pink">主按钮 · 粉</button>
+        <button class="btn blue">主按钮 · 蓝</button>
+        <button class="btn secondary">次按钮</button>
+        <button class="btn ghost">描边/幽灵</button>
+        <button class="btn pink" disabled>禁用</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="h2">4. 卡片（渐变 + 阴影）</div>
+      <div class="grid cols-2">
+        <div class="card">
+          <div class="h3">今日摘要 🐣</div>
+          <div>今天你有 2 个会 + 1 个摸鱼时段</div>
+          <div style="margin-top:var(--space-4)">
+            <span class="badge success">✅ 无冲突</span>
+            <span class="badge warning">⚠️ 轻度冲突</span>
+            <span class="badge danger">⛔ 硬冲突</span>
+          </div>
+        </div>
+        <div class="card blue">
+          <div class="h3">最近事件</div>
+          <div class="muted">颜色区分冲突状态，重要信息加粗。</div>
+          <div style="margin-top:var(--space-4)">
+            <button class="btn blue">改时间</button>
+            <button class="btn secondary">编辑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="h2">5. 输入框（圆润）</div>
+      <div class="grid cols-2">
+        <div class="field">
+          <label class="label">自然语言输入</label>
+          <input class="input" placeholder="明天 3 点开会，跟 Alice 在 Zoom" />
+          <div class="helper">按回车提交 · 支持麦克风按钮</div>
+        </div>
+        <div class="field">
+          <label class="label">邮箱</label>
+          <input class="input" type="email" placeholder="name@example.com" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="h2">6. 冲突状态徽标（语义规范）</div>
+      <div class="row">
+        <span class="badge success">✅ 无冲突（绿）</span>
+        <span class="badge warning">⚠️ 软冲突（黄）</span>
+        <span class="badge danger">⛔ 硬冲突（红）</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="h2">7. 日历微型示例</div>
+      <div class="calendar">
+        <div class="day">1<div class="dot success"></div></div>
+        <div class="day">2</div>
+        <div class="day today">3<div class="dot warning"></div></div>
+        <div class="day">4<div class="dot danger"></div></div>
+        <div class="day">5</div>
+        <div class="day">6</div>
+        <div class="day">7</div>
+        <div class="day">8</div>
+        <div class="day">9</div>
+        <div class="day">10</div>
+        <div class="day">11</div>
+        <div class="day">12</div>
+        <div class="day">13</div>
+        <div class="day">14</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
