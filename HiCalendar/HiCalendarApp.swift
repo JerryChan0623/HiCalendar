@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct HiCalendarApp: App {
+    @StateObject private var authManager = SupabaseManager.shared
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -25,7 +27,12 @@ struct HiCalendarApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if authManager.isAuthenticated {
+                ContentView()
+                    .environmentObject(authManager)
+            } else {
+                LoginView()
+            }
         }
         .modelContainer(sharedModelContainer)
     }

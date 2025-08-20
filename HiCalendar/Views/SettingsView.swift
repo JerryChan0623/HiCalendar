@@ -10,18 +10,26 @@ import PhotosUI
 
 struct SettingsView: View {
     @StateObject private var backgroundManager = BackgroundImageManager.shared
+    @StateObject private var authManager = SupabaseManager.shared
     @State private var showingPhotoPicker = false
     @State private var selectedImage: UIImage?
     @State private var showingRemoveAlert = false
     @State private var showingCropView = false
     @State private var croppedImage: UIImage?
+    @State private var showingSignOutAlert = false
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: BrandSpacing.xl) {
+                    // 用户信息区域
+                    userSection
+                    
                     // 背景设置区域
                     backgroundSection
+                    
+                    // 登出按钮
+                    signOutSection
                 }
                 .padding(BrandSpacing.lg)
             }
@@ -89,6 +97,80 @@ struct SettingsView: View {
                 }
             } : nil
         )
+        .overlay(
+            showingSignOutAlert ?
+            NeobrutalismAlert(
+                title: "确认登出",
+                message: "确定要登出当前账号吗？",
+                isPresented: $showingSignOutAlert
+            ) {
+                HStack(spacing: BrandSpacing.lg) {
+                    Button("取消") {
+                        showingSignOutAlert = false
+                    }
+                    .buttonStyle(AlertButtonStyle(isDestructive: false))
+                    
+                    Button("登出") {
+                        signOut()
+                    }
+                    .buttonStyle(AlertButtonStyle(isDestructive: true))
+                }
+            } : nil
+        )
+    }
+    
+    // MARK: - 用户信息区域
+    private var userSection: some View {
+        CuteCard(backgroundColor: BrandSolid.cardWhite) {
+            VStack(alignment: .leading, spacing: BrandSpacing.lg) {
+                HStack {
+                    Text("账号信息")
+                        .font(BrandFont.body(size: 18, weight: .bold))
+                        .foregroundColor(BrandColor.neutral900)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "person.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(BrandColor.primaryBlue)
+                }
+                
+                VStack(alignment: .leading, spacing: BrandSpacing.sm) {
+                    Text("当前用户")
+                        .font(BrandFont.body(size: 14, weight: .medium))
+                        .foregroundColor(BrandColor.neutral500)
+                    
+                    Text(authManager.currentUser ?? "未登录")
+                        .font(BrandFont.body(size: 16, weight: .bold))
+                        .foregroundColor(BrandColor.neutral900)
+                }
+            }
+        }
+    }
+    
+    // MARK: - 登出区域
+    private var signOutSection: some View {
+        Button(action: {
+            showingSignOutAlert = true
+        }) {
+            HStack(spacing: BrandSpacing.md) {
+                Image(systemName: "rectangle.portrait.and.arrow.right")
+                    .font(.title2)
+                    .foregroundColor(BrandColor.danger)
+                
+                Text("登出账号")
+                    .font(BrandFont.body(size: 16, weight: .bold))
+                    .foregroundColor(BrandColor.danger)
+                
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+            .padding(BrandSpacing.lg)
+            .background(
+                RoundedRectangle(cornerRadius: BrandRadius.md)
+                    .stroke(BrandColor.danger, lineWidth: BrandBorder.regular)
+            )
+        }
     }
     
     // MARK: - 背景设置区域
@@ -187,6 +269,18 @@ struct SettingsView: View {
                     .font(BrandFont.bodySmall)
                     .foregroundColor(BrandColor.neutral500)
                     .multilineTextAlignment(.leading)
+            }
+        }
+    }
+    
+    // MARK: - 登出方法
+    private func signOut() {
+        Task {
+            do {
+                try await authManager.signOut()
+                showingSignOutAlert = false
+            } catch {
+                print("登出失败: \(error)")
             }
         }
     }

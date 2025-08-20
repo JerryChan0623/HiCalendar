@@ -109,3 +109,4 @@ xcodebuild test -project HiCalendar.xcodeproj -scheme HiCalendar -destination 'p
 
 The app is designed to be a delightful, personality-driven calendar experience that makes event management both functional and entertaining through AI-powered natural language interactions.
 - 中文回复我
+- 以后我跟你说git，你就把目前的代码/项目直接push到github上
