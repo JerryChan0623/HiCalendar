@@ -10,48 +10,62 @@ import PhotosUI
 
 struct SettingsView: View {
     @StateObject private var backgroundManager = BackgroundImageManager.shared
-    @StateObject private var authManager = SupabaseManager.shared
+    @StateObject private var supabaseManager = SupabaseManager.shared
+    @StateObject private var pushManager = PushNotificationManager.shared
     @State private var showingPhotoPicker = false
     @State private var selectedImage: UIImage?
     @State private var showingRemoveAlert = false
     @State private var showingCropView = false
     @State private var croppedImage: UIImage?
     @State private var showingSignOutAlert = false
+    @Environment(\.dismiss) private var dismiss
+    
+    @ViewBuilder
+    private var mainContent: some View {
+        VStack(spacing: BrandSpacing.xl) {
+            // 用户信息/登录区域
+            if supabaseManager.isAuthenticated {
+                userSection
+            } else {
+                signInSection
+            }
+            
+            // 推送通知设置区域
+            pushNotificationSection
+            
+            // 背景设置区域
+            backgroundSection
+            
+            // 登出按钮（仅登录后显示）
+            if supabaseManager.isAuthenticated {
+                signOutSection
+            }
+        }
+        .padding(BrandSpacing.lg)
+    }
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: BrandSpacing.xl) {
-                    // 用户信息区域
-                    userSection
-                    
-                    // 背景设置区域
-                    backgroundSection
-                    
-                    // 登出按钮
-                    signOutSection
-                }
-                .padding(BrandSpacing.lg)
+                mainContent
             }
-            .background(Color.white.ignoresSafeArea())
+            .background(BrandColor.background.ignoresSafeArea())
             .navigationTitle("设置")
             .navigationBarTitleDisplayMode(.large)
-            .onAppear {
-                // 设置导航栏返回按钮外观
-                let appearance = UINavigationBarAppearance()
-                appearance.configureWithTransparentBackground()
-                appearance.backgroundColor = UIColor.clear
-                appearance.shadowColor = UIColor.clear
-                
-                // 自定义返回按钮
-                appearance.setBackIndicatorImage(
-                    UIImage(systemName: "chevron.left")?.withTintColor(UIColor.black, renderingMode: .alwaysOriginal),
-                    transitionMaskImage: UIImage(systemName: "chevron.left")?.withTintColor(UIColor.black, renderingMode: .alwaysOriginal)
-                )
-                
-                UINavigationBar.appearance().standardAppearance = appearance
-                UINavigationBar.appearance().scrollEdgeAppearance = appearance
-                UINavigationBar.appearance().compactAppearance = appearance
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 16, weight: .semibold))
+                            Text("返回")
+                                .font(.system(size: 17))
+                        }
+                        .foregroundColor(BrandColor.primary)
+                    }
+                }
             }
         }
         .sheet(isPresented: $showingPhotoPicker) {
@@ -76,55 +90,63 @@ struct SettingsView: View {
                 croppedImage = nil
             }
         }
-        .overlay(
-            showingRemoveAlert ? 
+        .overlay(removeBackgroundAlert)
+        .overlay(signOutAlert)
+    }
+    
+    @ViewBuilder
+    private var removeBackgroundAlert: some View {
+        if showingRemoveAlert {
             NeobrutalismAlert(
-                title: "移除背景图片",
-                message: "确定要移除当前的背景图片吗？",
+                title: "真的不要了？",
+                message: "真的不要这张美图了吗？删了可就没了哦 🥺",
                 isPresented: $showingRemoveAlert
             ) {
                 HStack(spacing: BrandSpacing.lg) {
-                    Button("取消") {
+                    Button("我再想想") {
                         showingRemoveAlert = false
                     }
-                    .buttonStyle(AlertButtonStyle(isDestructive: false))
+                    .buttonStyle(MD3ButtonStyle(type: .text))
                     
-                    Button("移除") {
+                    Button("不要了！") {
                         backgroundManager.removeBackgroundImage()
                         showingRemoveAlert = false
                     }
-                    .buttonStyle(AlertButtonStyle(isDestructive: true))
+                    .buttonStyle(MD3ButtonStyle(type: .filled))
                 }
-            } : nil
-        )
-        .overlay(
-            showingSignOutAlert ?
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var signOutAlert: some View {
+        if showingSignOutAlert {
             NeobrutalismAlert(
-                title: "确认登出",
-                message: "确定要登出当前账号吗？",
+                title: "要走了吗？",
+                message: "真的要走了吗？下次记得回来哦 👋",
                 isPresented: $showingSignOutAlert
             ) {
                 HStack(spacing: BrandSpacing.lg) {
-                    Button("取消") {
+                    Button("我再想想") {
                         showingSignOutAlert = false
                     }
-                    .buttonStyle(AlertButtonStyle(isDestructive: false))
+                    .buttonStyle(MD3ButtonStyle(type: .text))
                     
-                    Button("登出") {
+                    Button("拜拜～") {
                         signOut()
                     }
-                    .buttonStyle(AlertButtonStyle(isDestructive: true))
+                    .buttonStyle(MD3ButtonStyle(type: .filled))
                 }
-            } : nil
-        )
+            }
+        }
     }
     
     // MARK: - 用户信息区域
     private var userSection: some View {
-        CuteCard(backgroundColor: BrandSolid.cardWhite) {
+        MD3Card(type: .elevated) {
             VStack(alignment: .leading, spacing: BrandSpacing.lg) {
                 HStack {
-                    Text("账号信息")
+                    Text("看看是谁在这儿 👀")
                         .font(BrandFont.body(size: 18, weight: .bold))
                         .foregroundColor(BrandColor.neutral900)
                     
@@ -136,11 +158,11 @@ struct SettingsView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: BrandSpacing.sm) {
-                    Text("当前用户")
+                    Text("就是你啦～")
                         .font(BrandFont.body(size: 14, weight: .medium))
                         .foregroundColor(BrandColor.neutral500)
                     
-                    Text(authManager.currentUser ?? "未登录")
+                    Text(supabaseManager.currentUser?.email ?? "Supabase用户")
                         .font(BrandFont.body(size: 16, weight: .bold))
                         .foregroundColor(BrandColor.neutral900)
                 }
@@ -158,7 +180,7 @@ struct SettingsView: View {
                     .font(.title2)
                     .foregroundColor(BrandColor.danger)
                 
-                Text("登出账号")
+                Text("溜了溜了 👋")
                     .font(BrandFont.body(size: 16, weight: .bold))
                     .foregroundColor(BrandColor.danger)
                 
@@ -175,11 +197,11 @@ struct SettingsView: View {
     
     // MARK: - 背景设置区域
     private var backgroundSection: some View {
-        CuteCard(backgroundColor: BrandSolid.cardWhite) {
+        MD3Card(type: .elevated) {
             VStack(alignment: .leading, spacing: BrandSpacing.lg) {
                 // 标题
                 HStack {
-                    Text("日历背景")
+                    Text("给日历换个皮肤 🎨")
                         .font(BrandFont.body(size: 18, weight: .bold))
                         .foregroundColor(BrandColor.neutral900)
                     
@@ -193,21 +215,21 @@ struct SettingsView: View {
                 // 当前背景预览
                 if backgroundManager.hasCustomBackground, let image = backgroundManager.backgroundImage {
                     VStack(spacing: BrandSpacing.md) {
-                        Text("当前背景")
+                        Text("现在的装扮")
                             .font(BrandFont.body(size: 14, weight: .medium))
                             .foregroundColor(BrandColor.neutral700)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
                         Image(uiImage: image)
                             .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(height: 200)
+                            .aspectRatio(9/16, contentMode: .fit) // 手机屏幕比例
+                            .frame(maxHeight: 240)
                             .clipped()
                             .cornerRadius(BrandRadius.md)
                             .neobrutalStyle(cornerRadius: BrandRadius.md, borderWidth: BrandBorder.regular)
                         
                         // 移除按钮
-                        Button("移除背景图片") {
+                        Button("不要这张了啦") {
                             showingRemoveAlert = true
                         }
                         .font(BrandFont.body(size: 14, weight: .medium))
@@ -221,19 +243,20 @@ struct SettingsView: View {
                     }
                 } else {
                     VStack(spacing: BrandSpacing.md) {
-                        Text("暂无自定义背景")
+                        Text("还没换装呢，素颜也挺好 ✨")
                             .font(BrandFont.body(size: 14, weight: .medium))
                             .foregroundColor(BrandColor.neutral500)
                         
                         RoundedRectangle(cornerRadius: BrandRadius.md)
                             .fill(BrandColor.neutral200)
-                            .frame(height: 200)
+                            .aspectRatio(9/16, contentMode: .fit) // 手机屏幕比例
+                            .frame(maxHeight: 240)
                             .overlay(
                                 VStack(spacing: BrandSpacing.sm) {
                                     Image(systemName: "photo")
                                         .font(.largeTitle)
                                         .foregroundColor(BrandColor.neutral500)
-                                    Text("使用默认背景")
+                                    Text("朴素美也是美")
                                         .font(BrandFont.bodySmall)
                                         .foregroundColor(BrandColor.neutral500)
                                 }
@@ -265,7 +288,7 @@ struct SettingsView: View {
                 }
                 
                 // 说明文字
-                Text("选择一张图片作为日历的背景。系统将引导您裁切图片以获得最佳显示效果。建议使用清晰、色彩柔和的图片以确保文字可读性。")
+                Text("挑张好看的图，让日历也美美哒～记得选清晰的哦，不然字都看不清就尴尬了 😅")
                     .font(BrandFont.bodySmall)
                     .foregroundColor(BrandColor.neutral500)
                     .multilineTextAlignment(.leading)
@@ -273,14 +296,163 @@ struct SettingsView: View {
         }
     }
     
+    // MARK: - 推送通知设置区域
+    private var pushNotificationSection: some View {
+        MD3Card(type: .elevated) {
+            VStack(alignment: .leading, spacing: BrandSpacing.lg) {
+                // 标题
+                HStack {
+                    Text("通知提醒设置 🔔")
+                        .font(BrandFont.body(size: 18, weight: .bold))
+                        .foregroundColor(BrandColor.neutral900)
+                    
+                    Spacer()
+                    
+                    // 权限状态指示器
+                    Circle()
+                        .fill(pushManager.isPermissionGranted ? BrandColor.success : BrandColor.danger)
+                        .frame(width: 8, height: 8)
+                }
+                
+                // 权限状态
+                if !pushManager.isPermissionGranted {
+                    VStack(alignment: .leading, spacing: BrandSpacing.md) {
+                        Text("推送通知未开启")
+                            .font(BrandFont.body(size: 16, weight: .medium))
+                            .foregroundColor(BrandColor.danger)
+                        
+                        Text("开启通知后可以在事件前收到贴心（嘴贱）提醒哦～")
+                            .font(BrandFont.body(size: 14, weight: .medium))
+                            .foregroundColor(BrandColor.neutral500)
+                        
+                        Button("开启推送通知") {
+                            Task {
+                                let granted = await pushManager.requestPermission()
+                                if !granted {
+                                    // 如果用户拒绝，提示去设置页面开启
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                        pushManager.openSettings()
+                                    }
+                                }
+                            }
+                        }
+                        .buttonStyle(MD3ButtonStyle(type: .filled, isFullWidth: true))
+                    }
+                } else {
+                    // 推送设置选项
+                    VStack(spacing: BrandSpacing.lg) {
+                        // 1天前推送
+                        Toggle(isOn: Binding(
+                            get: { pushManager.pushSettings.dayBeforeEnabled },
+                            set: { newValue in
+                                // 立即更新本地状态
+                                pushManager.pushSettings.dayBeforeEnabled = newValue
+                                // 异步同步到服务端
+                                Task {
+                                    await pushManager.updatePushSettings(pushManager.pushSettings)
+                                }
+                            }
+                        )) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("事件前1天提醒")
+                                    .font(BrandFont.body(size: 16, weight: .medium))
+                                Text("默认开启，提前一天叫醒你")
+                                    .font(BrandFont.body(size: 12, weight: .regular))
+                                    .foregroundColor(BrandColor.neutral500)
+                            }
+                        }
+                        .toggleStyle(SwitchToggleStyle(tint: BrandColor.primary))
+                        
+                        // 1周前推送
+                        Toggle(isOn: Binding(
+                            get: { pushManager.pushSettings.weekBeforeEnabled },
+                            set: { newValue in
+                                // 立即更新本地状态
+                                pushManager.pushSettings.weekBeforeEnabled = newValue
+                                // 异步同步到服务端
+                                Task {
+                                    await pushManager.updatePushSettings(pushManager.pushSettings)
+                                }
+                            }
+                        )) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("事件前1周提醒")
+                                    .font(BrandFont.body(size: 16, weight: .medium))
+                                Text("提前一周开始准备，从容不迫")
+                                    .font(BrandFont.body(size: 12, weight: .regular))
+                                    .foregroundColor(BrandColor.neutral500)
+                            }
+                        }
+                        .toggleStyle(SwitchToggleStyle(tint: BrandColor.primary))
+                        
+                        
+                        // 测试推送按钮
+                        Button("发送测试通知 🧪") {
+                            pushManager.sendTestNotification()
+                        }
+                        .buttonStyle(MD3ButtonStyle(type: .outlined))
+                        .font(BrandFont.body(size: 14, weight: .medium))
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    // MARK: - Apple登录区域
+    private var signInSection: some View {
+        MD3Card(type: .elevated) {
+            VStack(spacing: BrandSpacing.lg) {
+                HStack {
+                    Text("快来登录呀 🎪")
+                        .font(BrandFont.body(size: 18, weight: .bold))
+                        .foregroundColor(BrandColor.neutral900)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "person.crop.circle.badge.plus")
+                        .font(.title2)
+                        .foregroundColor(BrandColor.primaryBlue)
+                }
+                
+                VStack(spacing: BrandSpacing.md) {
+                    Text("登录了就能在云端备份，妈妈再也不怕我丢数据了 ☁️")
+                        .font(BrandFont.body(size: 14, weight: .medium))
+                        .foregroundColor(BrandColor.neutral500)
+                        .multilineTextAlignment(.center)
+                    
+                    // Apple登录按钮
+                    AppleSignInButton()
+                        .padding(.top, BrandSpacing.sm)
+                    
+                    // 显示登录错误信息
+                    if let errorMessage = supabaseManager.errorMessage {
+                        Text("登录错误: \(errorMessage)")
+                            .font(BrandFont.bodySmall)
+                            .foregroundColor(BrandColor.danger)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, BrandSpacing.sm)
+                    }
+                    
+                    // 显示Apple登录管理器的错误信息
+                    if let appleError = AppleAuthManager.shared.errorMessage {
+                        Text("Apple认证错误: \(appleError)")
+                            .font(BrandFont.bodySmall)
+                            .foregroundColor(BrandColor.danger)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, BrandSpacing.sm)
+                    }
+                }
+            }
+        }
+    }
+    
     // MARK: - 登出方法
     private func signOut() {
         Task {
-            do {
-                try await authManager.signOut()
+            try? await supabaseManager.signOut()
+            await MainActor.run {
                 showingSignOutAlert = false
-            } catch {
-                print("登出失败: \(error)")
             }
         }
     }

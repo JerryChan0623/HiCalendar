@@ -2,56 +2,302 @@
 //  UIComponents.swift
 //  HiCalendar
 //
-//  Created on 2024. Cute Calendar AI 可爱风组件
+//  Created on 2024. Material Design 3 组件
 //
 
 import SwiftUI
 
-// MARK: - Capsule Button Style (Neobrutalism)
-struct CapsuleButtonStyle: ButtonStyle {
-    let backgroundColor: Color
-    let isSecondary: Bool
+// MARK: - MD3 Button Style
+struct MD3ButtonStyle: ButtonStyle {
+    enum ButtonType {
+        case filled
+        case tonal
+        case outlined
+        case text
+        case elevated
+    }
     
-    init(backgroundColor: Color = BrandColor.primaryYellow,
-         isSecondary: Bool = false) {
-        self.backgroundColor = backgroundColor
-        self.isSecondary = isSecondary
+    let type: ButtonType
+    let isFullWidth: Bool
+    
+    init(type: ButtonType = .filled, isFullWidth: Bool = false) {
+        self.type = type
+        self.isFullWidth = isFullWidth
     }
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(BrandFont.body(size: 16, weight: .bold))
-            .foregroundColor(isSecondary ? BrandColor.neutral900 : BrandColor.neutral900)
-            .padding(.horizontal, BrandSpacing.xl)
+            .font(BrandFont.labelLarge)
+            .foregroundColor(foregroundColor)
+            .padding(.horizontal, BrandSpacing.lg)
             .frame(height: BrandSize.buttonHeight)
+            .frame(maxWidth: isFullWidth ? .infinity : nil)
+            .background(backgroundView(isPressed: configuration.isPressed))
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+    
+    @ViewBuilder
+    private func backgroundView(isPressed: Bool) -> some View {
+        switch type {
+        case .filled:
+            RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                .fill(BrandColor.primary)
+                .overlay(
+                    Color.white.opacity(isPressed ? 0.12 : 0)
+                        .clipShape(RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous))
+                )
+        case .tonal:
+            RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                .fill(BrandColor.secondaryContainer)
+                .overlay(
+                    BrandColor.onSurface.opacity(isPressed ? 0.12 : 0)
+                        .clipShape(RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous))
+                )
+        case .elevated:
+            RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                .fill(BrandColor.surface)
+                .shadow(color: Color.black.opacity(BrandElevation.level1.shadowOpacity),
+                       radius: BrandElevation.level1.shadowRadius,
+                       x: 0, y: BrandElevation.level1.shadowRadius / 2)
+                .overlay(
+                    BrandColor.primary.opacity(isPressed ? 0.12 : 0)
+                        .clipShape(RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous))
+                )
+        case .outlined:
+            RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                .stroke(BrandColor.outline, lineWidth: 1)
+                .background(
+                    BrandColor.primary.opacity(isPressed ? 0.12 : 0)
+                        .clipShape(RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous))
+                )
+        case .text:
+            BrandColor.primary.opacity(isPressed ? 0.12 : 0)
+                .clipShape(RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous))
+        }
+    }
+    
+    private var foregroundColor: Color {
+        switch type {
+        case .filled:
+            return BrandColor.onPrimary
+        case .tonal:
+            return BrandColor.onPrimaryContainer
+        case .elevated, .outlined, .text:
+            return BrandColor.primary
+        }
+    }
+}
+
+// MARK: - MD3 FAB (Floating Action Button)
+struct MD3FAB: View {
+    let icon: String
+    let action: () -> Void
+    let extended: Bool
+    let label: String?
+    
+    init(icon: String, label: String? = nil, extended: Bool = false, action: @escaping () -> Void) {
+        self.icon = icon
+        self.label = label
+        self.extended = extended || label != nil
+        self.action = action
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: extended ? BrandSpacing.sm : 0) {
+                Image(systemName: icon)
+                    .font(.system(size: 24, weight: .medium))
+                
+                if extended, let label = label {
+                    Text(label)
+                        .font(BrandFont.labelLarge)
+                }
+            }
+            .foregroundColor(BrandColor.onPrimaryContainer)
+            .padding(extended ? BrandSpacing.md : 0)
+            .frame(width: extended ? nil : BrandSize.fabSize,
+                   height: extended ? 56 : BrandSize.fabSize)
             .background(
-                RoundedRectangle(cornerRadius: BrandRadius.sm)
-                    .fill(isSecondary ? BrandColor.neutral100 : backgroundColor)
+                RoundedRectangle(cornerRadius: extended ? BrandRadius.lg : BrandRadius.lg,
+                                style: .continuous)
+                    .fill(BrandColor.primaryContainer)
+                    .shadow(color: Color.black.opacity(BrandElevation.level3.shadowOpacity),
+                           radius: BrandElevation.level3.shadowRadius,
+                           x: 0, y: BrandElevation.level3.shadowRadius / 2)
             )
-            .neobrutalStyle(cornerRadius: BrandRadius.sm,
-                           borderWidth: BrandBorder.thick)
-            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
-            .animation(.easeInOut(duration: 0.05), value: configuration.isPressed)
+        }
     }
 }
 
-// MARK: - Ghost Button Style  
-struct GhostButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(BrandFont.body(size: 16, weight: .bold))
-            .foregroundColor(BrandColor.neutral900)
-            .padding(.horizontal, BrandSpacing.xl)
-            .frame(height: BrandSize.buttonHeight)
-            .background(BrandColor.neutral100)
-            .neobrutalStyle(cornerRadius: BrandRadius.sm,
-                           borderWidth: BrandBorder.thick)
-            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
-            .animation(.easeInOut(duration: 0.05), value: configuration.isPressed)
+// MARK: - MD3 Chip
+struct MD3Chip: View {
+    let title: String
+    let isSelected: Bool
+    let icon: String?
+    let action: () -> Void
+    
+    init(title: String, icon: String? = nil, isSelected: Bool = false, action: @escaping () -> Void) {
+        self.title = title
+        self.icon = icon
+        self.isSelected = isSelected
+        self.action = action
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: BrandSpacing.xs) {
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .medium))
+                } else if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 14, weight: .medium))
+                }
+                
+                Text(title)
+                    .font(BrandFont.labelLarge)
+            }
+            .padding(.horizontal, BrandSpacing.md)
+            .padding(.vertical, BrandSpacing.sm)
+            .background(
+                RoundedRectangle(cornerRadius: BrandRadius.sm, style: .continuous)
+                    .fill(isSelected ? BrandColor.secondaryContainer : Color.clear)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: BrandRadius.sm, style: .continuous)
+                            .stroke(isSelected ? Color.clear : BrandColor.outline, lineWidth: 1)
+                    )
+            )
+            .foregroundColor(isSelected ? BrandColor.onPrimaryContainer : BrandColor.onSurface)
+        }
     }
 }
 
-// MARK: - Conflict Status Badge
+// MARK: - MD3 Card
+struct MD3Card<Content: View>: View {
+    enum CardType {
+        case elevated
+        case filled
+        case outlined
+    }
+    
+    let type: CardType
+    let content: Content
+    
+    init(type: CardType = .elevated, @ViewBuilder content: () -> Content) {
+        self.type = type
+        self.content = content()
+    }
+    
+    var body: some View {
+        content
+            .padding(BrandSpacing.md)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: BrandRadius.card, style: .continuous))
+            .overlay(cardOverlay)
+    }
+    
+    @ViewBuilder
+    private var cardBackground: some View {
+        switch type {
+        case .elevated:
+            BrandColor.surface
+                .shadow(color: Color.black.opacity(BrandElevation.level1.shadowOpacity),
+                       radius: BrandElevation.level1.shadowRadius,
+                       x: 0, y: BrandElevation.level1.shadowRadius / 2)
+        case .filled:
+            BrandColor.surfaceVariant
+        case .outlined:
+            BrandColor.surface
+        }
+    }
+    
+    @ViewBuilder
+    private var cardOverlay: some View {
+        if type == .outlined {
+            RoundedRectangle(cornerRadius: BrandRadius.card, style: .continuous)
+                .stroke(BrandColor.outlineVariant, lineWidth: 1)
+        }
+    }
+}
+
+// MARK: - MD3 Text Field
+struct MD3TextField: View {
+    let label: String
+    @Binding var text: String
+    let icon: String?
+    let helper: String?
+    let error: String?
+    @FocusState private var isFocused: Bool
+    
+    init(_ label: String, text: Binding<String>, icon: String? = nil, helper: String? = nil, error: String? = nil) {
+        self.label = label
+        self._text = text
+        self.icon = icon
+        self.helper = helper
+        self.error = error
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: BrandSpacing.xs) {
+            // 输入框容器
+            VStack(alignment: .leading, spacing: 4) {
+                // 浮动标签
+                if !text.isEmpty || isFocused {
+                    Text(label)
+                        .font(BrandFont.bodySmall)
+                        .foregroundColor(error != nil ? BrandColor.error : 
+                                       (isFocused ? BrandColor.primary : BrandColor.onSurfaceVariant))
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                
+                // 输入框
+                HStack {
+                    if let icon = icon {
+                        Image(systemName: icon)
+                            .foregroundColor(BrandColor.onSurfaceVariant)
+                            .font(.system(size: 20))
+                    }
+                    
+                    TextField(isFocused || !text.isEmpty ? "" : label, text: $text)
+                        .font(BrandFont.bodyLarge)
+                        .foregroundColor(BrandColor.onSurface)
+                        .focused($isFocused)
+                }
+            }
+            .padding(.vertical, BrandSpacing.md)
+            .padding(.horizontal, BrandSpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: BrandRadius.extraSmall, style: .continuous)
+                    .fill(BrandColor.surfaceVariant)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: BrandRadius.extraSmall, style: .continuous)
+                    .stroke(
+                        error != nil ? BrandColor.error :
+                        (isFocused ? BrandColor.primary : Color.clear),
+                        lineWidth: isFocused || error != nil ? 2 : 1
+                    )
+            )
+            
+            // Helper/Error 文本
+            if let error = error {
+                Text(error)
+                    .font(BrandFont.bodySmall)
+                    .foregroundColor(BrandColor.error)
+            } else if let helper = helper {
+                Text(helper)
+                    .font(BrandFont.bodySmall)
+                    .foregroundColor(BrandColor.onSurfaceVariant)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isFocused)
+        .animation(.easeInOut(duration: 0.2), value: text.isEmpty)
+    }
+}
+
+// MARK: - Conflict Status Badge (MD3 Style)
 struct ConflictBadge: View {
     enum Status {
         case none    // 无冲突
@@ -62,24 +308,24 @@ struct ConflictBadge: View {
             switch self {
             case .none:
                 return (
+                    BrandColor.success.opacity(0.2),
                     BrandColor.success,
-                    BrandColor.neutral900,
                     "无冲突",
-                    "✅"
+                    "checkmark.circle.fill"
                 )
             case .soft:
                 return (
+                    BrandColor.warning.opacity(0.2),
                     BrandColor.warning,
-                    BrandColor.neutral900,
-                    "软冲突", 
-                    "⚠️"
+                    "软冲突",
+                    "exclamationmark.triangle.fill"
                 )
             case .hard:
                 return (
-                    BrandColor.danger,
-                    BrandColor.neutral100,
+                    BrandColor.errorContainer,
+                    BrandColor.error,
                     "硬冲突",
-                    "⛔"
+                    "xmark.octagon.fill"
                 )
             }
         }
@@ -91,92 +337,34 @@ struct ConflictBadge: View {
         let config = status.config
         
         HStack(spacing: 6) {
-            Text(config.icon)
-                .font(.system(size: 12))
+            Image(systemName: config.icon)
+                .font(.system(size: 12, weight: .medium))
             Text(config.text)
-                .font(BrandFont.body(size: 14, weight: .bold))
+                .font(BrandFont.labelMedium)
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(config.background)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: BrandRadius.sm, style: .continuous)
+                .fill(config.background)
+        )
         .foregroundColor(config.foreground)
-        .neobrutalStyle(cornerRadius: BrandRadius.sm,
-                       borderWidth: BrandBorder.regular)
     }
 }
 
-// MARK: - Neobrutalism Card
-struct CuteCard<Content: View>: View {
-    let backgroundColor: Color
-    let content: Content
-    
-    init(backgroundColor: Color = BrandSolid.cardWhite, @ViewBuilder content: () -> Content) {
-        self.backgroundColor = backgroundColor
-        self.content = content()
-    }
-    
-    var body: some View {
-        content
-            .padding(BrandSpacing.xl)
-            .background(
-                RoundedRectangle(cornerRadius: BrandRadius.lg)
-                    .fill(backgroundColor)
-            )
-            .neobrutalStyle(cornerRadius: BrandRadius.lg,
-                           borderWidth: BrandBorder.thick)
-    }
-}
-
-// MARK: - Neobrutalism Text Field
-struct CuteTextField: View {
-    let title: String
-    @Binding var text: String
-    let placeholder: String
-    let helper: String?
-    
-    init(_ title: String, text: Binding<String>, placeholder: String, helper: String? = nil) {
-        self.title = title
-        self._text = text
-        self.placeholder = placeholder
-        self.helper = helper
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: BrandSpacing.sm) {
-            Text(title)
-                .font(BrandFont.body(size: 14, weight: .bold))
-                .foregroundColor(BrandColor.neutral900)
-            
-            TextField(placeholder, text: $text)
-                .font(BrandFont.body(size: 16, weight: .medium))
-                .padding(.horizontal, BrandSpacing.lg)
-                .frame(height: BrandSize.inputHeight)
-                .background(BrandColor.neutral100)
-                .neobrutalStyle(cornerRadius: BrandRadius.sm,
-                               borderWidth: BrandBorder.regular)
-            
-            if let helper = helper {
-                Text(helper)
-                    .font(BrandFont.bodySmall)
-                    .foregroundColor(BrandColor.neutral500)
-            }
-        }
-    }
-}
-
-// MARK: - Today Summary Card
+// MARK: - Today Summary Card (MD3 Style)
 struct TodaySummaryCard: View {
     let title: String
     let emoji: String
     let conflicts: [ConflictBadge.Status]
     
     var body: some View {
-        CuteCard(backgroundColor: BrandColor.primaryBlue) {
-            VStack(alignment: .leading, spacing: BrandSpacing.lg) {
+        MD3Card(type: .filled) {
+            VStack(alignment: .leading, spacing: BrandSpacing.md) {
                 HStack {
                     Text(title)
-                        .font(BrandFont.displayMedium)
-                        .foregroundColor(BrandColor.neutral900)
+                        .font(BrandFont.headlineSmall)
+                        .foregroundColor(BrandColor.onSurface)
                     Spacer()
                     Text(emoji)
                         .font(.system(size: 32))
@@ -194,7 +382,7 @@ struct TodaySummaryCard: View {
     }
 }
 
-// MARK: - Calendar Day Cell
+// MARK: - Calendar Day Cell (MD3 Style)
 struct CalendarDayCell: View {
     let day: Int
     let isToday: Bool
@@ -209,120 +397,91 @@ struct CalendarDayCell: View {
     }
     
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 2) {
             // 日期数字
             Text("\(day)")
-                .font(BrandFont.body(size: 16, weight: .bold))
+                .font(BrandFont.bodyMedium)
+                .fontWeight(isToday ? .medium : .regular)
                 .foregroundColor(textColor)
             
-            // 事项预览
-            eventPreview
+            // 事项文本列表
+            if !events.isEmpty {
+                VStack(spacing: 1) {
+                    ForEach(Array(events.prefix(2).enumerated()), id: \.offset) { index, event in
+                        Text(event.title)
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(eventTextColor)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .padding(.horizontal, 2)
+                            .padding(.vertical, 1)
+                            .background(
+                                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                    .fill(eventBackgroundColor(for: index))
+                            )
+                    }
+                    
+                    // 如果超过2个事项，显示省略提示
+                    if events.count > 2 {
+                        Text("+\(events.count - 2)")
+                            .font(.system(size: 7, weight: .bold))
+                            .foregroundColor(eventTextColor.opacity(0.7))
+                    }
+                }
+            }
             
             Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, minHeight: 60)
-        .aspectRatio(1, contentMode: .fit)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(backgroundFill)
-        )
-
+        .frame(maxWidth: .infinity, minHeight: 56)
+        .padding(2)
+        .background(backgroundView)
+        .clipShape(RoundedRectangle(cornerRadius: BrandRadius.md, style: .continuous))
     }
     
     @ViewBuilder
-    private var eventPreview: some View {
-        if !events.isEmpty {
-            VStack(spacing: 1) {
-                eventDots
-                moreEventsIndicator
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var eventDots: some View {
-        HStack(spacing: 3) {
-            Spacer()
-            ForEach(Array(events.prefix(3).enumerated()), id: \.offset) { _, event in
-                Circle()
-                    .fill(eventDotColor(for: event))
-                    .frame(width: 4, height: 4)
-            }
-            Spacer()
-        }
-        .padding(.horizontal, 6)
-    }
-    
-    @ViewBuilder
-    private var moreEventsIndicator: some View {
-        if events.count > 3 {
-            HStack {
-                Spacer()
-                Text("+\(events.count - 3)")
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundColor(BrandColor.neutral700)
-                Spacer()
-            }
-            .padding(.horizontal, 6)
-        }
-    }
-    
-    private func eventDotColor(for event: Event) -> Color {
-        // 根据事项类型返回高对比度颜色
-        switch event.title.first?.lowercased() {
-        case "工", "w":
-            return BrandColor.secondaryRed     // 工作-警示红
-        case "会", "m":
-            return BrandColor.primaryBlue      // 会议-电光蓝
-        case "生", "l":
-            return BrandColor.warning          // 生活-橙色
-        default:
-            return BrandColor.secondaryGreen   // 默认-霓虹绿
-        }
-    }
-    
-    private var backgroundFill: Color {
+    private var backgroundView: some View {
         if isSelected {
-            return BrandColor.primaryYellow    // 选中-鲜艳黄
+            BrandColor.primary
         } else if isToday {
-            return BrandColor.primaryBlue      // 今天-电光蓝
+            BrandColor.primaryContainer
         } else {
-            return Color.clear                 // 普通日期-透明背景
+            Color.clear
         }
     }
-    
-
     
     private var textColor: Color {
-        if isSelected || isToday {
-            return BrandColor.neutral900       // 选中/今天-纯黑
+        if isSelected {
+            return BrandColor.onPrimary
+        } else if isToday {
+            return BrandColor.onPrimaryContainer
         } else {
-            return BrandColor.neutral700       // 普通-深灰
+            return BrandColor.onSurface
         }
     }
-
-}
-
-// MARK: - Button Presets (Neobrutalism)
-extension Button where Label == Text {
-    static func neoButton(_ title: String, backgroundColor: Color = BrandColor.primaryYellow, action: @escaping () -> Void) -> some View {
-        Button(title, action: action)
-            .buttonStyle(CapsuleButtonStyle(backgroundColor: backgroundColor))
+    
+    private var eventTextColor: Color {
+        if isSelected {
+            return BrandColor.onPrimary
+        } else if isToday {
+            return BrandColor.onPrimaryContainer
+        } else {
+            return BrandColor.onSurfaceVariant
+        }
     }
     
-    static func neoSecondaryButton(_ title: String, action: @escaping () -> Void) -> some View {
-        Button(title, action: action)
-            .buttonStyle(CapsuleButtonStyle(backgroundColor: BrandColor.primaryBlue, isSecondary: true))
-    }
-    
-    static func neoGhostButton(_ title: String, action: @escaping () -> Void) -> some View {
-        Button(title, action: action)
-            .buttonStyle(GhostButtonStyle())
+    private func eventBackgroundColor(for index: Int) -> Color {
+        let colors: [Color] = [
+            BrandColor.primaryYellow.opacity(0.3),
+            BrandColor.primaryBlue.opacity(0.3),
+            BrandColor.success.opacity(0.3),
+            BrandColor.warning.opacity(0.3)
+        ]
+        return colors[index % colors.count]
     }
 }
 
-// MARK: - Neobrutalism Alert
-struct NeobrutalismAlert<Content: View>: View {
+// MARK: - MD3 Dialog/Alert
+struct MD3Dialog<Content: View>: View {
     let title: String
     let message: String?
     let content: Content
@@ -337,84 +496,314 @@ struct NeobrutalismAlert<Content: View>: View {
     
     var body: some View {
         ZStack {
-            // 半透明背景
-            Color.black.opacity(0.4)
+            // Scrim
+            Color.black.opacity(0.32)
                 .ignoresSafeArea()
                 .onTapGesture {
-                    isPresented = false
+                    // MD3 dialogs don't dismiss on scrim tap by default
                 }
             
-            // Alert容器
-            VStack(spacing: BrandSpacing.xl) {
-                // 标题
+            // Dialog container
+            VStack(alignment: .leading, spacing: BrandSpacing.lg) {
+                // Title
                 Text(title)
-                    .font(BrandFont.display(size: 20, weight: .bold))
-                    .foregroundColor(BrandColor.neutral900)
-                    .multilineTextAlignment(.center)
+                    .font(BrandFont.headlineSmall)
+                    .foregroundColor(BrandColor.onSurface)
                 
-                // 消息
+                // Message
                 if let message = message {
                     Text(message)
-                        .font(BrandFont.body(size: 16, weight: .medium))
-                        .foregroundColor(BrandColor.neutral700)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(nil)
+                        .font(BrandFont.bodyMedium)
+                        .foregroundColor(BrandColor.onSurfaceVariant)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 
-                // 按钮内容
-                content
+                // Actions
+                HStack(spacing: BrandSpacing.sm) {
+                    Spacer()
+                    content
+                }
             }
-            .padding(BrandSpacing.xl)
-            .background(BrandColor.neutral100)
-            .neobrutalStyle(cornerRadius: BrandRadius.lg,
-                           borderWidth: BrandBorder.thick)
-            .padding(.horizontal, BrandSpacing.xl)
-            .scaleEffect(isPresented ? 1.0 : 0.8)
-            .opacity(isPresented ? 1.0 : 0.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isPresented)
-        }
-    }
-}
-
-// MARK: - Neobrutalism Sheet Header
-struct NeobrutalismSheetHeader: View {
-    var body: some View {
-        VStack(spacing: BrandSpacing.md) {
-            // 自定义拖拽指示器
-            RoundedRectangle(cornerRadius: BrandRadius.sm)
-                .fill(BrandColor.neutral900)
-                .frame(width: 50, height: 6)
-                .neobrutalStyle(cornerRadius: BrandRadius.sm,
-                               borderWidth: BrandBorder.regular)
-        }
-        .padding(.top, BrandSpacing.md)
-        .padding(.bottom, BrandSpacing.sm)
-    }
-}
-
-// MARK: - Alert Button Styles for Neobrutalism
-struct AlertButtonStyle: ButtonStyle {
-    let isDestructive: Bool
-    
-    init(isDestructive: Bool = false) {
-        self.isDestructive = isDestructive
-    }
-    
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(BrandFont.body(size: 16, weight: .bold))
-            .foregroundColor(isDestructive ? .white : BrandColor.neutral900)
-            .padding(.horizontal, BrandSpacing.lg)
-            .frame(height: BrandSize.buttonHeight - 8)
-            .frame(minWidth: 80)
+            .padding(BrandSpacing.lg)
+            .frame(minWidth: 280, maxWidth: 560)
             .background(
-                RoundedRectangle(cornerRadius: BrandRadius.sm)
-                    .fill(isDestructive ? BrandColor.danger : BrandColor.neutral100)
+                RoundedRectangle(cornerRadius: BrandRadius.extraLarge, style: .continuous)
+                    .fill(BrandColor.surface)
             )
-            .neobrutalStyle(cornerRadius: BrandRadius.sm,
-                           borderWidth: BrandBorder.regular,
-                           borderColor: isDestructive ? BrandColor.neutral900 : BrandColor.neutral900)
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .animation(.easeInOut(duration: 0.05), value: configuration.isPressed)
+            .shadow(color: Color.black.opacity(BrandElevation.level3.shadowOpacity),
+                   radius: BrandElevation.level3.shadowRadius,
+                   x: 0, y: BrandElevation.level3.shadowRadius / 2)
+            .padding(.horizontal, BrandSpacing.xl)
+            .scaleEffect(isPresented ? 1.0 : 0.9)
+            .opacity(isPresented ? 1.0 : 0.0)
+            .animation(.easeInOut(duration: 0.2), value: isPresented)
+        }
+    }
+}
+
+// MARK: - MD3 Bottom Sheet Header
+struct MD3SheetHeader: View {
+    let title: String?
+    let onDismiss: (() -> Void)?
+    
+    init(title: String? = nil, onDismiss: (() -> Void)? = nil) {
+        self.title = title
+        self.onDismiss = onDismiss
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Drag handle
+            RoundedRectangle(cornerRadius: 2)
+                .fill(BrandColor.onSurfaceVariant.opacity(0.4))
+                .frame(width: 32, height: 4)
+                .padding(.top, BrandSpacing.sm)
+                .padding(.bottom, BrandSpacing.md)
+            
+            // Title bar
+            if let title = title {
+                HStack {
+                    Text(title)
+                        .font(BrandFont.titleLarge)
+                        .foregroundColor(BrandColor.onSurface)
+                    
+                    Spacer()
+                    
+                    if let onDismiss = onDismiss {
+                        Button(action: onDismiss) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(BrandColor.onSurfaceVariant)
+                                .frame(width: 24, height: 24)
+                        }
+                    }
+                }
+                .padding(.horizontal, BrandSpacing.lg)
+                .padding(.bottom, BrandSpacing.md)
+            }
+        }
+    }
+}
+
+// MARK: - Navigation Rail Item (MD3 Style)
+struct MD3NavigationRailItem: View {
+    let icon: String
+    let label: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                ZStack {
+                    if isSelected {
+                        RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                            .fill(BrandColor.secondaryContainer)
+                            .frame(width: 56, height: 32)
+                    }
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 24, weight: .medium))
+                        .foregroundColor(isSelected ? BrandColor.onSecondaryContainer : BrandColor.onSurfaceVariant)
+                }
+                
+                Text(label)
+                    .font(BrandFont.labelMedium)
+                    .foregroundColor(isSelected ? BrandColor.onSurface : BrandColor.onSurfaceVariant)
+            }
+            .frame(width: 80, height: 80)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Button Presets (MD3 Style)
+extension Button where Label == Text {
+    static func md3Button(_ title: String, type: MD3ButtonStyle.ButtonType = .filled, action: @escaping () -> Void) -> some View {
+        Button(title, action: action)
+            .buttonStyle(MD3ButtonStyle(type: type))
+    }
+    
+    static func md3TonalButton(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(title, action: action)
+            .buttonStyle(MD3ButtonStyle(type: .tonal))
+    }
+    
+    static func md3TextButton(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(title, action: action)
+            .buttonStyle(MD3ButtonStyle(type: .text))
+    }
+}
+
+// MARK: - Backward Compatibility Aliases
+typealias CuteCard = MD3Card
+typealias CuteTextField = MD3TextField
+typealias NeobrutalismAlert = MD3Dialog
+typealias NeobrutalismSheetHeader = MD3SheetHeader
+typealias CapsuleButtonStyle = MD3ButtonStyle
+typealias GhostButtonStyle = MD3ButtonStyle
+typealias AlertButtonStyle = MD3ButtonStyle
+
+// MARK: - 彩色图标系统
+struct ColorfulIcon: View {
+    enum IconType {
+        case calendar
+        case sparkles
+        case bell
+        case plus
+        case settings
+        case list
+        case today
+        case alarm
+        case microphone
+        case keyboard
+        
+        var systemName: String {
+            switch self {
+            case .calendar: return "calendar.day.timeline.left"
+            case .sparkles: return "sparkles"
+            case .bell: return "bell.badge.fill"
+            case .plus: return "plus.circle.fill"
+            case .settings: return "gearshape.circle.fill"
+            case .list: return "list.bullet.circle.fill"
+            case .today: return "calendar.badge.clock"
+            case .alarm: return "alarm.fill"
+            case .microphone: return "mic.circle.fill"
+            case .keyboard: return "keyboard.fill"
+            }
+        }
+        
+        var colors: [Color] {
+            switch self {
+            // 主要功能 - 品牌色系（蓝色系）
+            case .calendar:
+                return [BrandColor.primary, BrandColor.primary.opacity(0.8)]
+            case .list:
+                return [BrandColor.primaryBlue, BrandColor.primaryBlue.opacity(0.8)]
+            case .sparkles:
+                return [BrandColor.primaryYellow, BrandColor.primaryYellow.opacity(0.8)]
+                
+            // 功能性图标 - 中性灰色系
+            case .settings:
+                return [BrandColor.onSurfaceVariant, BrandColor.onSurfaceVariant.opacity(0.7)]
+            case .plus:
+                return [BrandColor.onSurfaceVariant, BrandColor.onSurfaceVariant.opacity(0.7)]
+            case .today:
+                return [BrandColor.onSurfaceVariant, BrandColor.onSurfaceVariant.opacity(0.7)]
+                
+            // 提醒/通知类 - 暖色系（温和）
+            case .bell:
+                return [BrandColor.primaryYellow, BrandColor.primaryYellow.opacity(0.8)]
+            case .alarm:
+                return [BrandColor.primaryYellow, BrandColor.primaryYellow.opacity(0.8)]
+                
+            // 交互类 - 保持适当对比
+            case .microphone:
+                return [BrandColor.danger, BrandColor.danger.opacity(0.8)]
+            case .keyboard:
+                return [BrandColor.primary, BrandColor.primary.opacity(0.8)]
+            }
+        }
+    }
+    
+    let type: IconType
+    let size: CGFloat
+    let weight: Font.Weight
+    
+    init(_ type: IconType, size: CGFloat = 20, weight: Font.Weight = .bold) {
+        self.type = type
+        self.size = size
+        self.weight = weight
+    }
+    
+    var body: some View {
+        Image(systemName: type.systemName)
+            .font(.system(size: size, weight: weight))
+            .foregroundStyle(
+                LinearGradient(
+                    colors: type.colors,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+    }
+}
+
+// MARK: - 彩色按钮图标
+struct ColorfulIconButton: View {
+    let type: ColorfulIcon.IconType
+    let size: CGFloat
+    let action: () -> Void
+    
+    init(_ type: ColorfulIcon.IconType, size: CGFloat = 24, action: @escaping () -> Void) {
+        self.type = type
+        self.size = size
+        self.action = action
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            ColorfulIcon(type, size: size)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - 彩色TabBar图标
+struct ColorfulTabIcon: View {
+    let type: ColorfulIcon.IconType
+    let isSelected: Bool
+    let size: CGFloat
+    
+    init(_ type: ColorfulIcon.IconType, isSelected: Bool, size: CGFloat = 18) {
+        self.type = type
+        self.isSelected = isSelected
+        self.size = size
+    }
+    
+    var body: some View {
+        ColorfulIcon(
+            type, 
+            size: isSelected ? size + 2 : size, 
+            weight: isSelected ? .bold : .semibold
+        )
+        .opacity(isSelected ? 1.0 : 0.6) // 未选中时稍微透明
+        .scaleEffect(isSelected ? 1.05 : 1.0) // 减小缩放幅度
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
+    }
+}
+
+
+// MARK: - 事件类型标识
+struct EventTypeBadge: View {
+    let event: Event
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(isRecurringEvent ? "🔄" : "📋")
+                .font(BrandFont.body(size: 10))
+            
+            Text(isRecurringEvent ? "重复事件" : "普通事件")
+                .font(BrandFont.body(size: 10, weight: .medium))
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(
+            RoundedRectangle(cornerRadius: 4)
+                .fill(badgeColor.opacity(0.2))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .stroke(badgeColor, lineWidth: 1)
+        )
+        .foregroundColor(badgeColor)
+    }
+    
+    private var isRecurringEvent: Bool {
+        return event.recurrenceGroupId != nil
+    }
+    
+    private var badgeColor: Color {
+        return isRecurringEvent ? BrandColor.primaryYellow : BrandColor.onSurfaceVariant
     }
 }

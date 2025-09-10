@@ -110,7 +110,7 @@ struct ImageCropView: View {
                     // 操作提示
                     VStack {
                         Spacer()
-                        Text("拖拽移动，双指缩放调整图片")
+                        Text("拽一拽，捏一捏，调到最美的角度 ✨")
                             .font(BrandFont.bodySmall)
                             .foregroundColor(.white.opacity(0.8))
                             .padding(.bottom, 50)
@@ -121,14 +121,14 @@ struct ImageCropView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("取消") {
+                    Button("算了算了") {
                         dismiss()
                     }
                     .foregroundColor(.white)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") {
+                    Button("就这样！") {
                         cropImage()
                     }
                     .foregroundColor(BrandColor.primaryYellow)

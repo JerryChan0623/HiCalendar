@@ -8,13 +8,7 @@
 import Foundation
 
 enum SupabaseConfig {
-    // TODO: 请替换为你的实际Supabase项目配置
-    // 在 https://app.supabase.com/project/你的项目/settings/api 中获取
-    
-    static let projectURL = "https://你的项目ID.supabase.co"
-    static let anonKey = "你的anon_key"
-    
-    // 示例配置（请替换）：
-    // static let projectURL = "https://xyzcompany.supabase.co"
-    // static let anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    // Supabase项目配置
+    static let projectURL = "https://ngzzciukzokypzzpcbvj.supabase.co"
+    static let anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nenpjaXVrem9reXB6enBjYnZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2ODM3MDUsImV4cCI6MjA3MTI1OTcwNX0.rzq1BkPRgdwvgIaKOCzuUE6QIsmB9SljDSCOmDjCm34"
 }

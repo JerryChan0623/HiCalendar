@@ -17,14 +17,16 @@ struct SheetDateItem: Identifiable {
 struct MainCalendarAIView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @Environment(\.colorScheme) var colorScheme
     @State private var selectedDate = Calendar.current.startOfDay(for: Date())
-    @State private var sheetDate: Date? = nil  // 使用可选类型，当有值时显示sheet
+    @State private var sheetDateItem: SheetDateItem? = nil  // 使用SheetDateItem进行sheet绑定
     @State private var scrollToToday: Bool = false
     @StateObject private var backgroundManager = BackgroundImageManager.shared
+    @StateObject private var storageManager = EventStorageManager.shared
     
-    // 只读访问，不会触发重新渲染
+    // 响应式访问，会触发重新渲染
     private var allEvents: [Event] {
-        EventStorageManager.shared.events
+        storageManager.events
     }
     
     var body: some View {
@@ -41,8 +43,8 @@ struct MainCalendarAIView: View {
                     DispatchQueue.main.async {
                         // 先更新选中日期
                         selectedDate = normalizedDate
-                        // 立即设置sheet日期来触发显示
-                        sheetDate = normalizedDate
+                        // 设置sheet日期项并显示
+                        sheetDateItem = SheetDateItem(date: normalizedDate)
                     }
                 }
             )
@@ -56,13 +58,14 @@ struct MainCalendarAIView: View {
                             .aspectRatio(contentMode: .fill)
                             .ignoresSafeArea()
                             .overlay(
-                                // 半透明遮罩确保内容可读
-                                Color.white.opacity(0.7)
+                                // 半透明遮罩确保内容可读（适配暗黑模式）
+                                (colorScheme == .dark ? Color.black : Color.white)
+                                    .opacity(colorScheme == .dark ? 0.6 : 0.7)
                                     .ignoresSafeArea()
                             )
                     } else {
-                        // Neobrutalism 主背景 - 纯白色
-                        BrandColor.neutral100
+                        // 主背景（适配暗黑模式）
+                        BrandColor.background
                             .ignoresSafeArea()
                     }
                 }
@@ -72,19 +75,14 @@ struct MainCalendarAIView: View {
                     Button(action: {
                         selectedDate = Date()
                     }) {
-                        Text("今日")
-                            .font(BrandFont.body(size: 12, weight: .bold))
-                            .foregroundColor(BrandColor.neutral900)
-                            .frame(minWidth: 40)
-                            .multilineTextAlignment(.center)
+                        Text("今天 ⚡")
+                            .font(BrandFont.body(size: 14, weight: .semibold))
+                            .foregroundColor(BrandColor.onPrimary)
+                            .frame(width: 60, height: 32)
                     }
-                    .padding(.horizontal, BrandSpacing.md)
-                    .padding(.vertical, BrandSpacing.sm)
                     .background(
                         RoundedRectangle(cornerRadius: BrandRadius.sm)
-                            .fill(BrandColor.primaryYellow)
-                            .neobrutalStyle(cornerRadius: BrandRadius.sm,
-                                          borderWidth: BrandBorder.regular)
+                            .fill(BrandColor.primary)
                     )
                 }
             }
@@ -101,10 +99,7 @@ struct MainCalendarAIView: View {
                 UINavigationBar.appearance().compactAppearance = appearance
             }
         }
-        .sheet(item: Binding<SheetDateItem?>(
-            get: { sheetDate.map(SheetDateItem.init) },
-            set: { _ in sheetDate = nil }
-        )) { dateItem in
+        .sheet(item: $sheetDateItem) { dateItem in
             EventDrawerView(selectedDate: dateItem.date)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.hidden)
@@ -165,7 +160,7 @@ struct InfiniteMonthCalendarView: View {
                     proxy.scrollTo(currentMonthStart, anchor: .top)
                 }
             }
-            .onChange(of: selectedDate) { _ in
+            .onChange(of: selectedDate) {
                 let selectedMonthStart = calendar.dateInterval(of: .month, for: selectedDate)!.start
                 withAnimation(.easeInOut(duration: 0.5)) {
                     proxy.scrollTo(selectedMonthStart, anchor: .top)
@@ -177,7 +172,7 @@ struct InfiniteMonthCalendarView: View {
     private func monthHeader(for date: Date) -> some View {
         Text(yearMonthString(date))
             .font(BrandFont.display(size: 20, weight: .bold))
-            .foregroundColor(BrandColor.neutral900)
+            .foregroundColor(BrandColor.onSurface)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, BrandSpacing.sm)
     }
@@ -230,7 +225,7 @@ struct MonthCalendarGrid: View {
             ForEach(["日", "一", "二", "三", "四", "五", "六"], id: \.self) { weekday in
                 Text(weekday)
                     .font(BrandFont.body(size: 12, weight: .bold))
-                    .foregroundColor(BrandColor.neutral500)
+                    .foregroundColor(BrandColor.outline)
                     .frame(maxWidth: .infinity)
             }
         }
@@ -278,11 +273,17 @@ struct MonthCalendarGrid: View {
     
     private func eventsForDate(_ date: Date) -> [Event] {
         return events.filter { event in
+            // 现在都是独立事件，不需要过滤容器事件
             if let startAt = event.startAt {
+                // 有执行时间：按执行日期过滤
                 return calendar.isDate(startAt, inSameDayAs: date)
             } else {
-                // 理论上不应该存在没有 startAt 的事项
-                return false
+                // 无执行时间：优先使用intendedDate，如为空则回退到createdAt
+                if let intendedDate = event.intendedDate {
+                    return calendar.isDate(intendedDate, inSameDayAs: date)
+                } else {
+                    return calendar.isDate(event.createdAt, inSameDayAs: date)
+                }
             }
         }
     }
@@ -299,11 +300,11 @@ struct CompactEventCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(event.title)
                     .font(BrandFont.body(size: 14, weight: .bold))
-                    .foregroundColor(BrandColor.neutral900)
+                    .foregroundColor(BrandColor.onSurface)
                 
                 Text(event.timeRangeString)
                     .font(BrandFont.bodySmall)
-                    .foregroundColor(BrandColor.neutral500)
+                    .foregroundColor(BrandColor.outline)
             }
             
             Spacer()
@@ -326,7 +327,7 @@ struct EventDrawerView: View {
     @State private var newEventTitle: String = ""
     @FocusState private var isInputFocused: Bool
     @State private var eventToEdit: Event?
-    @State private var showEventEdit = false
+    @State private var showCreateEvent = false
     
     // 本地事件状态，完全自己管理数据
     @State private var localEvents: [Event] = []
@@ -345,37 +346,24 @@ struct EventDrawerView: View {
                 
                 // 日期标题区域 - 固定在顶部
                 VStack(alignment: .leading, spacing: BrandSpacing.lg) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(selectedDate.formatted(.dateTime.month().day().weekday(.wide)))
-                                .font(BrandFont.displayMedium)
-                                .foregroundColor(BrandColor.neutral900)
-                            Text("\(localEvents.count)个事项")
-                                .font(BrandFont.bodySmall)
-                                .foregroundColor(BrandColor.neutral500)
-                        }
-                        Spacer()
-                        
-                        // 装饰性图标
-                        Image(systemName: localEvents.isEmpty ? "calendar" : "calendar.badge.clock")
-                            .font(.title2)
-                            .foregroundColor(BrandColor.primaryBlue)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(selectedDate.formatted(.dateTime.month().day().weekday(.wide)))
+                            .font(BrandFont.displayMedium)
+                            .foregroundColor(BrandColor.onSurface)
+                        Text("\(localEvents.count)件事儿等着你")
+                            .font(BrandFont.bodySmall)
+                            .foregroundColor(BrandColor.outline)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(BrandSpacing.lg)
                 
                 // 主内容区域
                 if localEvents.isEmpty {
-                    // 空状态：中间显示空状态图标
+                    // 空状态：使用可爱动画
                     VStack {
                         Spacer()
-                        VStack(spacing: BrandSpacing.md) {
-                            Text("📅")
-                                .font(.system(size: 48))
-                            Text("这天还没有安排")
-                                .font(BrandFont.body(size: 16, weight: .medium))
-                                .foregroundColor(BrandColor.neutral500)
-                        }
+                        CuteEmptyCalendarView()
                         Spacer()
                     }
                 } else {
@@ -392,12 +380,10 @@ struct EventDrawerView: View {
                                     },
                                     onEdit: {
                                         eventToEdit = event
-                                        showEventEdit = true
                                     }
                                 )
                                 .onTapGesture {
                                     eventToEdit = event
-                                    showEventEdit = true
                                 }
                             }
                         }
@@ -410,7 +396,7 @@ struct EventDrawerView: View {
                 // 输入框区域
                 VStack(spacing: BrandSpacing.sm) {
                     Divider()
-                        .background(BrandColor.neutral300)
+                        .background(BrandColor.outlineVariant)
                     
                     HStack(spacing: BrandSpacing.sm) {
                         TextField("快速添加事项...", text: $newEventTitle)
@@ -418,7 +404,7 @@ struct EventDrawerView: View {
                             .padding(.vertical, 10)
                             .background(
                                 RoundedRectangle(cornerRadius: BrandRadius.sm)
-                                    .fill(BrandColor.neutral100)
+                                    .fill(BrandColor.surface)
                                     .neobrutalStyle(cornerRadius: BrandRadius.sm,
                                                    borderWidth: BrandBorder.regular)
                             )
@@ -426,66 +412,68 @@ struct EventDrawerView: View {
                             .onSubmit {
                                 createNewEvent()
                             }
-                        
-                        HStack(spacing: BrandSpacing.sm) {
-                            // 快速添加按钮
-                            Button(action: createNewEvent) {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.title2)
-                                    .foregroundColor(BrandColor.primaryYellow)
-                            }
-                            .disabled(newEventTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                            
-                            // 详细编辑按钮
-                            Button(action: {
-                                eventToEdit = nil  // 创建新事项
-                                showEventEdit = true
-                            }) {
-                                Image(systemName: "calendar.badge.plus")
-                                    .font(.title2)
+                            .toolbar {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    Spacer()
+                                    Button("收起") {
+                                        isInputFocused = false
+                                    }
                                     .foregroundColor(BrandColor.primaryBlue)
+                                }
                             }
-                        }
+                        
+                        // 快速添加按钮
+                        ColorfulIconButton(.plus, size: 24, action: createNewEvent)
+                        .disabled(newEventTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                     .padding(.horizontal, BrandSpacing.lg)
-                    .padding(.bottom, BrandSpacing.sm)
+                    .padding(.bottom, isInputFocused ? BrandSpacing.xl : BrandSpacing.sm)
+                    .animation(.easeInOut(duration: 0.25), value: isInputFocused)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
-                Color.white
+                BrandColor.background
                     .ignoresSafeArea(.container, edges: .bottom)
             )
-            .navigationTitle("日程安排")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarHidden(true)
             .onAppear {
                 // 视图出现时立即刷新数据
                 refreshEvents()
             }
-            .sheet(isPresented: $showEventEdit) {
+            .sheet(item: $eventToEdit) { event in
                 VStack(spacing: 0) {
                     // 自定义Sheet Header
                     NeobrutalismSheetHeader()
                     
-                    if let event = eventToEdit {
-                        EventEditView(
-                            mode: .edit(event),
-                            initialDate: selectedDate
-                        )
-                    } else {
-                        EventEditView(
-                            mode: .create,
-                            initialDate: selectedDate
-                        )
-                    }
+                    EventEditView(
+                        mode: .edit(event),
+                        initialDate: selectedDate,
+                        onSave: {
+                            // 编辑完成后关闭编辑sheet，清空eventToEdit，刷新数据
+                            eventToEdit = nil
+                            refreshEvents()
+                        }
+                    )
                 }
                 .presentationDragIndicator(.hidden)
             }
-            .onChange(of: showEventEdit) { isPresented in
-                // 当 sheet 关闭时刷新数据
-                if !isPresented {
-                    refreshEvents()
+            .sheet(isPresented: $showCreateEvent) {
+                VStack(spacing: 0) {
+                    // 自定义Sheet Header
+                    NeobrutalismSheetHeader()
+                    
+                    EventEditView(
+                        mode: .create,
+                        initialDate: selectedDate,
+                        onSave: {
+                            // 创建完成后关闭创建sheet，刷新数据
+                            showCreateEvent = false
+                            refreshEvents()
+                        }
+                    )
                 }
+                .presentationDragIndicator(.hidden)
             }
         }
     }
@@ -537,98 +525,121 @@ struct EventDetailCard: View {
     let event: Event
     let onDelete: () -> Void
     let onEdit: () -> Void
+    var showTimePrompt: Bool = false  // 是否显示时间提示（如"就是今天！"）
     
     var body: some View {
-        VStack(spacing: BrandSpacing.md) {
-            HStack(spacing: BrandSpacing.md) {
-                // 时间指示器
-                VStack {
-                    Circle()
-                        .fill(eventColor)
-                        .frame(width: 12, height: 12)
-                    Rectangle()
-                        .fill(eventColor.opacity(0.3))
-                        .frame(width: 2, height: 40)
+        VStack(alignment: .leading, spacing: BrandSpacing.sm) {
+            // 时间提示（如"就是今天！"）- 显示在卡片左上方
+            if showTimePrompt, let prompt = timePrompt {
+                HStack {
+                    if prompt.isUrgent {
+                        Text(prompt.text)
+                            .font(BrandFont.body(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, BrandSpacing.xs)
+                            .padding(.vertical, 2)
+                            .background(prompt.color)
+                            .cornerRadius(BrandRadius.sm)
+                    } else {
+                        Text(prompt.text)
+                            .font(BrandFont.body(size: 12, weight: .medium))
+                            .foregroundColor(prompt.color)
+                    }
+                    
+                    Spacer()
                 }
+            }
+            
+            // 标题行：标题 + 时间 + 闹铃图标
+            HStack {
+                Text(event.title)
+                    .font(BrandFont.body(size: 16, weight: .bold))
+                    .foregroundColor(BrandColor.onSurface)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 
-                // 事项内容
-                VStack(alignment: .leading, spacing: BrandSpacing.sm) {
-                    // 标题和编辑按钮
-                    HStack {
-                        Text(event.title)
-                            .font(BrandFont.body(size: 16, weight: .bold))
-                            .foregroundColor(BrandColor.neutral900)
-                        Spacer()
-                        
-                        // 编辑按钮（放大）
-                        Button(action: onEdit) {
-                            Image(systemName: "pencil.circle.fill")
-                                .font(.title)
-                                .foregroundColor(BrandColor.primaryBlue)
-                        }
+                HStack(spacing: BrandSpacing.xs) {
+                    // 闹铃图标（有短期提醒时显示）
+                    if hasShortTermReminder {
+                        ColorfulIcon(.bell, size: 13)
                     }
                     
-                    // 时间信息
-                    HStack(spacing: 8) {
-                        Image(systemName: "clock")
-                            .font(.caption)
-                            .foregroundColor(eventColor)
-                        Text(timeDisplayString)
+                    // 时间信息（右对齐）
+                    if let timeString = timeDisplayString, !timeString.isEmpty {
+                        Text(timeString)
                             .font(BrandFont.body(size: 14, weight: .medium))
-                            .foregroundColor(event.startAt != nil ? BrandColor.neutral700 : BrandColor.neutral500)
-                    }
-                    
-                    // 详情信息
-                    HStack(alignment: .top, spacing: 8) {
-                        Image(systemName: "text.alignleft")
-                            .font(.caption)
-                            .foregroundColor(eventColor)
-                        Text(detailsDisplayString)
-                            .font(BrandFont.body(size: 14, weight: .medium))
-                            .foregroundColor(event.details != nil ? BrandColor.neutral700 : BrandColor.neutral500)
-                            .multilineTextAlignment(.leading)
+                            .foregroundColor(BrandColor.onSurface.opacity(0.7))
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            
+            // 详情信息
+            if let details = event.details, !details.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text(details)
+                    .font(BrandFont.body(size: 14, weight: .regular))
+                    .foregroundColor(BrandColor.onSurface.opacity(0.6))
+                    .multilineTextAlignment(.leading)
             }
         }
         .padding(BrandSpacing.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
-                .fill(BrandColor.neutral100)
+                .fill(BrandColor.surface)
                 .neobrutalStyle(cornerRadius: BrandRadius.lg,
                                borderWidth: BrandBorder.regular)
         )
     }
     
-    private var timeDisplayString: String {
-        if let startAt = event.startAt, let endAt = event.endAt {
+    private var timeDisplayString: String? {
+        // 只显示执行时间点（startAt），不显示时间段
+        if let startAt = event.startAt {
             let formatter = DateFormatter()
             formatter.timeStyle = .short
-            return "\(formatter.string(from: startAt)) - \(formatter.string(from: endAt))"
+            return formatter.string(from: startAt)
         } else {
-            return "未设置时间"
+            return nil  // 没有设置时间时不显示时间信息
         }
     }
     
-    private var detailsDisplayString: String {
-        return event.details?.isEmpty == false ? event.details! : "暂无详情说明"
+    // 判断是否有短期提醒（非1天前/1周前的提醒）
+    private var hasShortTermReminder: Bool {
+        let shortTermReminders: [PushReminderOption] = [.atTime, .minutes15, .minutes30, .hours1, .hours2]
+        return event.pushReminders.contains { shortTermReminders.contains($0) }
     }
     
-    private var eventColor: Color {
-        // 根据事项标题首字母分配颜色
-        let firstChar = event.title.first?.lowercased() ?? "a"
-        switch firstChar {
-        case "工", "w", "m": // 工作/会议
-            return BrandColor.secondaryRed  // 警示红
-        case "生", "l": // 生活
-            return BrandColor.primaryBlue   // 电光蓝
-        case "运", "s": // 运动
-            return BrandColor.secondaryGreen // 霓虹绿
+    // 时间提示计算
+    private var timePrompt: (text: String, color: Color, isUrgent: Bool)? {
+        guard showTimePrompt, let startAt = event.startAt else { return nil }
+        
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let targetDate = calendar.startOfDay(for: startAt)
+        let components = calendar.dateComponents([.day], from: today, to: targetDate)
+        let days = components.day ?? 0
+        
+        switch days {
+        case ..<0:
+            return ("过期啦 💀", BrandColor.neutral500, false)
+        case 0:
+            return ("就是今天！", BrandColor.danger, true)
+        case 1:
+            return ("明儿见", BrandColor.warning, true)
+        case 2:
+            return ("后天啦", BrandColor.warning, true)
+        case 3...7:
+            return ("\(days) 天后", BrandColor.primaryYellow, false)
+        case 8...30:
+            return ("\(days) 天后", BrandColor.primaryBlue, false)
         default:
-            return BrandColor.primaryYellow  // 鲜艳黄
+            let weeks = days / 7
+            if weeks < 4 {
+                return ("\(weeks) 周后", BrandColor.primaryBlue, false)
+            } else {
+                return ("遥遥无期 🌙", BrandColor.neutral700, false)
+            }
         }
     }
+    
     
 
 }

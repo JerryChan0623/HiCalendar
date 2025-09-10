@@ -26,8 +26,8 @@ class BackgroundImageManager: ObservableObject {
     // 保存图片到UserDefaults
     func saveBackgroundImage(_ image: UIImage) {
         DispatchQueue.global(qos: .userInitiated).async {
-            // 压缩图片以节省存储空间
-            if let imageData = image.jpegData(compressionQuality: 0.8) {
+            // 保持高质量，避免压缩缩略图
+            if let imageData = image.jpegData(compressionQuality: 1.0) {
                 DispatchQueue.main.async {
                     self.userDefaults.set(imageData, forKey: self.backgroundImageKey)
                     self.userDefaults.set(true, forKey: self.hasCustomBackgroundKey)

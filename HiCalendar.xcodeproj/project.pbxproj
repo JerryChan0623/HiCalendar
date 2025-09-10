@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C44802992E5DECCF001198CD /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C44802982E5DECCF001198CD /* Supabase */; };
+		C486A5F82E55D5E400E034A4 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C486A5F72E55D5E400E034A4 /* Auth */; };
+		C486A5FA2E55D5E400E034A4 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = C486A5F92E55D5E400E034A4 /* Functions */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		C4661A8A2E45ABC5006E02C6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +58,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C486A5FA2E55D5E400E034A4 /* Functions in Frameworks */,
+				C486A5F82E55D5E400E034A4 /* Auth in Frameworks */,
+				C44802992E5DECCF001198CD /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +81,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C44802972E5DECCF001198CD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		C4661A712E45ABC2006E02C6 = {
 			isa = PBXGroup;
 			children = (
 				C4661A7C2E45ABC2006E02C6 /* HiCalendar */,
 				C4661A8C2E45ABC5006E02C6 /* HiCalendarTests */,
 				C4661A962E45ABC5006E02C6 /* HiCalendarUITests */,
+				C44802972E5DECCF001198CD /* Frameworks */,
 				C4661A7B2E45ABC2006E02C6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +129,9 @@
 			);
 			name = HiCalendar;
 			packageProductDependencies = (
+				C486A5F72E55D5E400E034A4 /* Auth */,
+				C486A5F92E55D5E400E034A4 /* Functions */,
+				C44802982E5DECCF001198CD /* Supabase */,
 			);
 			productName = HiCalendar;
 			productReference = C4661A7A2E45ABC2006E02C6 /* HiCalendar.app */;
@@ -195,6 +215,9 @@
 			);
 			mainGroup = C4661A712E45ABC2006E02C6;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C486A5F62E55D5E400E034A4 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C4661A7B2E45ABC2006E02C6 /* Products */;
 			projectDirPath = "";
@@ -395,22 +418,26 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HiCalendar/HiCalendar.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G8Q7A2K656;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "HiCalendar需要访问麦克风以实现语音输入创建事项功能";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "：HiCalendar需要使用语音识别功能将您的语音转换为文字，以便快速创建和查询日程安排";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.HiCalendar;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chenzhencong.HiCalendar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -423,22 +450,26 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HiCalendar/HiCalendar.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G8Q7A2K656;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "HiCalendar需要访问麦克风以实现语音输入创建事项功能";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "：HiCalendar需要使用语音识别功能将您的语音转换为文字，以便快速创建和查询日程安排";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.HiCalendar;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chenzhencong.HiCalendar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -558,6 +589,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C486A5F62E55D5E400E034A4 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C44802982E5DECCF001198CD /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C486A5F62E55D5E400E034A4 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		C486A5F72E55D5E400E034A4 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C486A5F62E55D5E400E034A4 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		C486A5F92E55D5E400E034A4 /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C486A5F62E55D5E400E034A4 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C4661A722E45ABC2006E02C6 /* Project object */;
 }

@@ -46,7 +46,7 @@ struct HomeView: View {
     // MARK: - AI 输入区域
     private var aiInputSection: some View {
         VStack(spacing: BrandSpacing.lg) {
-            Text("一句话操作日历")
+            Text("说点啥，我帮你记下来 💬")
                 .font(BrandFont.headlineSmall)
                 .foregroundColor(BrandColor.neutral700)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -85,9 +85,10 @@ struct HomeView: View {
             }
             
             // 提交按钮
-            Button.neoButton("发送给 AI") {
+            Button("发送给 AI") {
                 submitToAI()
             }
+            .buttonStyle(MD3ButtonStyle(type: .filled, isFullWidth: true))
             .disabled(aiInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .opacity(aiInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.5 : 1.0)
         }
@@ -97,7 +98,7 @@ struct HomeView: View {
     private var recentEventsSection: some View {
         VStack(spacing: BrandSpacing.lg) {
             HStack {
-                Text("最近事件")
+                Text("最近要忙的事儿")
                     .font(BrandFont.headlineSmall)
                     .foregroundColor(BrandColor.neutral700)
                 Spacer()
@@ -122,7 +123,7 @@ struct HomeView: View {
     // MARK: - Actions
     private func submitToAI() {
         // TODO: 处理 AI 输入
-        print("AI 输入：\(aiInput)")
+        // AI 输入处理
         
         // 模拟 AI 响应
         withAnimation {
@@ -136,7 +137,7 @@ struct EventCard: View {
     let event: Event
     
     var body: some View {
-        CuteCard(backgroundColor: backgroundColorForEvent) {
+        MD3Card(type: .elevated) {
             VStack(alignment: .leading, spacing: BrandSpacing.md) {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
