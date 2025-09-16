@@ -80,6 +80,15 @@ class PushNotificationManager: ObservableObject {
     
     /// 上传Device Token到Supabase
     func uploadDeviceToken(_ token: String) async {
+        // 检查推送通知权限（会员功能）
+        let canUsePush = await MainActor.run {
+            PurchaseManager.shared.canUsePushNotifications
+        }
+        guard canUsePush else {
+            print("💰 推送通知功能需要Pro版本，跳过Device Token上传")
+            return
+        }
+
         guard SupabaseManager.shared.isAuthenticated,
               let userId = SupabaseManager.shared.currentUser?.id else {
             print("❌ 用户未登录，无法上传Device Token")

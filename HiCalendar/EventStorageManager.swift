@@ -8,6 +8,7 @@
 import Foundation
 import Supabase
 import UserNotifications
+import WidgetKit
 
 class EventStorageManager: ObservableObject {
     static let shared = EventStorageManager()
@@ -15,6 +16,10 @@ class EventStorageManager: ObservableObject {
     private let userDefaults = UserDefaults.standard
     private let eventsKey = "SavedEvents"
     private let supabase = SupabaseManager.shared.client
+    
+    // MARK: - App Groups Support for Widget
+    private let appGroupsDefaults = UserDefaults(suiteName: "group.com.chenzhencong.HiCalendar")
+    private let sharedEventsKey = "shared_events"
     
     @Published var events: [Event] = []
     
@@ -29,11 +34,16 @@ class EventStorageManager: ObservableObject {
         if let data = userDefaults.data(forKey: eventsKey),
            let decodedEvents = try? JSONDecoder().decode([Event].self, from: data) {
             self.events = decodedEvents
+            print("📅 从UserDefaults加载了 \(events.count) 个事项")
+            
+            // 每次加载时都同步到Widget（确保数据一致性）
+            saveEventsForWidget()
         } else {
             // 如果没有本地数据，使用示例数据（标记为已同步，避免上传到云端）
             var samples = Event.sampleEvents
             for i in samples.indices { samples[i].isSynced = true }
             self.events = samples
+            print("📅 未找到已保存的事项，初始化样本数据: \(events.count) 个")
             saveEvents()
         }
     }
@@ -42,6 +52,55 @@ class EventStorageManager: ObservableObject {
     private func saveEvents() {
         if let data = try? JSONEncoder().encode(events) {
             userDefaults.set(data, forKey: eventsKey)
+            
+            // 同时保存到App Groups以供Widget访问
+            saveEventsForWidget()
+        }
+    }
+    
+    /// 保存事件数据到App Groups，供Widget使用
+    private func saveEventsForWidget() {
+        // 检查是否已购买Widget功能
+        // 使用异步方式避免死锁
+        Task { @MainActor in
+            let canUseWidget = PurchaseManager.shared.canUseWidget
+            guard canUseWidget else {
+                print("💰 Widget功能需要Pro版本，跳过数据同步")
+                // 清空App Groups中的数据，防止非付费用户使用Widget
+                if let appGroupsDefaults = self.appGroupsDefaults {
+                    appGroupsDefaults.removeObject(forKey: self.sharedEventsKey)
+                }
+                return
+            }
+
+            // 执行实际的Widget数据保存
+            self.performWidgetDataSave()
+        }
+    }
+
+    /// 执行Widget数据保存的实际逻辑
+    private func performWidgetDataSave() {
+
+        guard let appGroupsDefaults = appGroupsDefaults else {
+            print("❌ 无法访问App Groups UserDefaults")
+            return
+        }
+        
+        // 为Widget准备精简的事件数据（减少不必要的信息）
+        let widgetEvents = events.map { event in
+            return event // Widget需要完整的Event模型来进行日期筛选
+        }
+        
+        do {
+            let data = try JSONEncoder().encode(widgetEvents)
+            appGroupsDefaults.set(data, forKey: sharedEventsKey)
+            
+            // 触发Widget刷新
+            WidgetCenter.shared.reloadAllTimelines()
+            
+            print("✅ 已保存 \(widgetEvents.count) 个事件到App Groups")
+        } catch {
+            print("❌ 保存Widget数据失败: \(error)")
         }
     }
     
@@ -76,9 +135,24 @@ class EventStorageManager: ObservableObject {
     func deleteEvent(_ event: Event) {
         // 取消本地通知
         cancelLocalNotifications(for: event)
-        
+
         events.removeAll { $0.id == event.id }
         saveEvents()
+
+        // 如果用户是会员且事件已同步，则从云端删除
+        Task {
+            let canSync = await MainActor.run {
+                PurchaseManager.shared.canSyncToCloud
+            }
+            if canSync && event.isSynced {
+                let success = await SupabaseManager.shared.deleteCloudEvent(eventId: event.id)
+                if success {
+                    print("✅ 已从云端删除事件: \(event.title)")
+                } else {
+                    print("⚠️ 云端删除失败，事件仅在本地删除: \(event.title)")
+                }
+            }
+        }
     }
     
     /// 删除重复事件组
@@ -183,35 +257,66 @@ class EventStorageManager: ObservableObject {
     
     /// 删除事项（通过ID）
     func deleteEvent(withId id: UUID) {
+        // 找到要删除的事件用于云端同步
+        let eventToDelete = events.first { $0.id == id }
+
         events.removeAll { $0.id == id }
         saveEvents()
+
+        // 如果找到事件且用户是会员且事件已同步，则从云端删除
+        if let event = eventToDelete {
+            Task {
+                let canSync = await MainActor.run {
+                    PurchaseManager.shared.canSyncToCloud
+                }
+                if canSync && event.isSynced {
+                    let success = await SupabaseManager.shared.deleteCloudEvent(eventId: event.id)
+                    if success {
+                        print("✅ 已从云端删除事件: \(event.title)")
+                    } else {
+                        print("⚠️ 云端删除失败，事件仅在本地删除: \(event.title)")
+                    }
+                }
+            }
+        }
     }
     
     /// 更新事项（支持重复事件组同步修改）
     func updateEvent(_ updatedEvent: Event) {
         if let index = events.firstIndex(where: { $0.id == updatedEvent.id }) {
+            let oldEvent = events[index]
+
             // 保持同步状态不变（已同步的事项更新后仍需重新同步）
             var eventToUpdate = updatedEvent
             eventToUpdate.isSynced = false  // 更新后需要重新同步
-            
+
             events[index] = eventToUpdate
-            
+
             // 如果是重复事件，同步修改该组中的所有其他事件
             if let groupId = updatedEvent.recurrenceGroupId {
                 updateRecurrenceGroup(groupId: groupId, updatedEvent: eventToUpdate)
             }
-            
+
             saveEvents()
-            
-            // 同步到Supabase
-            Task {
-                await syncEventToSupabase(eventToUpdate)
-                
-                // 如果是重复事件组，同步所有组内事件
-                if let groupId = updatedEvent.recurrenceGroupId {
-                    let groupEvents = events.filter { $0.recurrenceGroupId == groupId && $0.id != updatedEvent.id }
-                    for groupEvent in groupEvents {
-                        await syncEventToSupabase(groupEvent)
+
+            // 如果用户是会员且原事件已同步，则立即同步到云端
+            Task { [eventToUpdate] in
+                let canSync = await MainActor.run {
+                    PurchaseManager.shared.canSyncToCloud
+                }
+                if canSync && oldEvent.isSynced {
+                    let success = await SupabaseManager.shared.updateCloudEvent(eventToUpdate)
+                    if success {
+                        // 标记为已同步
+                        await MainActor.run {
+                            if let idx = self.events.firstIndex(where: { $0.id == eventToUpdate.id }) {
+                                self.events[idx].isSynced = true
+                                self.saveEvents()
+                            }
+                        }
+                        print("✅ 已同步更新到云端: \(eventToUpdate.title)")
+                    } else {
+                        print("⚠️ 云端更新失败，事件仅在本地更新: \(eventToUpdate.title)")
                     }
                 }
             }
@@ -296,6 +401,111 @@ class EventStorageManager: ObservableObject {
         }
     }
     
+    /// 更新重复事件组（批量更新）
+    func updateRecurrenceGroupEvent(_ updatedEvent: Event) {
+        guard let groupId = updatedEvent.recurrenceGroupId else {
+            print("❌ 事件不属于重复组，使用普通更新")
+            updateEvent(updatedEvent)  // 调用完整版本的updateEvent方法，保留所有字段
+            return
+        }
+        
+        // 更新当前事件
+        if let index = events.firstIndex(where: { $0.id == updatedEvent.id }) {
+            var eventToUpdate = updatedEvent
+            eventToUpdate.isSynced = false  // 更新后需要重新同步
+            events[index] = eventToUpdate
+        }
+        
+        // 批量更新同组的其他事件（只更新可共享的属性）
+        for i in events.indices {
+            if let eventGroupId = events[i].recurrenceGroupId,
+               eventGroupId == groupId,
+               events[i].id != updatedEvent.id {
+                
+                // 保持原有的日期时间信息不变
+                let originalStartAt = events[i].startAt
+                
+                // 只更新共享属性：标题、详情、推送设置、重复规则
+                events[i].title = updatedEvent.title
+                events[i].details = updatedEvent.details
+                events[i].pushReminders = updatedEvent.pushReminders
+                events[i].recurrenceType = updatedEvent.recurrenceType
+                events[i].recurrenceCount = updatedEvent.recurrenceCount
+                events[i].recurrenceEndDate = updatedEvent.recurrenceEndDate
+                events[i].isSynced = false  // 需要重新同步
+                
+                // 如果原始事件没有时间，但现在设置了时间模式，需要重新计算
+                if updatedEvent.startAt != nil && originalStartAt != nil {
+                    // 有时间事件：保持相对时间间隔
+                    let timeDifference = updatedEvent.endAt?.timeIntervalSince(updatedEvent.startAt!) ?? 3600
+                    events[i].endAt = originalStartAt?.addingTimeInterval(timeDifference)
+                } else if updatedEvent.startAt == nil && originalStartAt != nil {
+                    // 从有时间变无时间：清除时间，保持原始日期
+                    events[i].startAt = nil
+                    events[i].endAt = nil
+                    // intendedDate保持不变
+                }
+                
+                print("🔄 同步更新组内事件：\(events[i].title) - \(events[i].startAt?.formatted(.dateTime.month().day()) ?? "无时间")")
+            }
+        }
+        
+        saveEvents()
+        
+        // 同步到Supabase
+        Task {
+            await syncEventToSupabase(updatedEvent)
+            
+            // 同步组内所有其他事件
+            let groupEvents = events.filter { $0.recurrenceGroupId == groupId && $0.id != updatedEvent.id }
+            for groupEvent in groupEvents {
+                await syncEventToSupabase(groupEvent)
+            }
+        }
+        
+        print("✅ 批量更新完成，共更新\(events.filter { $0.recurrenceGroupId == groupId }.count)个重复事件")
+    }
+    
+    /// 手动强制同步Widget数据（调试用）
+    func forceWidgetSync() {
+        // 检查是否已购买Widget功能
+        Task { @MainActor in
+            let canUseWidget = PurchaseManager.shared.canUseWidget
+            guard canUseWidget else {
+                print("💰 Widget功能需要Pro版本，无法强制同步")
+                return
+            }
+
+            // 执行同步
+            await self.performForceWidgetSync()
+        }
+    }
+
+    /// 执行强制Widget同步的实际逻辑
+    private func performForceWidgetSync() async {
+        // 直接调用Widget数据保存
+        performWidgetDataSave()
+
+        // 立即刷新所有Widget
+        WidgetCenter.shared.reloadAllTimelines()
+
+        // 输出调试信息
+        print("🔄 强制同步Widget数据完成")
+        print("📊 当前事件数量: \(events.count)")
+
+        if let appGroupsDefaults = appGroupsDefaults,
+           let data = appGroupsDefaults.data(forKey: sharedEventsKey) {
+            do {
+                let savedEvents = try JSONDecoder().decode([Event].self, from: data)
+                print("✅ App Groups中确认有 \(savedEvents.count) 个事件")
+            } catch {
+                print("❌ App Groups数据解码失败: \(error)")
+            }
+        } else {
+            print("❌ App Groups中没有数据")
+        }
+    }
+    
     /// 清空所有数据（用于测试）
     func clearAllEvents() {
         events.removeAll()
@@ -306,12 +516,27 @@ class EventStorageManager: ObservableObject {
     
     /// 同步事项到Supabase数据库
     private func syncEventToSupabase(_ event: Event) async {
+        // 检查是否为onboarding事项（不同步到云端）
+        if event.isOnboarding {
+            print("📚 Onboarding事项不同步到云端，跳过：\(event.title)")
+            return
+        }
+
         // 检查是否已经同步过，如果已同步则跳过
         if event.isSynced {
             print("⏭️ 事项已同步，跳过：\(event.title)")
             return
         }
-        
+
+        // 检查云同步权限（会员功能）
+        let canSync = await MainActor.run {
+            PurchaseManager.shared.canSyncToCloud
+        }
+        guard canSync else {
+            print("💰 云同步功能需要Pro版本，跳过同步: \(event.title)")
+            return
+        }
+
         guard SupabaseManager.shared.isAuthenticated,
               let userId = SupabaseManager.shared.currentUser?.id else {
             print("❌ 用户未登录，跳过同步到Supabase")
@@ -471,6 +696,10 @@ class EventStorageManager: ObservableObject {
                 pushReminders: old.pushReminders,
                 createdAt: old.createdAt,
                 intendedDate: old.intendedDate,
+                recurrenceGroupId: old.recurrenceGroupId,
+                originalRecurrenceType: old.originalRecurrenceType,
+                recurrenceCount: old.recurrenceCount,
+                recurrenceEndDate: old.recurrenceEndDate,
                 isSynced: true
             )
             newEvent.pushStatus = old.pushStatus
@@ -484,7 +713,8 @@ class EventStorageManager: ObservableObject {
     
     /// 为事件调度本地通知（仅支持短期提醒）
     private func scheduleLocalNotifications(for event: Event) {
-        // 现在所有事件都可以调度通知
+        // 本地通知允许所有用户使用（基础功能）
+        // 仅云端推送功能需要会员权限
         
         // 获取事件的参考时间
         let referenceDate: Date

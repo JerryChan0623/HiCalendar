@@ -28,7 +28,7 @@ struct EventEditView: View {
     
     // 周期性重复设置
     @State private var recurrenceType: RecurrenceType = .none
-    @State private var recurrenceCount: Int? = nil
+    @State private var recurrenceCount: Int? = 7  // 默认重复7次（一周）
     @State private var recurrenceStartDate: Date = Date()  // 重复开始日期
     @State private var recurrenceEndDate: Date? = nil  // 重复结束日期，默认为nil表示不设置
     
@@ -98,7 +98,7 @@ struct EventEditView: View {
             self._hasTime = State(initialValue: event.startAt != nil)
             self._pushReminders = State(initialValue: event.pushReminders)
             self._recurrenceType = State(initialValue: event.recurrenceType)
-            self._recurrenceCount = State(initialValue: event.recurrenceCount)
+            self._recurrenceCount = State(initialValue: event.recurrenceCount ?? 7)
             self._recurrenceEndDate = State(initialValue: event.recurrenceEndDate)
             
             // 编辑模式：优先使用事项自身的日期信息
@@ -153,6 +153,8 @@ struct EventEditView: View {
             .background(BrandColor.background.ignoresSafeArea())
             .navigationTitle(editMode.navigationTitle)
             .navigationBarTitleDisplayMode(.large)
+            .toolbarBackground(BrandColor.background, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 // 左边：删除按钮（仅编辑模式）
                 if case .edit = editMode {
@@ -246,8 +248,7 @@ struct EventEditView: View {
     
     // MARK: - 标题输入区域
     private var titleSection: some View {
-        MD3Card(type: .elevated) {
-            VStack(alignment: .leading, spacing: BrandSpacing.md) {
+        VStack(alignment: .leading, spacing: BrandSpacing.md) {
                 HStack {
                     Text("这事儿叫啥？")
                         .font(BrandFont.body(size: 16, weight: .bold))
@@ -281,13 +282,14 @@ struct EventEditView: View {
                         }
                     }
             }
-        }
+        .padding(BrandSpacing.lg)
+        .background(BrandColor.surfaceVariant.opacity(0.3))
+        .neobrutalStyle(cornerRadius: BrandRadius.md, borderWidth: BrandBorder.regular)
     }
     
     // MARK: - 日期设置区域
     private var dateSection: some View {
-        MD3Card(type: .elevated) {
-            VStack(alignment: .leading, spacing: BrandSpacing.md) {
+        VStack(alignment: .leading, spacing: BrandSpacing.md) {
                 // 可点击的日期显示区域
                 Button(action: {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
@@ -325,13 +327,14 @@ struct EventEditView: View {
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
-        }
+        .padding(BrandSpacing.lg)
+        .background(BrandColor.surfaceVariant.opacity(0.3))
+        .neobrutalStyle(cornerRadius: BrandRadius.md, borderWidth: BrandBorder.regular)
     }
     
     // MARK: - 时间设置区域
     private var timeSection: some View {
-        MD3Card(type: .elevated) {
-            VStack(alignment: .leading, spacing: BrandSpacing.md) {
+        VStack(alignment: .leading, spacing: BrandSpacing.md) {
                 // 时间设置头部区域
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
@@ -392,13 +395,14 @@ struct EventEditView: View {
                     }
                 }
             }
-        }
+        .padding(BrandSpacing.lg)
+        .background(BrandColor.surfaceVariant.opacity(0.3))
+        .neobrutalStyle(cornerRadius: BrandRadius.md, borderWidth: BrandBorder.regular)
     }
     
     // MARK: - 详情输入区域
     private var detailsSection: some View {
-        MD3Card(type: .elevated) {
-            VStack(alignment: .leading, spacing: BrandSpacing.md) {
+        VStack(alignment: .leading, spacing: BrandSpacing.md) {
                 Text("还有啥要补充的？")
                     .font(BrandFont.body(size: 16, weight: .bold))
                     .foregroundColor(BrandColor.onSurface)
@@ -416,14 +420,14 @@ struct EventEditView: View {
                         Text("在哪儿？带啥？穿啥？都可以写这儿～")
                             .font(BrandFont.body(size: 16, weight: .regular))
                             .foregroundColor(BrandColor.outline)
-                            .padding(.horizontal, BrandSpacing.lg)
+                            .padding(.horizontal, BrandSpacing.md)
                             .padding(.vertical, BrandSpacing.md)
                     }
                     
                     // 文本编辑器
                     TextEditor(text: $details)
                         .font(BrandFont.body(size: 16, weight: .medium))
-                        .padding(.horizontal, BrandSpacing.md)
+                        .padding(.horizontal, BrandSpacing.sm)
                         .padding(.vertical, BrandSpacing.sm)
                         .background(Color.clear)
                         .scrollContentBackground(.hidden)
@@ -432,13 +436,14 @@ struct EventEditView: View {
                         }
                 }
             }
-        }
+        .padding(BrandSpacing.lg)
+        .background(BrandColor.surfaceVariant.opacity(0.3))
+        .neobrutalStyle(cornerRadius: BrandRadius.md, borderWidth: BrandBorder.regular)
     }
     
     // MARK: - 推送提醒设置区域
     private var pushReminderSection: some View {
-        MD3Card(type: .elevated) {
-            VStack(alignment: .leading, spacing: BrandSpacing.md) {
+        VStack(alignment: .leading, spacing: BrandSpacing.md) {
                 // 推送提醒头部
                 Button(action: {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
@@ -482,7 +487,9 @@ struct EventEditView: View {
                     .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
-        }
+        .padding(BrandSpacing.lg)
+        .background(BrandColor.surfaceVariant.opacity(0.3))
+        .neobrutalStyle(cornerRadius: BrandRadius.md, borderWidth: BrandBorder.regular)
     }
     
     // 单个推送选项行
@@ -541,8 +548,7 @@ struct EventEditView: View {
     
     // MARK: - 周期性重复设置区域
     private var recurrenceSection: some View {
-        MD3Card(type: .elevated) {
-            VStack(alignment: .leading, spacing: BrandSpacing.md) {
+        VStack(alignment: .leading, spacing: BrandSpacing.md) {
                 // 周期性重复头部
                 Button(action: {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
@@ -581,14 +587,35 @@ struct EventEditView: View {
                             Divider()
                                 .background(BrandColor.outlineVariant)
                             
-                            recurrenceSettingsView
+                            // 重复设置标题
+                            Text("重复设置")
+                                .font(BrandFont.body(size: 14, weight: .bold))
+                                .foregroundColor(BrandColor.onSurface)
+                                .padding(.top, BrandSpacing.sm)
+                            
+                            // 开始日期设置
+                            recurrenceStartDateView
+                            
+                            Divider()
+                                .background(BrandColor.outlineVariant)
+                            
+                            // 结束日期设置
+                            recurrenceEndDateView
+                            
+                            Divider()
+                                .background(BrandColor.outlineVariant)
+                            
+                            // 重复次数设置
+                            recurrenceCountView
                         }
                     }
                     .padding(.top, BrandSpacing.sm)
                     .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
-        }
+        .padding(BrandSpacing.lg)
+        .background(BrandColor.surfaceVariant.opacity(0.3))
+        .neobrutalStyle(cornerRadius: BrandRadius.md, borderWidth: BrandBorder.regular)
     }
     
     // 单个重复选项行
@@ -621,131 +648,190 @@ struct EventEditView: View {
         .buttonStyle(PlainButtonStyle())
     }
     
-    // 重复设置详细选项
-    private var recurrenceSettingsView: some View {
-        VStack(alignment: .leading, spacing: BrandSpacing.md) {
-            Text("重复设置")
-                .font(BrandFont.body(size: 14, weight: .bold))
-                .foregroundColor(BrandColor.onSurface)
-            
-            // 开始日期设置
-            VStack(alignment: .leading, spacing: BrandSpacing.sm) {
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        isRecurrenceStartDateExpanded.toggle()
-                    }
-                }) {
-                    HStack {
-                        Text("开始日期")
-                            .font(BrandFont.body(size: 14, weight: .medium))
-                            .foregroundColor(BrandColor.onSurface)
-                        
-                        Spacer()
-                        
-                        Text(recurrenceStartDate.formatted(.dateTime.year().month().day()))
-                            .font(BrandFont.body(size: 14, weight: .medium))
-                            .foregroundColor(BrandColor.primaryBlue)
-                        
-                        Image(systemName: isRecurrenceStartDateExpanded ? "chevron.up" : "chevron.down")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(BrandColor.outline)
-                    }
+    // 开始日期设置
+    private var recurrenceStartDateView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+                // 文案展示区域（与其他栏目保持一致的对齐）
+                HStack {
+                    Text("开始日期")
+                        .font(BrandFont.body(size: 14, weight: .medium))
+                        .foregroundColor(BrandColor.onSurface)
+                    
+                    Spacer()
+                    
+                    Text(recurrenceStartDate.formatted(.dateTime.year().month().day()))
+                        .font(BrandFont.body(size: 14, weight: .medium))
+                        .foregroundColor(BrandColor.primaryBlue)
+                    
+                    Image(systemName: isRecurrenceStartDateExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(BrandColor.outline)
+                        .rotationEffect(.degrees(isRecurrenceStartDateExpanded ? 0 : 180))
+                        .animation(
+                            .spring(response: 0.3, dampingFraction: 0.7),
+                            value: isRecurrenceStartDateExpanded
+                        )
                 }
-                .buttonStyle(PlainButtonStyle())
+                .padding(BrandSpacing.md)
+                .background(Color.clear)
+                // 添加缩放动画
+                .scaleEffect(isRecurrenceStartDateExpanded ? 0.98 : 1.0)
+                .animation(
+                    .spring(response: 0.2, dampingFraction: 0.8),
+                    value: isRecurrenceStartDateExpanded
+                )
+                // 整行点击覆盖层
+                .overlay(
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            isRecurrenceStartDateExpanded.toggle()
+                        }
+                    }) {
+                        Rectangle()
+                            .fill(Color.clear)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                )
                 
                 if isRecurrenceStartDateExpanded {
-                    DatePicker("", selection: $recurrenceStartDate, displayedComponents: [.date])
-                        .datePickerStyle(.graphical)
-                        .onChange(of: recurrenceStartDate) { _, _ in
-                            autoSave()
-                        }
-                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    VStack(spacing: 0) {
+                        Divider()
+                            .background(BrandColor.outlineVariant)
+                            .padding(.horizontal, BrandSpacing.md)
+                        
+                        DatePicker("", selection: $recurrenceStartDate, displayedComponents: [.date])
+                            .datePickerStyle(.graphical)
+                            .onChange(of: recurrenceStartDate) { _, _ in
+                                autoSave()
+                            }
+                            .padding(BrandSpacing.md)
+                            .background(
+                                RoundedRectangle(cornerRadius: BrandRadius.md)
+                                    .fill(BrandColor.surface)
+                                    .shadow(color: BrandColor.primaryBlue.opacity(0.1), radius: 8, x: 0, y: 4)
+                            )
+                            .padding(.horizontal, BrandSpacing.md)
+                            .padding(.bottom, BrandSpacing.md)
+                    }
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.combined(with: .scale(scale: 0.95, anchor: .top)),
+                            removal: .opacity.combined(with: .scale(scale: 0.95))
+                        )
+                    )
+                    .animation(
+                        .spring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.1),
+                        value: isRecurrenceStartDateExpanded
+                    )
+                    .scaleEffect(isRecurrenceStartDateExpanded ? 1.0 : 0.95)
+                    .opacity(isRecurrenceStartDateExpanded ? 1.0 : 0.0)
                 }
             }
-            
-            Divider()
-                .background(BrandColor.outlineVariant)
-            
-            // 结束日期设置（可选）
-            VStack(alignment: .leading, spacing: BrandSpacing.sm) {
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        isRecurrenceEndDateExpanded.toggle()
-                    }
-                }) {
-                    HStack {
-                        Text("结束日期")
+    }
+    
+    // 结束日期设置
+    private var recurrenceEndDateView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+                // 文案展示区域（与其他栏目保持一致的对齐）
+                HStack {
+                    Text("结束日期")
+                        .font(BrandFont.body(size: 14, weight: .medium))
+                        .foregroundColor(BrandColor.onSurface)
+                    
+                    Spacer()
+                    
+                    if let endDate = recurrenceEndDate {
+                        Text(endDate.formatted(.dateTime.year().month().day()))
                             .font(BrandFont.body(size: 14, weight: .medium))
-                            .foregroundColor(BrandColor.onSurface)
-                        
-                        Spacer()
-                        
-                        if let endDate = recurrenceEndDate {
-                            Text(endDate.formatted(.dateTime.year().month().day()))
-                                .font(BrandFont.body(size: 14, weight: .medium))
-                                .foregroundColor(BrandColor.primaryBlue)
-                        } else {
-                            Text("无限期")
-                                .font(BrandFont.body(size: 14, weight: .medium))
-                                .foregroundColor(BrandColor.outline)
-                        }
-                        
-                        Image(systemName: isRecurrenceEndDateExpanded ? "chevron.up" : "chevron.down")
-                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(BrandColor.primaryBlue)
+                    } else {
+                        Text("7天后")
+                            .font(BrandFont.body(size: 14, weight: .medium))
                             .foregroundColor(BrandColor.outline)
                     }
+                    
+                    Image(systemName: isRecurrenceEndDateExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(BrandColor.outline)
+                        .rotationEffect(.degrees(isRecurrenceEndDateExpanded ? 0 : 180))
+                        .animation(
+                            .spring(response: 0.3, dampingFraction: 0.7),
+                            value: isRecurrenceEndDateExpanded
+                        )
                 }
-                .buttonStyle(PlainButtonStyle())
-                
-                if isRecurrenceEndDateExpanded {
-                    VStack(spacing: BrandSpacing.sm) {
-                        // 切换按钮：有结束日期 vs 无限期
-                        HStack {
-                            Button(action: {
-                                // 设置结束日期为开始日期后30天
+                .padding(BrandSpacing.md)
+                .background(Color.clear)
+                // 添加缩放动画
+                .scaleEffect(isRecurrenceEndDateExpanded ? 0.98 : 1.0)
+                .animation(
+                    .spring(response: 0.2, dampingFraction: 0.8),
+                    value: isRecurrenceEndDateExpanded
+                )
+                // 整行点击覆盖层
+                .overlay(
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            // 点击直接展开日历，如果没有设置结束日期则自动设置一个默认值
+                            if recurrenceEndDate == nil {
                                 let calendar = Calendar.current
-                                recurrenceEndDate = calendar.date(byAdding: .day, value: 30, to: recurrenceStartDate)
-                                autoSave()
-                            }) {
-                                Text("设置结束日期")
-                                    .font(BrandFont.body(size: 14, weight: .medium))
-                                    .foregroundColor(recurrenceEndDate != nil ? BrandColor.onSurface : BrandColor.primaryBlue)
+                                recurrenceEndDate = calendar.date(byAdding: .weekOfYear, value: 1, to: recurrenceStartDate)
                             }
-                            
-                            Spacer()
-                            
-                            Button(action: {
-                                recurrenceEndDate = nil
-                                autoSave()
-                            }) {
-                                Text("无限期")
-                                    .font(BrandFont.body(size: 14, weight: .medium))
-                                    .foregroundColor(recurrenceEndDate == nil ? BrandColor.primaryBlue : BrandColor.onSurface)
-                            }
+                            isRecurrenceEndDateExpanded.toggle()
                         }
-                        .padding(.horizontal, BrandSpacing.sm)
+                    }) {
+                        Rectangle()
+                            .fill(Color.clear)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                )
+                
+                // 展开时直接显示日历选择器
+                if isRecurrenceEndDateExpanded {
+                    VStack(spacing: 0) {
+                        Divider()
+                            .background(BrandColor.outlineVariant)
+                            .padding(.horizontal, BrandSpacing.md)
                         
-                        // 如果有结束日期，显示日期选择器
-                        if recurrenceEndDate != nil {
+                        VStack(spacing: BrandSpacing.md) {
+                            // 日历选择器
                             DatePicker("", selection: Binding(
                                 get: { recurrenceEndDate ?? Date() },
-                                set: { recurrenceEndDate = $0 }
+                                set: { recurrenceEndDate = $0; autoSave() }
                             ), in: recurrenceStartDate..., displayedComponents: [.date])
                                 .datePickerStyle(.graphical)
-                                .onChange(of: recurrenceEndDate ?? Date()) { _, _ in
-                                    autoSave()
-                                }
+                            
+                            // 移除无限期按钮，简化UI
                         }
+                        .padding(BrandSpacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: BrandRadius.md)
+                                .fill(BrandColor.surface)
+                                .shadow(color: BrandColor.primaryBlue.opacity(0.1), radius: 8, x: 0, y: 4)
+                        )
+                        .padding(.horizontal, BrandSpacing.md)
+                        .padding(.bottom, BrandSpacing.md)
                     }
-                    .transition(.opacity.combined(with: .move(edge: .top)))
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.combined(with: .scale(scale: 0.95, anchor: .top)),
+                            removal: .opacity.combined(with: .scale(scale: 0.95))
+                        )
+                    )
+                    .animation(
+                        .spring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.1),
+                        value: isRecurrenceEndDateExpanded
+                    )
+                    .scaleEffect(isRecurrenceEndDateExpanded ? 1.0 : 0.95)
+                    .opacity(isRecurrenceEndDateExpanded ? 1.0 : 0.0)
                 }
             }
-            
-            Divider()
-                .background(BrandColor.outlineVariant)
-            
-            // 重复次数设置（与结束日期互斥）
-            HStack {
+    }
+    
+    // 重复次数设置
+    private var recurrenceCountView: some View {
+        HStack {
                 Text("重复次数")
                     .font(BrandFont.body(size: 14, weight: .medium))
                     .foregroundColor(BrandColor.onSurface)
@@ -757,53 +843,34 @@ struct EventEditView: View {
                     Text("已设置结束日期")
                         .font(BrandFont.body(size: 12, weight: .medium))
                         .foregroundColor(BrandColor.outline)
-                } else if recurrenceCount == nil {
-                    Text("无限重复")
-                        .font(BrandFont.body(size: 14, weight: .medium))
-                        .foregroundColor(BrandColor.primaryBlue)
                 } else {
+                    // 始终显示具体次数，不再有无限重复的概念
                     HStack(spacing: BrandSpacing.sm) {
                         Button("-") {
-                            if let count = recurrenceCount, count > 1 {
-                                recurrenceCount = count - 1
+                            let currentCount = recurrenceCount ?? 7
+                            if currentCount > 1 {
+                                recurrenceCount = currentCount - 1
                                 autoSave()
                             }
                         }
                         .frame(width: 30, height: 30)
                         .background(Circle().fill(BrandColor.surface))
-                        .disabled((recurrenceCount ?? 30) <= 1)
-                        
-                        Text("\(recurrenceCount ?? 30)次")
+                        .disabled((recurrenceCount ?? 7) <= 1)
+
+                        Text("\(recurrenceCount ?? 7)次")
                             .font(BrandFont.body(size: 14, weight: .medium))
                             .frame(minWidth: 40)
                         
                         Button("+") {
-                            if recurrenceCount == nil {
-                                recurrenceCount = 30  // 从无限变为30次
-                            } else {
-                                recurrenceCount = (recurrenceCount ?? 0) + 1
-                            }
+                            recurrenceCount = (recurrenceCount ?? 7) + 1
                             autoSave()
                         }
                         .frame(width: 30, height: 30)
                         .background(Circle().fill(BrandColor.surface))
-                        
-                        Button("无限") {
-                            recurrenceCount = nil
-                            autoSave()
-                        }
-                        .font(BrandFont.body(size: 12, weight: .medium))
-                        .foregroundColor(BrandColor.primaryBlue)
                     }
                 }
             }
             .disabled(recurrenceEndDate != nil)
-        }
-        .padding(BrandSpacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: BrandRadius.sm)
-                .fill(BrandColor.surface.opacity(0.5))
-        )
     }
     
     
@@ -814,8 +881,8 @@ struct EventEditView: View {
     /// 创建重复事项 - 简化版本
     private func createRecurrenceEvents(title: String, startAt: Date?, endAt: Date?, details: String?, 
                                        pushReminders: [PushReminderOption], baseDate: Date) {
-        print("📊 createRecurrenceEvents - recurrenceType: \(recurrenceType), recurrenceCount: \(recurrenceCount?.description ?? "nil")")
-        print("📅 开始日期: \(recurrenceStartDate), 结束日期: \(recurrenceEndDate?.description ?? "无限期")")
+        print("📊 createRecurrenceEvents - recurrenceType: \(recurrenceType), recurrenceCount: \(recurrenceCount?.description ?? "默认7")")
+        print("📅 开始日期: \(recurrenceStartDate), 结束日期: \(recurrenceEndDate?.description ?? "默认7天")")
         
         // 使用用户选择的开始日期，而不是baseDate
         let events = Event.generateRecurrenceGroup(
@@ -826,7 +893,7 @@ struct EventEditView: View {
             details: details,
             pushReminders: pushReminders,
             recurrenceType: recurrenceType,
-            recurrenceCount: recurrenceEndDate != nil ? nil : recurrenceCount,  // 如果设置了结束日期，不使用重复次数
+            recurrenceCount: recurrenceEndDate != nil ? nil : (recurrenceCount ?? 7),  // 如果设置了结束日期，不使用重复次数，否则默认7次
             recurrenceEndDate: recurrenceEndDate
         )
         
@@ -941,9 +1008,48 @@ struct EventEditView: View {
             updatedEvent.recurrenceCount = recurrenceCount
             updatedEvent.recurrenceEndDate = recurrenceEndDate
             
-            storageManager.updateEvent(updatedEvent)
+            // 判断是否为重复事件并进行相应处理
+            if let groupId = existingEvent.recurrenceGroupId, recurrenceType != .none {
+                // 原本就是重复事件，现在仍是重复事件：批量更新整个组
+                storageManager.updateRecurrenceGroupEvent(updatedEvent)
+                print("🔄 批量更新重复事件组：\(groupId)")
+            } else if existingEvent.recurrenceGroupId != nil, recurrenceType == .none {
+                // 原本是重复事件，现在要变成单个事件：删除整个重复组，创建单个事件
+                print("🔄 将重复事件组转换为单个事件")
+
+                // 删除原重复事件组
+                storageManager.deleteRecurrenceGroup(existingEvent)
+
+                // 创建新的单个事件（去掉重复相关属性）
+                updatedEvent.recurrenceGroupId = nil
+                updatedEvent.recurrenceType = .none
+                updatedEvent.recurrenceCount = nil
+                updatedEvent.recurrenceEndDate = nil
+                storageManager.addEvent(updatedEvent)
+                print("✅ 已创建单个事件：\(updatedEvent.title)")
+            } else if recurrenceType != .none {
+                // 原本是单个事件，现在要变成重复事件：需要先删除原事件，再创建重复事件组
+                print("🔄 将单个事件转换为重复事件组")
+
+                // 删除原单个事件
+                storageManager.deleteEvent(existingEvent)
+
+                // 创建新的重复事件组
+                createRecurrenceEvents(
+                    title: trimmedTitle,
+                    startAt: eventStartDate,
+                    endAt: eventEndDate,
+                    details: eventDetails,
+                    pushReminders: pushReminders,
+                    baseDate: eventDate
+                )
+            } else {
+                // 单个事件保持单个：正常更新
+                storageManager.updateEvent(updatedEvent)
+                print("📝 更新单个事件：\(updatedEvent.title)")
+            }
             
-            // 调度新的本地通知
+            // 调度新的本地通知（如果是重复事件，会在批量更新时处理）
             scheduleLocalNotifications(for: updatedEvent)
             // 自动保存更新事项
         }

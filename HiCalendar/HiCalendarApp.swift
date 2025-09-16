@@ -31,8 +31,27 @@ struct HiCalendarApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(authManager)
+                .onOpenURL { url in
+                    handleDeepLink(url)
+                }
         }
         .modelContainer(sharedModelContainer)
+    }
+
+    // MARK: - 深链接处理
+    private func handleDeepLink(_ url: URL) {
+        print("🔗 收到深链接: \(url)")
+
+        if url.scheme == "hicalendar" && url.host == "premium" {
+            // Widget点击升级链接
+            print("💰 从Widget跳转到付费页面")
+
+            // 通过通知中心发送事件到ContentView
+            NotificationCenter.default.post(
+                name: Notification.Name("ShowPremiumView"),
+                object: nil
+            )
+        }
     }
 }
 
@@ -42,6 +61,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // 设置推送通知代理
         UNUserNotificationCenter.current().delegate = self
+        
+        // 清除应用图标上的badge数字（iOS 17+使用新API）
+        if #available(iOS 17.0, *) {
+            UNUserNotificationCenter.current().setBadgeCount(0) { error in
+                if let error = error {
+                    print("⚠️ 清除badge失败: \(error)")
+                }
+            }
+        } else {
+            UIApplication.shared.applicationIconBadgeNumber = 0
+        }
         
         // 不在启动时自动请求推送权限，延迟到用户交互时请求
         print("📱 App启动完成，推送权限将在适当时机请求")

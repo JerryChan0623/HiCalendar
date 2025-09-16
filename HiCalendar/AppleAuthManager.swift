@@ -257,11 +257,16 @@ struct AppleSignInButton: View {
     @StateObject private var authManager = AppleAuthManager.shared
     @Environment(\.colorScheme) var colorScheme
     var onSignIn: (() -> Void)? = nil
-    
+
     var body: some View {
         Button(action: {
-            authManager.startSignInWithApple()
-            onSignIn?()
+            if let callback = onSignIn {
+                // 如果有回调，调用回调处理登录前的逻辑
+                callback()
+            } else {
+                // 如果没有回调，直接开始登录
+                authManager.startSignInWithApple()
+            }
         }) {
             HStack {
                 Image(systemName: "apple.logo")

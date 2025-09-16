@@ -26,7 +26,21 @@ class SupabaseManager: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     @Published var isNetworkAvailable = true
-    
+
+    // 付费功能检查
+    private var purchaseManager: PurchaseManager {
+        return PurchaseManager.shared
+    }
+
+    // Supabase配置
+    var supabaseURL: String {
+        return SupabaseConfig.projectURL
+    }
+
+    var supabaseAnonKey: String {
+        return SupabaseConfig.anonKey
+    }
+
     private init() {
         // 创建配置更宽松的URLSessionConfiguration
         let sessionConfig = URLSessionConfiguration.default
@@ -116,7 +130,9 @@ class SupabaseManager: ObservableObject {
             isLoading = false
             print("✅ Apple登录成功: \(session.user.id)")
             print("✅ 用户邮箱: \(session.user.email ?? "无")")
-            
+
+            // 登录成功后的推送权限请求已在登录前处理，这里不再重复请求
+
             // Apple登录成功后，同步所有本地事项到Supabase
             Task {
                 await syncAllLocalEventsToSupabase()
@@ -176,6 +192,12 @@ class SupabaseManager: ObservableObject {
     private func syncAllLocalEventsToSupabase() async {
         guard isAuthenticated, let userId = currentUser?.id else {
             print("❌ 用户未认证，跳过批量同步")
+            return
+        }
+
+        // 检查是否已购买云同步功能
+        guard purchaseManager.canSyncToCloud else {
+            print("💰 云同步功能需要Pro版本，跳过同步")
             return
         }
         
@@ -273,7 +295,20 @@ class SupabaseManager: ObservableObject {
     }
     
     /// 带重试机制的单个事项同步
-    private func syncSingleEventWithRetry(event: Event, userId: String, maxRetries: Int = 3) async -> Bool {
+    func syncSingleEventWithRetry(event: Event, userId: String, maxRetries: Int = 3) async -> Bool {
+        // 检查是否为onboarding事项（不同步到云端）
+        if event.isOnboarding {
+            print("📚 Onboarding事项不同步到云端，跳过：\(event.title)")
+            return false
+        }
+
+        // 检查是否已购买云同步功能
+        let canSync = await MainActor.run { purchaseManager.canSyncToCloud }
+        guard canSync else {
+            print("💰 云同步功能需要Pro版本，跳过同步: \(event.title)")
+            return false
+        }
+
         // 首先检查网络连通性
         if !(await waitForNetworkConnection()) {
             print("❌ 网络不可用，跳过同步: \(event.title)")
@@ -298,6 +333,11 @@ class SupabaseManager: ObservableObject {
                     let push_week_before: Bool
                     let push_status: [String: Bool]?
                     let created_at: String
+                    // 重复事件字段
+                    let recurrence_group_id: String?
+                    let recurrence_type: String?
+                    let recurrence_count: Int?
+                    let recurrence_end_date: String?
                 }
                 
                 let eventData = EventDataWithReminders(
@@ -324,7 +364,12 @@ class SupabaseManager: ObservableObject {
                         "day_before_sent": event.pushStatus.dayBeforeSent,
                         "week_before_sent": event.pushStatus.weekBeforeSent
                     ],
-                    created_at: event.createdAt.ISO8601Format()
+                    created_at: event.createdAt.ISO8601Format(),
+                    // 重复事件字段
+                    recurrence_group_id: event.recurrenceGroupId?.uuidString,
+                    recurrence_type: event.recurrenceType != .none ? event.recurrenceType.rawValue : nil,
+                    recurrence_count: event.recurrenceCount,
+                    recurrence_end_date: event.recurrenceEndDate?.ISO8601Format()
                 )
                 
                 try await client
@@ -404,9 +449,9 @@ class SupabaseManager: ObservableObject {
         if isNetworkAvailable {
             return true
         }
-        
+
         print("⏳ 等待网络连接恢复...")
-        
+
         // 等待最多15秒
         for _ in 0..<15 {
             if isNetworkAvailable {
@@ -415,8 +460,193 @@ class SupabaseManager: ObservableObject {
             }
             try? await Task.sleep(nanoseconds: 1_000_000_000) // 等待1秒
         }
-        
+
         print("❌ 网络连接超时")
         return false
+    }
+
+    // MARK: - 会员功能支持
+
+    /// 获取当前用户信息（包含会员状态）
+    func getCurrentUser() async -> User? {
+        // 暂时返回一个模拟用户，待Supabase集成完成后实现
+        return User(
+            id: UUID(),
+            email: "member@hicalendar.com",
+            timezone: "Asia/Shanghai",
+            isMember: true,
+            membershipExpiresAt: Calendar.current.date(byAdding: .year, value: 1, to: Date())
+        )
+    }
+
+    /// 更新用户会员状态
+    func updateUserMembershipStatus(isMember: Bool, expiresAt: Date?) async {
+        // 暂时模拟实现，待Supabase集成完成后实现
+        print("✅ 会员状态更新成功: isMember=\(isMember)")
+    }
+
+
+    /// 获取所有事件（用于数据同步）
+    func fetchAllEvents() async -> [Event] {
+        // 检查是否已购买云同步功能
+        let canSync = await MainActor.run { purchaseManager.canSyncToCloud }
+        guard canSync else {
+            print("💰 云同步功能需要Pro版本，跳过下载")
+            return []
+        }
+
+        guard isAuthenticated, let userId = currentUser?.id else {
+            print("❌ 用户未认证，无法获取云端事件")
+            return []
+        }
+
+        do {
+            // 从云端获取该用户的所有事件
+            let response: [EventRow] = try await client
+                .from("events")
+                .select("*")
+                .eq("user_id", value: userId.uuidString)
+                .order("updated_at", ascending: false)
+                .execute()
+                .value
+
+            let events = response.compactMap { eventRow -> Event? in
+                return convertEventRowToEvent(eventRow)
+            }
+
+            print("✅ 从云端获取到\(events.count)个事件")
+            return events
+
+        } catch {
+            print("❌ 获取云端事件失败: \(error)")
+            return []
+        }
+    }
+
+    /// 将数据库行转换为Event对象
+    private func convertEventRowToEvent(_ eventRow: EventRow) -> Event? {
+        guard let eventId = UUID(uuidString: eventRow.id) else {
+            print("⚠️ 无效的事件ID: \(eventRow.id)")
+            return nil
+        }
+
+        let pushReminders = eventRow.push_reminders?.compactMap {
+            PushReminderOption(rawValue: $0)
+        } ?? []
+
+        var pushStatus = PushStatus()
+        if let status = eventRow.push_status {
+            pushStatus.dayBeforeSent = status["day_before_sent"] ?? false
+            pushStatus.weekBeforeSent = status["week_before_sent"] ?? false
+        }
+
+        return Event(
+            id: eventId,
+            title: eventRow.title,
+            startAt: eventRow.start_at,
+            endAt: eventRow.end_at,
+            details: eventRow.details,
+            pushReminders: pushReminders,
+            createdAt: eventRow.created_at ?? Date(),
+            intendedDate: eventRow.intended_date,
+            recurrenceGroupId: eventRow.recurrence_group_id.flatMap { UUID(uuidString: $0) },
+            originalRecurrenceType: eventRow.recurrence_type.flatMap { RecurrenceType(rawValue: $0) },
+            recurrenceCount: eventRow.recurrence_count,
+            recurrenceEndDate: eventRow.recurrence_end_date,
+            isSynced: true // 从云端获取的标记为已同步
+        )
+    }
+
+    // MARK: - 云端删除和更新
+
+    /// 删除云端事件
+    func deleteCloudEvent(eventId: UUID) async -> Bool {
+        // 检查是否已购买云同步功能
+        let canSync = await MainActor.run { purchaseManager.canSyncToCloud }
+        guard canSync else {
+            print("💰 云同步功能需要Pro版本，跳过删除")
+            return false
+        }
+
+        guard isAuthenticated, let userId = currentUser?.id else {
+            print("❌ 用户未认证，无法删除云端事件")
+            return false
+        }
+
+        do {
+            try await client
+                .from("events")
+                .delete()
+                .eq("id", value: eventId.uuidString)
+                .eq("user_id", value: userId.uuidString) // 确保只删除自己的事件
+                .execute()
+
+            print("✅ 云端事件删除成功: \(eventId)")
+            return true
+        } catch {
+            print("❌ 云端事件删除失败: \(eventId) - \(error)")
+            return false
+        }
+    }
+
+    /// 更新云端事件
+    func updateCloudEvent(_ event: Event) async -> Bool {
+        // 检查是否已购买云同步功能
+        let canSync = await MainActor.run { purchaseManager.canSyncToCloud }
+        guard canSync else {
+            print("💰 云同步功能需要Pro版本，跳过更新")
+            return false
+        }
+
+        guard isAuthenticated, let userId = currentUser?.id else {
+            print("❌ 用户未认证，无法更新云端事件")
+            return false
+        }
+
+        // 使用现有的同步逻辑，它会自动处理upsert
+        return await syncSingleEventWithRetry(event: event, userId: userId.uuidString)
+    }
+}
+
+// MARK: - Supabase数据模型
+
+/// 用户表行数据
+private struct UserRow: Codable {
+    let id: String
+    let email: String?
+    let timezone: String?
+    let is_member: Bool?
+    let membership_expires_at: Date?
+    let created_at: Date?
+    let updated_at: Date?
+}
+
+/// 事件表行数据
+private struct EventRow: Codable {
+    let id: String
+    let user_id: String
+    let title: String
+    let start_at: Date?
+    let end_at: Date?
+    let details: String?
+    let intended_date: Date?
+    let push_reminders: [String]?
+    let push_day_before: Bool?
+    let push_week_before: Bool?
+    let push_status: [String: Bool]?
+    let created_at: Date?
+    let updated_at: Date?
+    let recurrence_group_id: String?
+    let recurrence_type: String?
+    let recurrence_count: Int?
+    let recurrence_end_date: Date?
+}
+
+// MARK: - Date扩展
+extension Date {
+    func ISO8601String() -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter.string(from: self)
     }
 }

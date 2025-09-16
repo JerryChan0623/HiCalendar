@@ -13,6 +13,8 @@ struct EverythingsView: View {
     @State private var searchText = ""
     @State private var selectedEvent: Event?
     @State private var isExpiredExpanded = false // 已过期事项是否展开
+    @State private var isUpcomingExpanded = false // 即将到来事项是否展开
+    @State private var isLaterExpanded = false // 稍后事项是否展开
     
     // 计算倒计时天数 - 修复版本，正确处理无时间事项
     private func daysUntil(event: Event) -> Int {
@@ -124,19 +126,33 @@ struct EverythingsView: View {
                             
                             // 即将到来
                             if !groups.upcoming.isEmpty {
-                                eventSection(
+                                eventSectionWithLimit(
                                     title: "📅 即将到来",
                                     events: groups.upcoming,
-                                    titleColor: BrandColor.warning
+                                    titleColor: BrandColor.warning,
+                                    defaultDisplayCount: searchText.isEmpty ? 5 : nil,
+                                    isExpanded: isUpcomingExpanded || !searchText.isEmpty,
+                                    onToggleExpand: {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            isUpcomingExpanded.toggle()
+                                        }
+                                    }
                                 )
                             }
-                            
+
                             // 稍后事项
                             if !groups.later.isEmpty {
-                                eventSection(
+                                eventSectionWithLimit(
                                     title: "📌 稍后事项",
                                     events: groups.later,
-                                    titleColor: BrandColor.primaryBlue
+                                    titleColor: BrandColor.primaryBlue,
+                                    defaultDisplayCount: searchText.isEmpty ? 3 : nil,
+                                    isExpanded: isLaterExpanded || !searchText.isEmpty,
+                                    onToggleExpand: {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            isLaterExpanded.toggle()
+                                        }
+                                    }
                                 )
                             }
                             
@@ -228,7 +244,7 @@ struct EverythingsView: View {
                 .font(BrandFont.body(size: 18, weight: .bold))
                 .foregroundColor(titleColor)
                 .padding(.horizontal, BrandSpacing.xs)
-            
+
             // 事件卡片
             VStack(spacing: BrandSpacing.md) {
                 ForEach(events) { event in
@@ -236,6 +252,91 @@ struct EverythingsView: View {
                 }
             }
         }
+    }
+
+    // MARK: - 带限制数量的事件分组
+    private func eventSectionWithLimit(
+        title: String,
+        events: [Event],
+        titleColor: Color,
+        defaultDisplayCount: Int?,
+        isExpanded: Bool,
+        onToggleExpand: @escaping () -> Void
+    ) -> some View {
+        VStack(alignment: .leading, spacing: BrandSpacing.md) {
+            // 分组标题和统计
+            HStack {
+                Text("\(title) (\(events.count))")
+                    .font(BrandFont.body(size: 18, weight: .bold))
+                    .foregroundColor(titleColor)
+
+                Spacer()
+
+                // 展开/收起按钮（仅在有限制且超出限制时显示）
+                if let displayCount = defaultDisplayCount, events.count > displayCount {
+                    Button(action: onToggleExpand) {
+                        HStack(spacing: BrandSpacing.xs) {
+                            Text(isExpanded ? "收起" : "查看全部")
+                                .font(BrandFont.body(size: 14, weight: .medium))
+                                .foregroundColor(titleColor)
+
+                            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(titleColor)
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .padding(.horizontal, BrandSpacing.xs)
+
+            // 事件卡片
+            VStack(spacing: BrandSpacing.md) {
+                let displayEvents = getDisplayEvents(events: events, defaultDisplayCount: defaultDisplayCount, isExpanded: isExpanded)
+
+                ForEach(displayEvents) { event in
+                    eventCard(event)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+
+                // 显示隐藏事项提示
+                if let displayCount = defaultDisplayCount,
+                   !isExpanded && events.count > displayCount {
+                    Button(action: onToggleExpand) {
+                        HStack {
+                            Text("还有 \(events.count - displayCount) 项未显示")
+                                .font(BrandFont.body(size: 14, weight: .medium))
+                                .foregroundColor(BrandColor.outline)
+
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(BrandColor.outline)
+                        }
+                        .padding(.vertical, BrandSpacing.sm)
+                        .padding(.horizontal, BrandSpacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: BrandRadius.sm)
+                                .fill(BrandColor.surface.opacity(0.5))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: BrandRadius.sm)
+                                        .stroke(BrandColor.outline.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+            }
+        }
+    }
+
+    // MARK: - 获取要显示的事件列表
+    private func getDisplayEvents(events: [Event], defaultDisplayCount: Int?, isExpanded: Bool) -> [Event] {
+        guard let displayCount = defaultDisplayCount, !isExpanded else {
+            return events
+        }
+
+        return Array(events.prefix(displayCount))
     }
     
     // MARK: - 事件卡片

@@ -15,14 +15,20 @@ struct User: Codable, Identifiable {
     var defaultPushDayBefore: Bool
     var defaultPushWeekBefore: Bool
     let createdAt: Date
-    
-    init(id: UUID = UUID(), email: String, timezone: String = "Asia/Shanghai") {
+
+    // 会员相关字段
+    var isMember: Bool
+    var membershipExpiresAt: Date?
+
+    init(id: UUID = UUID(), email: String, timezone: String = "Asia/Shanghai", isMember: Bool = false, membershipExpiresAt: Date? = nil) {
         self.id = id
         self.email = email
         self.timezone = timezone
         self.defaultPushDayBefore = true
         self.defaultPushWeekBefore = false
         self.createdAt = Date()
+        self.isMember = isMember
+        self.membershipExpiresAt = membershipExpiresAt
     }
 }
 
@@ -147,7 +153,7 @@ struct Event: Codable, Identifiable {
         get { originalRecurrenceType ?? .none }
         set { originalRecurrenceType = newValue != .none ? newValue : nil }
     }
-    var recurrenceCount: Int? // 重复次数（nil表示无限重复）
+    var recurrenceCount: Int? // 重复次数（默认7次）
     var recurrenceEndDate: Date? // 重复结束日期
     
     // 兼容性字段（保持向后兼容）
@@ -175,11 +181,12 @@ struct Event: Codable, Identifiable {
     
     var pushStatus: PushStatus  // 推送状态跟踪
     var isSynced: Bool          // 是否已同步到Supabase（默认false，创建时为未同步）
+    var isOnboarding: Bool      // 是否为onboarding示例事项（不同步到云端）
     
     init(id: UUID = UUID(), title: String, startAt: Date? = nil, endAt: Date? = nil, details: String? = nil,
-         pushReminders: [PushReminderOption] = [.dayBefore], createdAt: Date = Date(), intendedDate: Date? = nil, 
+         pushReminders: [PushReminderOption] = [.dayBefore], createdAt: Date = Date(), intendedDate: Date? = nil,
          recurrenceGroupId: UUID? = nil, originalRecurrenceType: RecurrenceType? = nil,
-         recurrenceCount: Int? = nil, recurrenceEndDate: Date? = nil, isSynced: Bool = false) {
+         recurrenceCount: Int? = nil, recurrenceEndDate: Date? = nil, isSynced: Bool = false, isOnboarding: Bool = false) {
         self.id = id
         self.title = title
         self.startAt = startAt
@@ -194,17 +201,18 @@ struct Event: Codable, Identifiable {
         self.recurrenceEndDate = recurrenceEndDate
         self.pushStatus = PushStatus()
         self.isSynced = isSynced
+        self.isOnboarding = isOnboarding
     }
     
     // 旧版本兼容初始化方法
     init(id: UUID = UUID(), title: String, startAt: Date? = nil, endAt: Date? = nil, details: String? = nil,
-         pushDayBefore: Bool = true, pushWeekBefore: Bool = false, intendedDate: Date? = nil) {
+         pushDayBefore: Bool = true, pushWeekBefore: Bool = false, intendedDate: Date? = nil, isOnboarding: Bool = false) {
         var reminders: [PushReminderOption] = []
         if pushDayBefore { reminders.append(.dayBefore) }
         if pushWeekBefore { reminders.append(.weekBefore) }
-        
-        self.init(id: id, title: title, startAt: startAt, endAt: endAt, details: details, 
-                 pushReminders: reminders, intendedDate: intendedDate, isSynced: false)
+
+        self.init(id: id, title: title, startAt: startAt, endAt: endAt, details: details,
+                 pushReminders: reminders, intendedDate: intendedDate, isSynced: false, isOnboarding: isOnboarding)
     }
 }
 
@@ -332,7 +340,7 @@ extension Event {
         details: String? = nil,
         pushReminders: [PushReminderOption] = [.dayBefore],
         recurrenceType: RecurrenceType,
-        recurrenceCount: Int? = nil,
+        recurrenceCount: Int? = 7,
         recurrenceEndDate: Date? = nil
     ) -> [Event] {
         guard recurrenceType != .none else {
@@ -372,8 +380,8 @@ extension Event {
                 maxEvents = 0
             }
         } else {
-            // 没有结束日期，使用重复次数或默认值
-            maxEvents = recurrenceCount ?? 30
+            // 没有结束日期，使用重复次数或默认值（一周）
+            maxEvents = recurrenceCount ?? 7
         }
         
         // 生成事件
@@ -486,7 +494,8 @@ extension Event {
             endAt: Calendar.current.date(byAdding: .hour, value: 10, to: Calendar.current.startOfDay(for: Date()))?.addingTimeInterval(15*60),
             details: "这是HiCalendar的核心功能！长按底部AI按钮0.5秒开始录音，松开后AI会智能创建事项。也可以单击进行文字对话。试着说：'明天上午9点开会'",
             pushDayBefore: false,
-            pushWeekBefore: false
+            pushWeekBefore: false,
+            isOnboarding: true
         ),
         
         // 2. 真实使用习惯建立
@@ -496,7 +505,9 @@ extension Event {
             endAt: nil,
             details: "现在试着创建一个真实的事项吧！可以用AI语音快速创建，也可以点击+号手动添加。建立使用HiCalendar管理日程的好习惯！",
             pushDayBefore: false,
-            pushWeekBefore: false
+            pushWeekBefore: false,
+            intendedDate: Date(), // 设置为今天，确保Widget能正确显示
+            isOnboarding: true
         ),
         
         // 3. 个性化设置引导
@@ -506,7 +517,8 @@ extension Event {
             endAt: nil,
             details: "点击右上角设置按钮，可以上传自定义背景图片，让你的日历独一无二！还可以在设置中调整其他偏好。",
             pushDayBefore: false,
-            pushWeekBefore: false
+            pushWeekBefore: false,
+            isOnboarding: true
         ),
         
         // 4. 推送设置引导
@@ -516,7 +528,9 @@ extension Event {
             endAt: nil,
             details: "在设置页面可以调整默认推送偏好，选择最适合你的提醒时间。记得开启通知权限，不然收不到我们有趣的推送文案哦～",
             pushDayBefore: false,
-            pushWeekBefore: false
+            pushWeekBefore: false,
+            intendedDate: Date(), // 设置为今天，确保Widget能正确显示
+            isOnboarding: true
         ),
         
         // === 后天的推送演示事项 (明天收到推送) ===
@@ -528,7 +542,8 @@ extension Event {
             endAt: Calendar.current.date(byAdding: .day, value: 2, to: Calendar.current.startOfDay(for: Date()))?.addingTimeInterval(11*60*60),
             details: "这是演示推送功能的事项！明天你会收到提醒推送，体验HiCalendar的智能提醒系统。我们的推送文案很有趣，点击通知还能快速回到应用！",
             pushDayBefore: true,
-            pushWeekBefore: false
+            pushWeekBefore: false,
+            isOnboarding: true
         ),
         
         // 6. 无时间事项推送演示
@@ -539,7 +554,8 @@ extension Event {
             details: "无时间事项也能推送提醒！明天你会收到这个待办的推送通知，体验我们独特的吐槽风格文案。记得点击通知回到应用查看～",
             pushDayBefore: true,
             pushWeekBefore: false,
-            intendedDate: Calendar.current.date(byAdding: .day, value: 2, to: Calendar.current.startOfDay(for: Date())) // 后天归属
+            intendedDate: Calendar.current.date(byAdding: .day, value: 2, to: Calendar.current.startOfDay(for: Date())), // 后天归属
+            isOnboarding: true
         )
     ]
 }

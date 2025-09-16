@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 struct ContentView: View {
     @State private var selectedTab = 0
@@ -13,13 +14,18 @@ struct ContentView: View {
     @State private var showAIChatSheet = false
     @State private var showVoiceRecordingOverlay = false
     @State private var showGlobalEventAdd = false
+    @State private var showPremiumView = false // 添加付费页面状态
     @StateObject private var voiceManager = AIVoiceManager.shared
     @StateObject private var pushManager = PushNotificationManager.shared
+    @StateObject private var supabaseManager = SupabaseManager.shared
     @Environment(\.colorScheme) var colorScheme
-    
+
     // 权限弹框状态
     @State private var showPushPermissionAlert = false
     @State private var isFirstLaunch = true
+
+    // 登录引导气泡状态
+    @State private var showLoginGuideBubble = false
     
     var body: some View {
         ZStack {
@@ -83,11 +89,95 @@ struct ContentView: View {
             )
                 .transition(.opacity) : nil
         )
+        .overlay(
+            // 登录引导banner - 全屏宽度，定位在设置icon下方
+            VStack {
+                if showLoginGuideBubble {
+                    LoginGuideBanner(
+                        isPresented: $showLoginGuideBubble,
+                        onTapSettings: {
+                            showLoginGuideBubble = false
+                            isSettingsPresented = true
+                        }
+                    )
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+                Spacer()
+            }
+            .padding(.top, 55) // 距离顶部的距离，在设置icon下方
+        )
         .onAppear {
-            // 首次启动时请求推送权限
+            // 移除自动推送权限请求，改为用户主动操作时请求
             if isFirstLaunch {
-                checkAndRequestPushPermission()
+                // 只检查权限状态，不显示弹框
+                pushManager.checkNotificationPermission()
+
+                // 检查是否需要显示登录引导气泡（仅首次安装且未登录时显示）
+                let hasShownLoginGuide = UserDefaults.standard.bool(forKey: "hasShownLoginGuideBubble")
+                if !hasShownLoginGuide && !supabaseManager.isAuthenticated {
+                    // 延迟1.5秒显示引导气泡，让用户先熟悉界面
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        showLoginGuideBubble = true
+                    }
+                }
+
                 isFirstLaunch = false
+            }
+
+            // 启动时初始化购买管理器和同步状态
+            Task {
+                print("🚀 App启动 - 开始初始化购买管理器...")
+
+                do {
+                    // 1. 加载产品信息
+                    await PurchaseManager.shared.loadProducts()
+                    print("📦 产品加载完成")
+
+                    // 2. 更新购买状态
+                    await PurchaseManager.shared.updateCustomerProductStatus()
+                    print("✅ 购买状态同步完成")
+
+                    // 3. 手动验证当前状态
+                    let isPremium = PurchaseManager.shared.isPremiumUnlocked
+                    let purchasedIDs = PurchaseManager.shared.purchasedProductIDs
+                    print("🔍 最终验证 - Premium状态: \(isPremium)")
+                    print("🔍 已购买产品ID: \(purchasedIDs)")
+
+                    // 验证App Groups读取
+                    if let sharedDefaults = UserDefaults(suiteName: "group.com.chenzhencong.HiCalendar") {
+                        let widgetStatus = sharedDefaults.bool(forKey: "premium_unlocked")
+                        let timestamp = sharedDefaults.double(forKey: "premium_status_updated_at")
+                        print("📱 Widget可读取状态: \(widgetStatus)")
+                        print("📱 状态更新时间戳: \(timestamp)")
+
+                        // 如果状态不匹配，手动触发同步
+                        if widgetStatus != isPremium {
+                            print("⚠️ Widget状态不匹配，手动触发同步...")
+                            await PurchaseManager.shared.manualRefreshStatus()
+                        }
+                    } else {
+                        print("❌ 无法访问App Groups，这是严重问题！")
+                    }
+
+                    // 4. 最后确保Widget刷新
+                    if #available(iOS 14.0, *) {
+                        WidgetCenter.shared.reloadAllTimelines()
+                        print("🔄 App启动完成，最终刷新Widget")
+                    }
+
+                } catch {
+                    print("❌ App启动初始化失败: \(error)")
+                }
+            }
+
+            // 监听Widget深链接通知
+            NotificationCenter.default.addObserver(
+                forName: Notification.Name("ShowPremiumView"),
+                object: nil,
+                queue: .main
+            ) { _ in
+                print("🔗 收到Widget深链接通知，打开付费页面")
+                showPremiumView = true
             }
         }
         .sheet(isPresented: $showGlobalEventAdd) {
@@ -122,6 +212,9 @@ struct ContentView: View {
             }
         } message: {
             Text("为了及时提醒你的重要事项，HiCalendar需要推送通知权限。我们的推送文案很有趣哦～")
+        }
+        .sheet(isPresented: $showPremiumView) {
+            PremiumView()
         }
     }
     
@@ -399,6 +492,112 @@ struct GlobalAddButton: View {
                 )
         )
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// 登录引导横条banner组件
+struct LoginGuideBanner: View {
+    @Binding var isPresented: Bool
+    let onTapSettings: () -> Void
+    @Environment(\.colorScheme) var colorScheme
+
+    var body: some View {
+        HStack(spacing: BrandSpacing.md) {
+            // 左侧图标
+            HStack(spacing: BrandSpacing.xs) {
+                Text("👋")
+                    .font(.system(size: 16))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("嘿！点击右上角设置登录")
+                        .font(BrandFont.body(size: 14, weight: .bold))
+                        .foregroundColor(BrandColor.onSurface)
+
+                    Text("解锁云同步、推送等更多功能")
+                        .font(BrandFont.body(size: 12, weight: .medium))
+                        .foregroundColor(BrandColor.onSurface.opacity(0.7))
+                }
+            }
+
+            Spacer()
+
+            // 右侧操作区域
+            HStack(spacing: BrandSpacing.sm) {
+                // 登录按钮
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        isPresented = false
+                    }
+                    onTapSettings()
+                    UserDefaults.standard.set(true, forKey: "hasShownLoginGuideBubble")
+                }) {
+                    HStack(spacing: BrandSpacing.xs) {
+                        Text("登录")
+                            .font(BrandFont.body(size: 13, weight: .bold))
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 11, weight: .bold))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, BrandSpacing.sm)
+                    .padding(.vertical, BrandSpacing.xs)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(BrandColor.primaryBlue)
+                    )
+                }
+
+                // 关闭按钮
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        isPresented = false
+                    }
+                    // 标记已显示过引导banner
+                    UserDefaults.standard.set(true, forKey: "hasShownLoginGuideBubble")
+                }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(BrandColor.onSurfaceVariant.opacity(0.6))
+                        .padding(6)
+                        .background(
+                            Circle()
+                                .fill(BrandColor.onSurfaceVariant.opacity(0.1))
+                        )
+                }
+            }
+        }
+        .padding(.horizontal, BrandSpacing.lg)
+        .padding(.vertical, BrandSpacing.md)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                .fill(BrandColor.surface.opacity(colorScheme == .dark ? 0.95 : 0.95))
+                .background(
+                    RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                        .fill(.regularMaterial)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    BrandColor.primaryYellow.opacity(0.6),
+                                    BrandColor.primaryYellow.opacity(0.3)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                )
+        )
+        .shadow(
+            color: Color.black.opacity(colorScheme == .dark ? 0.2 : 0.05),
+            radius: 12,
+            x: 0,
+            y: -2
+        )
+        .frame(width: UIScreen.main.bounds.width * 0.95)
+        .frame(maxWidth: .infinity)
     }
 }
 

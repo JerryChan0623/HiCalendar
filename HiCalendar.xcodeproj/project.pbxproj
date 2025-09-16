@@ -7,12 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C42918162E72D7C4004C1F25 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C42918152E72D7C4004C1F25 /* WidgetKit.framework */; };
+		C42918182E72D7C4004C1F25 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C42918172E72D7C4004C1F25 /* SwiftUI.framework */; };
+		C42918232E72D7C6004C1F25 /* HiCalendarWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C42918142E72D7C4004C1F25 /* HiCalendarWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C44802992E5DECCF001198CD /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C44802982E5DECCF001198CD /* Supabase */; };
+		C45833CA2E781A4800B44180 /* HiCalendar.storekit in Resources */ = {isa = PBXBuildFile; fileRef = C45833C92E781A4800B44180 /* HiCalendar.storekit */; };
 		C486A5F82E55D5E400E034A4 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C486A5F72E55D5E400E034A4 /* Auth */; };
 		C486A5FA2E55D5E400E034A4 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = C486A5F92E55D5E400E034A4 /* Functions */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		C42918212E72D7C6004C1F25 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C4661A722E45ABC2006E02C6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C42918132E72D7C4004C1F25;
+			remoteInfo = HiCalendarWidgetExtension;
+		};
 		C4661A8A2E45ABC5006E02C6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C4661A722E45ABC2006E02C6 /* Project object */;
@@ -29,13 +40,50 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		C42918242E72D7C6004C1F25 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C42918232E72D7C6004C1F25 /* HiCalendarWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		C42918142E72D7C4004C1F25 /* HiCalendarWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HiCalendarWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C42918152E72D7C4004C1F25 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		C42918172E72D7C4004C1F25 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		C429182A2E72D9A9004C1F25 /* HiCalendarWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HiCalendarWidgetExtension.entitlements; sourceTree = "<group>"; };
+		C45833C92E781A4800B44180 /* HiCalendar.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = HiCalendar.storekit; sourceTree = "<group>"; };
 		C4661A7A2E45ABC2006E02C6 /* HiCalendar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HiCalendar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4661A892E45ABC5006E02C6 /* HiCalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HiCalendarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4661A932E45ABC5006E02C6 /* HiCalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HiCalendarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C42918272E72D7C6004C1F25 /* Exceptions for "HiCalendarWidget" folder in "HiCalendarWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C42918132E72D7C4004C1F25 /* HiCalendarWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		C42918192E72D7C4004C1F25 /* HiCalendarWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C42918272E72D7C6004C1F25 /* Exceptions for "HiCalendarWidget" folder in "HiCalendarWidgetExtension" target */,
+			);
+			path = HiCalendarWidget;
+			sourceTree = "<group>";
+		};
 		C4661A7C2E45ABC2006E02C6 /* HiCalendar */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HiCalendar;
@@ -54,6 +102,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C42918112E72D7C4004C1F25 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C42918182E72D7C4004C1F25 /* SwiftUI.framework in Frameworks */,
+				C42918162E72D7C4004C1F25 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C4661A772E45ABC2006E02C6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -84,6 +141,8 @@
 		C44802972E5DECCF001198CD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C42918152E72D7C4004C1F25 /* WidgetKit.framework */,
+				C42918172E72D7C4004C1F25 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -91,9 +150,12 @@
 		C4661A712E45ABC2006E02C6 = {
 			isa = PBXGroup;
 			children = (
+				C45833C92E781A4800B44180 /* HiCalendar.storekit */,
+				C429182A2E72D9A9004C1F25 /* HiCalendarWidgetExtension.entitlements */,
 				C4661A7C2E45ABC2006E02C6 /* HiCalendar */,
 				C4661A8C2E45ABC5006E02C6 /* HiCalendarTests */,
 				C4661A962E45ABC5006E02C6 /* HiCalendarUITests */,
+				C42918192E72D7C4004C1F25 /* HiCalendarWidget */,
 				C44802972E5DECCF001198CD /* Frameworks */,
 				C4661A7B2E45ABC2006E02C6 /* Products */,
 			);
@@ -105,6 +167,7 @@
 				C4661A7A2E45ABC2006E02C6 /* HiCalendar.app */,
 				C4661A892E45ABC5006E02C6 /* HiCalendarTests.xctest */,
 				C4661A932E45ABC5006E02C6 /* HiCalendarUITests.xctest */,
+				C42918142E72D7C4004C1F25 /* HiCalendarWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -112,6 +175,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C42918132E72D7C4004C1F25 /* HiCalendarWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C42918282E72D7C6004C1F25 /* Build configuration list for PBXNativeTarget "HiCalendarWidgetExtension" */;
+			buildPhases = (
+				C42918102E72D7C4004C1F25 /* Sources */,
+				C42918112E72D7C4004C1F25 /* Frameworks */,
+				C42918122E72D7C4004C1F25 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C42918192E72D7C4004C1F25 /* HiCalendarWidget */,
+			);
+			name = HiCalendarWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = HiCalendarWidgetExtension;
+			productReference = C42918142E72D7C4004C1F25 /* HiCalendarWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		C4661A792E45ABC2006E02C6 /* HiCalendar */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C4661A9D2E45ABC5006E02C6 /* Build configuration list for PBXNativeTarget "HiCalendar" */;
@@ -119,10 +204,12 @@
 				C4661A762E45ABC2006E02C6 /* Sources */,
 				C4661A772E45ABC2006E02C6 /* Frameworks */,
 				C4661A782E45ABC2006E02C6 /* Resources */,
+				C42918242E72D7C6004C1F25 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C42918222E72D7C6004C1F25 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				C4661A7C2E45ABC2006E02C6 /* HiCalendar */,
@@ -193,6 +280,9 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					C42918132E72D7C4004C1F25 = {
+						CreatedOnToolsVersion = 16.4;
+					};
 					C4661A792E45ABC2006E02C6 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -226,15 +316,24 @@
 				C4661A792E45ABC2006E02C6 /* HiCalendar */,
 				C4661A882E45ABC5006E02C6 /* HiCalendarTests */,
 				C4661A922E45ABC5006E02C6 /* HiCalendarUITests */,
+				C42918132E72D7C4004C1F25 /* HiCalendarWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C42918122E72D7C4004C1F25 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C4661A782E45ABC2006E02C6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C45833CA2E781A4800B44180 /* HiCalendar.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,6 +354,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C42918102E72D7C4004C1F25 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C4661A762E45ABC2006E02C6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -279,6 +385,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		C42918222E72D7C6004C1F25 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C42918132E72D7C4004C1F25 /* HiCalendarWidgetExtension */;
+			targetProxy = C42918212E72D7C6004C1F25 /* PBXContainerItemProxy */;
+		};
 		C4661A8B2E45ABC5006E02C6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C4661A792E45ABC2006E02C6 /* HiCalendar */;
@@ -292,6 +403,62 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		C42918252E72D7C6004C1F25 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = HiCalendarWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G8Q7A2K656;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HiCalendarWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = HiCalendarWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chenzhencong.HiCalendar.HiCalendarWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C42918262E72D7C6004C1F25 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = HiCalendarWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G8Q7A2K656;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HiCalendarWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = HiCalendarWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chenzhencong.HiCalendar.HiCalendarWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		C4661A9B2E45ABC5006E02C6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -552,6 +719,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C42918282E72D7C6004C1F25 /* Build configuration list for PBXNativeTarget "HiCalendarWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C42918252E72D7C6004C1F25 /* Debug */,
+				C42918262E72D7C6004C1F25 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C4661A752E45ABC2006E02C6 /* Build configuration list for PBXProject "HiCalendar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
