@@ -86,6 +86,25 @@ xcodebuild archive -project HiCalendar.xcodeproj -scheme HiCalendar -archivePath
   - ObservableObject for reactive UI updates
 - **ImageCropView.swift**: Custom image cropping interface for backgrounds
 
+### System Calendar Integration (NEW)
+- **SystemCalendarManager.swift**: 完整的EventKit集成管理器
+  - 双向同步：支持导入/导出/双向同步模式
+  - HiCalendar专用日历：自动创建"HiCalendar"日历分类
+  - 智能去重：多重防护机制防止循环导入
+  - 权限管理：APNs和EventKit权限的统一管理
+  - 实时同步：支持事件变化的实时监听和同步
+  - 全时区支持：正确处理全天事件的时区转换
+  - 清理功能：智能检测并清理重复导入的事件
+  - Key methods: `performSync()`, `getOrCreateHiCalendarCalendar()`, `cleanupSystemCalendarDuplicates()`
+
+- **SystemCalendarSyncView.swift**: 系统日历同步设置UI
+  - 权限引导和状态显示
+  - 同步方向选择 (导入/导出/双向)
+  - 同步频率设置 (手动/每小时/每天/实时)
+  - 日历选择和HiCalendar专用日历创建
+  - 一键切换到HiCalendar日历功能
+  - 重复事件清理操作
+
 ### Design System (`DesignTokens.swift`)
 - **Neobrutalism aesthetic**: High contrast colors, bold borders (2-5pt), no shadows
 - **Dark mode support**: Dynamic colors that adapt to system appearance  
@@ -351,6 +370,38 @@ FROM events WHERE id = '具体事件ID';
 ```
 
 ## Recent Updates & Bug Fixes
+
+### 📅 系统日历双向同步功能 (2025-09-18)
+
+#### HiCalendar专用日历分类
+- **自动创建**: 首次同步时自动创建"HiCalendar"专用日历
+- **优先选择**: 优先使用iCloud源确保跨设备同步
+- **品牌识别**: 设置蓝色品牌色便于区分
+- **一键切换**: 解决事件被分配到其他日历的问题
+
+#### 智能双向同步系统
+- **同步模式**: 支持导入/导出/双向同步三种模式
+- **实时监听**: EventKit数据库变化实时监听和同步
+- **定时同步**: 可设置手动/每小时/每天/实时同步频率
+- **权限管理**: 完整的EventKit权限请求和状态管理
+
+#### 强化去重逻辑
+- **多重防护**: 基于系统ID、标题、时间的精确匹配
+- **循环导入检测**: 防止HiCalendar事件被重复导入
+- **全天事件修复**: 正确处理时区转换，修复UTC时间问题
+- **样本事件过滤**: 防止Onboarding引导事件同步到系统日历
+
+#### 重复事件清理功能
+- **智能检测**: 自动识别标题+日期相同的重复事件
+- **优先级保留**: 优先保留原生HiCalendar事件
+- **批量清理**: 一键清理所有重复导入的事件
+- **系统日历同步清理**: 同时清理系统日历中的重复事件
+
+#### 技术实现亮点
+- **EventKit完整集成**: SystemCalendarManager提供完整的系统日历操作
+- **时区兼容性**: 全天事件使用本地时区的当天开始时间
+- **会员功能**: 系统日历同步仅限会员使用
+- **UI优化**: 完整的设置界面SystemCalendarSyncView
 
 ### 🎯 全面UI/UX优化 (2025-09-04)
 
