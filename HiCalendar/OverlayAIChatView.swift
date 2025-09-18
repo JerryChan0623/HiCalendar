@@ -117,7 +117,7 @@ struct OverlayAIChatView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: BrandSpacing.xs) {
-                    Text("AI助手")
+                    Text(L10n.aiAssistant)
                         .font(BrandFont.body(size: 18, weight: .bold))
                         .foregroundColor(BrandColor.onSurface)
                     
@@ -439,7 +439,7 @@ struct OverlayAIChatView: View {
     private func generateQuickAIResponse(for message: String) -> String {
         let lowercased = message.lowercased()
         
-        if lowercased.contains("今天") && lowercased.contains("安排") {
+        if lowercased.contains(L10n.today) && lowercased.contains("安排") {
             let todayEvents = storageManager.events.filter { event in
                 guard let startAt = event.startAt else { return false }
                 return Calendar.current.isDateInToday(startAt)

@@ -44,7 +44,7 @@ struct MemberDataBackupView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") {
+                    Button(L10n.done) {
                         dismiss()
                     }
                     .font(BrandFont.body(size: 16, weight: .medium))
@@ -53,7 +53,7 @@ struct MemberDataBackupView: View {
             }
         }
         .alert("提示", isPresented: $showingAlert) {
-            Button("确定", role: .cancel) { }
+            Button(L10n.ok, role: .cancel) { }
         } message: {
             Text(alertMessage)
         }

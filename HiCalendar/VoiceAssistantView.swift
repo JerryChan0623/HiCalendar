@@ -39,12 +39,12 @@ struct VoiceAssistantView: View {
                 .ignoresSafeArea()
             )
             .alert("需要权限", isPresented: $showingPermissionAlert) {
-                Button("设置") {
+                Button(L10n.settings) {
                     if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
                         UIApplication.shared.open(settingsUrl)
                     }
                 }
-                Button("取消", role: .cancel) { }
+                Button(L10n.cancel, role: .cancel) { }
             } message: {
                 Text("语音助手需要麦克风和语音识别权限才能正常工作")
             }
@@ -68,7 +68,7 @@ struct VoiceAssistantView: View {
     private var customHeader: some View {
         VStack(spacing: BrandSpacing.sm) {
             HStack {
-                Button("完成") {
+                Button(L10n.done) {
                     dismiss()
                 }
                 .font(BrandFont.body(size: 16, weight: .medium))
@@ -412,7 +412,7 @@ struct VoiceAssistantView: View {
     }
     
     private func generateMockResponse(for command: String) -> String {
-        if command.contains("今天") && command.contains("安排") {
+        if command.contains(L10n.today) && command.contains("安排") {
             let todayEvents = storageManager.events.filter { event in
                 guard let startAt = event.startAt else { return false }
                 return Calendar.current.isDateInToday(startAt)

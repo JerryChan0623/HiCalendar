@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/jerry/Documents/Xcode Pro/HiCalendar/build/Release-iphoneos/HiCalendarWidgetExtension.appex/HiCalendarWidgetExtension'
+relocations:     []
+...

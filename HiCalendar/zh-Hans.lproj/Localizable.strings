@@ -1,0 +1,255 @@
+/*
+  Localizable.strings (Simplified Chinese)
+  HiCalendar
+
+  中文本地化，保留个性化文案
+*/
+
+// MARK: - 导航和基础UI
+"settings" = "设置";
+"back" = "返回";
+"done" = "完成";
+"cancel" = "取消";
+"ok" = "确定";
+"save" = "保存";
+"delete" = "删除";
+"edit" = "编辑";
+"add" = "添加";
+"confirm" = "确认";
+
+// MARK: - 底部导航栏
+"calendar_tab" = "看日子";
+"everything_tab" = "全部安排";
+"ai_assistant" = "AI助手";
+
+// MARK: - 设置页面
+"who_is_here" = "看看是谁在这儿 👀";
+"its_you" = "就是你啦～";
+"change_calendar_skin" = "给日历换个皮肤 🎨";
+"current_look" = "现在的装扮";
+"no_background_yet" = "还没换装呢，素颜也挺好 ✨";
+"simple_beauty" = "朴素美也是美";
+"dont_want_this" = "不要这张了啦";
+"i_think_again" = "我再想想";
+"dont_want_it" = "不要了！";
+"leaving_already" = "要走了吗？";
+"really_leaving" = "真的要走了吗？下次记得回来哦 👋";
+"see_you_later" = "拜拜～";
+"choose_background" = "选择背景图片";
+"update_background" = "更换背景图片";
+"background_tip" = "挑张好看的图，让日历也美美哒～记得选清晰的哦，不然字都看不清就尴尬了 😅";
+
+// MARK: - 登录和认证
+"please_login" = "快来登录呀 🎪";
+"login_benefits" = "登录了就能在云端备份，妈妈再也不怕我丢数据了 ☁️";
+"login_error" = "登录错误: %@";
+"apple_auth_error" = "Apple认证错误: %@";
+
+// MARK: - 会员功能
+"upgrade_hicalendar_pro" = "升级 HiCalendar 会员";
+"hicalendar_member" = "HiCalendar 会员";
+"unlock_features" = "解锁：云同步 · 小组件 · 智能推送";
+"already_unlocked" = "已解锁：云同步 · 小组件 · 智能推送";
+"cloud_sync" = "云端同步";
+"desktop_widgets" = "桌面小组件";
+"smart_push" = "智能推送";
+"upgrade_now" = "立即升级";
+"restore_purchase" = "恢复购买";
+"already_unlocked_pro" = "已解锁 Pro 功能";
+"unlock_pro_features" = "解锁 Pro 功能";
+"purchasing" = "购买中...";
+"lifetime_access" = "一次购买，终身使用";
+"unlock_full_features" = "解锁完整功能，让日历管理更高效";
+
+// MARK: - 会员功能详情
+"cloud_sync_desc" = "多设备同步您的日历数据，永不丢失";
+"widget_desc" = "在主屏幕直接查看今日事项，一目了然";
+"smart_push_desc" = "云端智能推送提醒，多设备同步推送状态";
+
+// MARK: - 推送通知
+"notification_settings" = "通知提醒设置 🔔";
+"push_not_enabled" = "推送通知未开启";
+"enable_push_tip" = "开启通知后可以在事件前收到贴心（嘴贱）提醒哦～";
+"enable_push" = "开启推送通知";
+"day_before_reminder" = "事件前1天提醒";
+"day_before_desc" = "默认开启，提前一天叫醒你";
+"week_before_reminder" = "事件前1周提醒";
+"week_before_desc" = "提前一周开始准备，从容不迫";
+
+// MARK: - 法律信息
+"legal_info" = "法律信息";
+"terms_of_service" = "用户协议";
+"privacy_policy" = "隐私政策";
+"contact_us" = "联系我们：%@";
+"login_agreement" = "登录即表示您同意我们的";
+"and" = "和";
+
+// MARK: - 登录好处说明
+"unlock_more_settings" = "登录后解锁更多设置";
+"personalized_background" = "个性化背景设置";
+"personalized_background_desc" = "自定义日历背景图片，让界面独一无二";
+"become_member_unlock" = "成为会员解锁云端功能";
+"cloud_backup" = "数据云端备份";
+"cloud_backup_desc" = "多设备数据同步，永不丢失";
+"smart_push_notifications" = "智能推送提醒";
+"smart_push_desc" = "云端推送通知，多设备同步状态";
+"desktop_widget" = "桌面小组件";
+"desktop_widget_desc" = "主屏幕直接查看今日事项";
+"login_first_desc" = "先登录享受个性化设置，升级会员解锁全部云端功能";
+
+// MARK: - AI个性回复（保持吐槽但有用的风格）
+"ai_cant_understand" = "我有点理解不了你的意思～能说得具体点吗？🤔";
+"ai_created_event" = "好吧，我把「%@」加到你的日历里了，别又忘了！📝";
+"ai_no_events_today" = "你今天竟然很闲！可以摸鱼了？😎";
+"ai_busy_day" = "哇，你今天安排得满满的！别累坏了 💪";
+"ai_event_conflict" = "喂，你时间冲突了！又不能分身，怎么办？🤨";
+"ai_event_updated" = "帮你更新了「%@」，满意了吧？✨";
+"ai_event_deleted" = "删掉了「%@」，希望你别后悔！🗑️";
+"ai_good_morning" = "早上好！准备开始新的一天了吗？☀️";
+"ai_good_afternoon" = "下午好！今天过得怎么样？🌤️";
+"ai_good_evening" = "晚上好！该放松一下了？🌙";
+
+// MARK: - 事件管理
+"event_title" = "事件标题";
+"event_details" = "事件详情";
+"start_time" = "开始时间";
+"end_time" = "结束时间";
+"all_day" = "全天";
+"no_time" = "无时间";
+"remind_before" = "提前提醒";
+"save_event" = "保存事件";
+"delete_event" = "删除事件";
+
+// MARK: - 提醒选项
+"no_reminder" = "不提醒";
+"at_event_time" = "准点提醒";
+"15_minutes_before" = "15分钟前";
+"30_minutes_before" = "30分钟前";
+"1_hour_before" = "1小时前";
+"2_hours_before" = "2小时前";
+"1_day_before" = "1天前";
+"1_week_before" = "1周前";
+
+// MARK: - 状态和消息
+"loading" = "加载中...";
+"syncing" = "同步中...";
+"sync_completed" = "同步完成";
+"sync_failed" = "同步失败";
+"no_events" = "暂无事件";
+"today" = "今天";
+"tomorrow" = "明天";
+"yesterday" = "昨天";
+
+// MARK: - 购买消息
+"purchase_success" = "购买成功！Pro 功能已解锁 🎉";
+"purchase_failed" = "购买失败: %@";
+"purchase_restored" = "购买已恢复！Pro 功能已解锁 🎉";
+"no_previous_purchase" = "未找到之前的购买记录";
+"product_not_found" = "产品未找到，请稍后再试";
+
+// MARK: - 错误消息（保持个性）
+"something_went_wrong" = "哎呀，出了点小状况～再试试？🤷‍♀️";
+"network_error" = "网络今天脾气不好，检查一下连接？📶";
+"try_again_later" = "服务器在打瞌睡，过会再试？😴";
+
+// MARK: - 时间格式
+"time_format_12h" = "a h:mm";
+"time_format_24h" = "HH:mm";
+"date_format_short" = "M月d日";
+"date_format_long" = "yyyy年M月d日";
+
+// MARK: - 日历视图
+"this_month" = "本月";
+"this_week" = "本周";
+"month_view" = "月视图";
+"week_view" = "周视图";
+"day_view" = "日视图";
+
+// MARK: - 语音和AI功能
+"voice_permission_needed" = "AI聊天需要语音权限";
+"voice_permission_denied" = "语音被拒绝，切换到文字聊天";
+"recording" = "录音中...";
+"processing" = "处理中...";
+"speak_now" = "现在说话";
+"tap_to_type" = "点击输入";
+"long_press_to_record" = "长按录音";
+
+// MARK: - 弹窗消息
+"really_dont_want" = "真的不要了？";
+"sure_delete_image" = "真的不要这张美图了吗？删了可就没了哦 🥺";
+
+// MARK: - 遗漏的基础字符串
+"add" = "添加";
+"contact_us_title" = "联系我们";
+"today" = "今天";
+"terms_title" = "使用条款";
+"member_center" = "会员中心";
+
+// MARK: - Onboarding卡片和弹框
+"drag_pinch_adjust" = "拽一拽，捏一捏，调到最美的角度 ✨";
+"crop_background_image" = "裁切背景图片";
+"cancel_crop" = "算了算了";
+"confirm_crop" = "就这样！";
+"enable_notifications" = "开启";
+"maybe_later" = "稍后";
+"notification_permission_message" = "为了及时提醒你的重要事项，HiCalendar需要推送通知权限。我们的推送文案很有趣哦～";
+"recording_voice" = "录音中";
+"processing_voice" = "处理中";
+
+// MARK: - Widget小组件字符串
+"no_events_today" = "今天没有安排";
+"more_events_count" = "还有 %d 个安排...";
+"total_week_events" = "共 %d 个安排";
+"all_week_events" = "本周全部安排";
+"no_events_this_week" = "本周暂无安排";
+"upgrade_to_pro_widget" = "点击升级到Pro\n查看日历内容";
+"widget_locked" = "Widget已锁定";
+
+// MARK: - 购买管理器错误消息
+"unlock_cloud_sync_description" = "解锁云端同步和桌面小组件功能";
+"loading_products_failed" = "加载产品失败: %@";
+"unknown_purchase_result" = "未知的购买结果";
+"purchase_verification_failed" = "购买验证失败";
+"purchase_failed_error" = "购买失败: %@";
+"restore_purchase_failed" = "恢复购买失败: %@";
+"member_data_sync_failed" = "会员数据同步失败: %@";
+"verification_failed_message" = "购买验证失败";
+"product_not_found_message" = "产品未找到";
+"user_rejected_push" = "用户拒绝了推送权限";
+"user_chose_later_push" = "用户选择稍后开启推送";
+
+// MARK: - 登录引导
+"login_guide_title" = "嘿！点击右上角设置登录";
+"login_guide_subtitle" = "解锁云同步、推送等更多功能";
+"login_button" = "登录";
+
+// MARK: - 系统日历集成
+"system_calendar_sync" = "系统日历同步";
+"system_calendar_requires_premium" = "系统日历同步需要会员权限";
+"calendar_permission_required" = "需要日历权限";
+"calendar_permission_denied" = "日历权限被拒绝";
+"calendar_permission_error" = "日历权限错误: %@";
+"import_only_calendar" = "仅导入";
+"export_only_calendar" = "仅导出";
+"bidirectional_sync" = "双向同步";
+"import_only_description" = "从系统日历导入事件到HiCalendar";
+"export_only_description" = "将HiCalendar事件导出到系统日历";
+"bidirectional_description" = "双向同步，保持数据一致";
+"manual_sync" = "手动同步";
+"hourly_sync" = "每小时同步";
+"daily_sync" = "每日同步";
+"realtime_sync" = "实时同步";
+"no_calendar_selected" = "未选择日历";
+"untitled_event" = "无标题事件";
+"sync_error" = "同步错误: %@";
+"enable_calendar_sync" = "启用日历同步";
+"sync_direction_title" = "同步方向";
+"sync_frequency_title" = "同步频率";
+"selected_calendars_title" = "选择日历";
+"last_sync_time" = "上次同步";
+"perform_manual_sync" = "手动同步";
+"sync_in_progress" = "正在同步...";
+
+// MARK: - 应用信息
+"app_version" = "版本 %@";
+"build_number" = "构建 %@";

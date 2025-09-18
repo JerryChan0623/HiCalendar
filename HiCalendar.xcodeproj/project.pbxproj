@@ -12,6 +12,7 @@
 		C42918232E72D7C6004C1F25 /* HiCalendarWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C42918142E72D7C4004C1F25 /* HiCalendarWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C44802992E5DECCF001198CD /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C44802982E5DECCF001198CD /* Supabase */; };
 		C45833CA2E781A4800B44180 /* HiCalendar.storekit in Resources */ = {isa = PBXBuildFile; fileRef = C45833C92E781A4800B44180 /* HiCalendar.storekit */; };
+		C4838B8E2E7BF97A002462C3 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = C4838B8D2E7BF97A002462C3 /* Mixpanel */; };
 		C486A5F82E55D5E400E034A4 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C486A5F72E55D5E400E034A4 /* Auth */; };
 		C486A5FA2E55D5E400E034A4 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = C486A5F92E55D5E400E034A4 /* Functions */; };
 /* End PBXBuildFile section */
@@ -117,6 +118,7 @@
 			files = (
 				C486A5FA2E55D5E400E034A4 /* Functions in Frameworks */,
 				C486A5F82E55D5E400E034A4 /* Auth in Frameworks */,
+				C4838B8E2E7BF97A002462C3 /* Mixpanel in Frameworks */,
 				C44802992E5DECCF001198CD /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -219,6 +221,7 @@
 				C486A5F72E55D5E400E034A4 /* Auth */,
 				C486A5F92E55D5E400E034A4 /* Functions */,
 				C44802982E5DECCF001198CD /* Supabase */,
+				C4838B8D2E7BF97A002462C3 /* Mixpanel */,
 			);
 			productName = HiCalendar;
 			productReference = C4661A7A2E45ABC2006E02C6 /* HiCalendar.app */;
@@ -302,11 +305,13 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = C4661A712E45ABC2006E02C6;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				C486A5F62E55D5E400E034A4 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				C4838B8C2E7BF97A002462C3 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C4661A7B2E45ABC2006E02C6 /* Products */;
@@ -591,6 +596,7 @@
 				DEVELOPMENT_TEAM = G8Q7A2K656;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "HiCalendar需要访问您的日历以实现系统日历同步功能，让您可以在HiCalendar中管理所有日程安排";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "HiCalendar需要访问麦克风以实现语音输入创建事项功能";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "：HiCalendar需要使用语音识别功能将您的语音转换为文字，以便快速创建和查询日程安排";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -623,6 +629,7 @@
 				DEVELOPMENT_TEAM = G8Q7A2K656;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "HiCalendar需要访问您的日历以实现系统日历同步功能，让您可以在HiCalendar中管理所有日程安排";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "HiCalendar需要访问麦克风以实现语音输入创建事项功能";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "：HiCalendar需要使用语音识别功能将您的语音转换为文字，以便快速创建和查询日程安排";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -767,6 +774,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		C4838B8C2E7BF97A002462C3 /* XCRemoteSwiftPackageReference "mixpanel-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mixpanel/mixpanel-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		C486A5F62E55D5E400E034A4 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift";
@@ -782,6 +797,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C486A5F62E55D5E400E034A4 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
+		};
+		C4838B8D2E7BF97A002462C3 /* Mixpanel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C4838B8C2E7BF97A002462C3 /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
+			productName = Mixpanel;
 		};
 		C486A5F72E55D5E400E034A4 /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;

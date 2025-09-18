@@ -110,25 +110,25 @@ struct ImageCropView: View {
                     // 操作提示
                     VStack {
                         Spacer()
-                        Text("拽一拽，捏一捏，调到最美的角度 ✨")
+                        Text(L10n.dragPinchAdjust)
                             .font(BrandFont.bodySmall)
                             .foregroundColor(.white.opacity(0.8))
                             .padding(.bottom, 50)
                     }
                 }
             }
-            .navigationTitle("裁切背景图片")
+            .navigationTitle(L10n.cropBackgroundImage)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("算了算了") {
+                    Button(L10n.cancelCrop) {
                         dismiss()
                     }
                     .foregroundColor(.white)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("就这样！") {
+                    Button(L10n.confirmCrop) {
                         cropImage()
                     }
                     .foregroundColor(BrandColor.primaryYellow)

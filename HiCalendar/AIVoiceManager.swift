@@ -527,7 +527,7 @@ class AIConversationManager: ObservableObject {
     // MARK: - 意图识别
     private func isCreateIntent(_ input: String) -> Bool {
         let createKeywords = ["创建", "添加", "新建", "安排", "约", "会议", "开会", "提醒", "记住"]
-        let timeKeywords = ["今天", "明天", "后天", "周", "点", "号", "月"]
+        let timeKeywords = [L10n.today, L10n.tomorrow, "后天", "周", "点", "号", "月"]
         
         return createKeywords.contains { input.contains($0) } ||
                timeKeywords.contains { input.contains($0) }
@@ -539,7 +539,7 @@ class AIConversationManager: ObservableObject {
     }
     
     private func isModifyIntent(_ input: String) -> Bool {
-        let modifyKeywords = ["修改", "改", "取消", "删除", "推迟", "提前"]
+        let modifyKeywords = ["修改", "改", L10n.cancel, L10n.delete, "推迟", "提前"]
         return modifyKeywords.contains { input.contains($0) }
     }
     
@@ -646,7 +646,7 @@ class AIConversationManager: ObservableObject {
         var components = calendar.dateComponents([.year, .month, .day], from: Date())
         
         // 简化版时间解析
-        if timeStr.contains("明天") {
+        if timeStr.contains(L10n.tomorrow) {
             components.day! += 1
         } else if timeStr.contains("后天") {
             components.day! += 2
@@ -669,9 +669,9 @@ class AIConversationManager: ObservableObject {
     }
     
     private func extractTimeRange(from input: String) -> TimeRange {
-        if input.contains("今天") {
+        if input.contains(L10n.today) {
             return .today
-        } else if input.contains("明天") {
+        } else if input.contains(L10n.tomorrow) {
             return .tomorrow
         } else if input.contains("这周") || input.contains("本周") {
             return .thisWeek
@@ -706,8 +706,8 @@ class AIConversationManager: ObservableObject {
     
     private func describeTimeRange(_ range: TimeRange) -> String {
         switch range {
-        case .today: return "今天"
-        case .tomorrow: return "明天"
+        case .today: return L10n.today
+        case .tomorrow: return L10n.tomorrow
         case .thisWeek: return "这周"
         }
     }

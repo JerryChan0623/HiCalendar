@@ -196,8 +196,8 @@ struct ContentView: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.hidden)
         }
-        .alert("开启推送通知", isPresented: $showPushPermissionAlert) {
-            Button("开启") {
+        .alert(L10n.enablePush, isPresented: $showPushPermissionAlert) {
+            Button(L10n.enableNotifications) {
                 Task {
                     let granted = await pushManager.requestPermission()
                     if !granted {
@@ -206,12 +206,12 @@ struct ContentView: View {
                     }
                 }
             }
-            Button("稍后") {
+            Button(L10n.maybeLater) {
                 // 用户选择稍后，不做额外处理
                 print("用户选择稍后开启推送")
             }
         } message: {
-            Text("为了及时提醒你的重要事项，HiCalendar需要推送通知权限。我们的推送文案很有趣哦～")
+            Text(L10n.notificationPermissionMessage)
         }
         .sheet(isPresented: $showPremiumView) {
             PremiumView()
@@ -270,8 +270,8 @@ struct CustomTabBar: View {
     @Namespace private var animation
     
     let tabs: [(title: String, iconType: ColorfulIcon.IconType)] = [
-        ("看日子", .calendar),
-        ("全部安排", .list)
+        (L10n.calendarTab, .calendar),
+        (L10n.everythingTab, .list)
     ]
     
     var body: some View {
@@ -389,13 +389,13 @@ struct IndependentAIButton: View {
             // 状态标签
             Group {
                 if voiceManager.isListening {
-                    Text("录音中")
+                    Text(L10n.recordingVoice)
                         .foregroundColor(BrandColor.danger)
                 } else if voiceManager.isProcessing {
-                    Text("处理中")
+                    Text(L10n.processingVoice)
                         .foregroundColor(BrandColor.primaryBlue)
                 } else {
-                    Text("AI助手")
+                    Text(L10n.aiAssistant)
                         .foregroundColor(BrandColor.onSurfaceVariant.opacity(0.7))
                 }
             }
@@ -471,7 +471,7 @@ struct GlobalAddButton: View {
                 ColorfulIcon(.plus, size: 22)
                     .frame(height: 32)
                 
-                Text("添加")
+                Text(L10n.add)
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(BrandColor.onSurfaceVariant.opacity(0.7))
             }
@@ -509,11 +509,11 @@ struct LoginGuideBanner: View {
                     .font(.system(size: 16))
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("嘿！点击右上角设置登录")
+                    Text(L10n.loginGuideTitle)
                         .font(BrandFont.body(size: 14, weight: .bold))
                         .foregroundColor(BrandColor.onSurface)
 
-                    Text("解锁云同步、推送等更多功能")
+                    Text(L10n.loginGuideSubtitle)
                         .font(BrandFont.body(size: 12, weight: .medium))
                         .foregroundColor(BrandColor.onSurface.opacity(0.7))
                 }
@@ -532,7 +532,7 @@ struct LoginGuideBanner: View {
                     UserDefaults.standard.set(true, forKey: "hasShownLoginGuideBubble")
                 }) {
                     HStack(spacing: BrandSpacing.xs) {
-                        Text("登录")
+                        Text(L10n.loginButton)
                             .font(BrandFont.body(size: 13, weight: .bold))
                         Image(systemName: "arrow.right")
                             .font(.system(size: 11, weight: .bold))

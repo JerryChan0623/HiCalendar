@@ -1,0 +1,26 @@
+{
+  "" : {
+    "const-values" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-primary.swiftconstvalues",
+    "dependencies" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-primary.d",
+    "diagnostics" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-primary.dia",
+    "emit-module-dependencies" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-primary-emit-module.dia",
+    "pch" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-primary.swiftdeps"
+  },
+  "/Users/jerry/Documents/Xcode Pro/HiCalendar/HiCalendarWidget/HiCalendarWidget.swift" : {
+    "index-unit-output-path" : "/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidget.o",
+    "llvm-bc" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidget.bc",
+    "object" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidget.o"
+  },
+  "/Users/jerry/Documents/Xcode Pro/HiCalendar/HiCalendarWidget/HiCalendarWidgetBundle.swift" : {
+    "index-unit-output-path" : "/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetBundle.o",
+    "llvm-bc" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetBundle.bc",
+    "object" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetBundle.o"
+  },
+  "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  }
+}

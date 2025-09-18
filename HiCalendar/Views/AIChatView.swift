@@ -58,7 +58,7 @@ struct AIChatView: View {
                                 .padding(.leading, BrandSpacing.xs)
                             
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("AI助手")
+                                Text(L10n.aiAssistant)
                                     .font(BrandFont.display(size: 18, weight: .bold))
                                     .foregroundColor(BrandColor.onSurface)
                                 Text("智能日历管家")
@@ -70,7 +70,7 @@ struct AIChatView: View {
                             Spacer()
                             
                             Button(action: { dismiss() }) {
-                                Text("完成")
+                                Text(L10n.done)
                                     .font(BrandFont.body(size: 16, weight: .semibold))
                                     .foregroundColor(BrandColor.primaryBlue)
                                     .padding(.horizontal, BrandSpacing.md)
@@ -349,7 +349,7 @@ struct AIChatView: View {
         let lowercaseMessage = message.lowercased()
         
         // 简单的关键词匹配来模拟AI理解
-        if lowercaseMessage.contains("明天") || lowercaseMessage.contains("下午") || lowercaseMessage.contains("开会") {
+        if lowercaseMessage.contains(L10n.tomorrow) || lowercaseMessage.contains("下午") || lowercaseMessage.contains("开会") {
             // 模拟创建事件
             let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
             let startTime = Calendar.current.date(bySettingHour: 14, minute: 0, second: 0, of: tomorrow)

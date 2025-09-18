@@ -244,28 +244,6 @@ class PushNotificationManager: ObservableObject {
         return isPermissionGranted ? "已开启" : "未开启"
     }
     
-    /// 测试本地推送通知（用于调试）
-    func sendTestNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = "HiCalendar测试"
-        content.body = "这是一条测试推送通知～ 🎉"
-        content.badge = 1
-        content.sound = .default
-        
-        let request = UNNotificationRequest(
-            identifier: "test_notification",
-            content: content,
-            trigger: UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
-        )
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("❌ 测试通知发送失败: \(error)")
-            } else {
-                print("✅ 测试通知已发送")
-            }
-        }
-    }
 }
 
 // MARK: - Push Notification Permission Status Extension

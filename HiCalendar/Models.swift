@@ -182,11 +182,17 @@ struct Event: Codable, Identifiable {
     var pushStatus: PushStatus  // 推送状态跟踪
     var isSynced: Bool          // 是否已同步到Supabase（默认false，创建时为未同步）
     var isOnboarding: Bool      // 是否为onboarding示例事项（不同步到云端）
+
+    // 系统日历同步相关字段
+    var systemCalendarEventID: String?  // 对应的系统日历事件ID
+    var systemCalendarID: String?       // 系统日历ID
+    var isFromSystemCalendar: Bool      // 是否来自系统日历导入
     
     init(id: UUID = UUID(), title: String, startAt: Date? = nil, endAt: Date? = nil, details: String? = nil,
          pushReminders: [PushReminderOption] = [.dayBefore], createdAt: Date = Date(), intendedDate: Date? = nil,
          recurrenceGroupId: UUID? = nil, originalRecurrenceType: RecurrenceType? = nil,
-         recurrenceCount: Int? = nil, recurrenceEndDate: Date? = nil, isSynced: Bool = false, isOnboarding: Bool = false) {
+         recurrenceCount: Int? = nil, recurrenceEndDate: Date? = nil, isSynced: Bool = false, isOnboarding: Bool = false,
+         systemCalendarEventID: String? = nil, systemCalendarID: String? = nil, isFromSystemCalendar: Bool = false) {
         self.id = id
         self.title = title
         self.startAt = startAt
@@ -202,6 +208,9 @@ struct Event: Codable, Identifiable {
         self.pushStatus = PushStatus()
         self.isSynced = isSynced
         self.isOnboarding = isOnboarding
+        self.systemCalendarEventID = systemCalendarEventID
+        self.systemCalendarID = systemCalendarID
+        self.isFromSystemCalendar = isFromSystemCalendar
     }
     
     // 旧版本兼容初始化方法

@@ -69,7 +69,7 @@ struct EventEditView: View {
         var saveButtonTitle: String {
             switch self {
             case .create: return "创建"
-            case .edit: return "保存"
+            case .edit: return L10n.save
             }
         }
     }
@@ -204,7 +204,7 @@ struct EventEditView: View {
                 isPresented: $showingDeleteAlert
             ) {
                 HStack(spacing: BrandSpacing.lg) {
-                    Button("取消") {
+                    Button(L10n.cancel) {
                         showingDeleteAlert = false
                     }
                     .buttonStyle(MD3ButtonStyle(type: .text))

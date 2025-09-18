@@ -1,0 +1,12 @@
+/*
+  InfoPlist.strings (English)
+  HiCalendar
+
+  App display names and descriptions in English
+*/
+
+CFBundleDisplayName = "HiCalendar";
+CFBundleName = "HiCalendar";
+NSCameraUsageDescription = "HiCalendar needs camera access to set custom background images for your calendar.";
+NSMicrophoneUsageDescription = "HiCalendar needs microphone access for voice chat with AI assistant.";
+NSUserNotificationsUsageDescription = "HiCalendar needs notification permission to send you helpful (sassy) reminders about your events.";

@@ -1,0 +1,12 @@
+{
+  "/Users/jerry/Documents/Xcode Pro/HiCalendar/HiCalendarWidget/HiCalendarWidget.swift" : {
+    "abi-baseline-json" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension.abi.json",
+    "const-values" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-primary.swiftconstvalues",
+    "dependencies" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-primary.d",
+    "diagnostics" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-primary.dia",
+    "objc-header" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension-Swift.h",
+    "swiftdoc" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension.swiftdoc",
+    "swiftmodule" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension.swiftmodule",
+    "swiftsourceinfo" : "/Users/jerry/Documents/Xcode Pro/HiCalendar/build/HiCalendar.build/Release-iphoneos/HiCalendarWidgetExtension.build/Objects-normal/arm64/HiCalendarWidgetExtension.swiftsourceinfo"
+  }
+}

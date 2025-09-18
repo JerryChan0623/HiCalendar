@@ -32,7 +32,7 @@ class PurchaseManager: ObservableObject {
 
         var description: String {
             switch self {
-            case .premium: return "解锁云端同步和桌面小组件功能"
+            case .premium: return L10n.unlockCloudSyncDescription
             }
         }
 
@@ -104,7 +104,7 @@ class PurchaseManager: ObservableObject {
 
         } catch {
             DispatchQueue.main.async {
-                self.errorMessage = "加载产品失败: \(error.localizedDescription)"
+                self.errorMessage = L10n.loadingProductsFailed(error.localizedDescription)
                 self.isLoading = false
             }
             print("❌ 加载产品失败: \(error)")
@@ -115,6 +115,16 @@ class PurchaseManager: ObservableObject {
     func purchase(_ product: Product) async throws -> StoreKit.Transaction? {
         isLoading = true
         errorMessage = nil
+
+        // 追踪购买流程开始
+        let userEventsCount = EventStorageManager.shared.events.count
+        MixpanelManager.shared.trackPurchaseFlowStarted(
+            productId: product.id,
+            priceDisplayed: product.displayPrice,
+            currency: "USD", // 可以从product.priceFormatStyle中获取
+            triggerSource: "cta_button", // 可以根据调用位置调整
+            userEventsCount: userEventsCount
+        )
 
         do {
             let result = try await product.purchase()
@@ -129,6 +139,21 @@ class PurchaseManager: ObservableObject {
 
                 // Always finish a transaction.
                 await transaction.finish()
+
+                // 追踪购买成功
+                let formatter = ISO8601DateFormatter()
+                let purchaseTime = formatter.string(from: transaction.purchaseDate)
+                let installDate = UserDefaults.standard.object(forKey: "HasLaunchedBefore") as? Date ?? Date()
+                let daysToConvert = Calendar.current.dateComponents([.day], from: installDate, to: Date()).day ?? 0
+
+                MixpanelManager.shared.trackPurchaseCompleted(
+                    productId: product.id,
+                    pricePaid: Double(truncating: product.price as NSNumber),
+                    currency: "USD",
+                    paymentMethod: "apple_pay",
+                    purchaseTime: purchaseTime,
+                    daysToConvert: daysToConvert
+                )
 
                 DispatchQueue.main.async {
                     self.isLoading = false
@@ -145,6 +170,14 @@ class PurchaseManager: ObservableObject {
                 return transaction
 
             case .userCancelled:
+                // 追踪购买取消
+                MixpanelManager.shared.trackPurchaseFailed(
+                    productId: product.id,
+                    errorType: "user_cancelled",
+                    errorCode: "user_cancelled",
+                    stepFailed: "payment_confirmation"
+                )
+
                 DispatchQueue.main.async {
                     self.isLoading = false
                 }
@@ -160,7 +193,7 @@ class PurchaseManager: ObservableObject {
 
             @unknown default:
                 DispatchQueue.main.async {
-                    self.errorMessage = "未知的购买结果"
+                    self.errorMessage = L10n.unknownPurchaseResult
                     self.isLoading = false
                 }
                 return nil
@@ -168,15 +201,25 @@ class PurchaseManager: ObservableObject {
 
         } catch {
             let nsError = error as NSError
+
+            // 追踪购买失败
+            let errorCode = "\(nsError.domain):\(nsError.code)"
+            MixpanelManager.shared.trackPurchaseFailed(
+                productId: product.id,
+                errorType: "store_error",
+                errorCode: errorCode,
+                stepFailed: "payment_confirmation"
+            )
+
             if nsError.domain == "StoreKitErrorDomain" && nsError.code == 2 { // verification failed
                 DispatchQueue.main.async {
-                    self.errorMessage = "购买验证失败"
+                    self.errorMessage = L10n.purchaseVerificationFailed
                     self.isLoading = false
                 }
                 throw PurchaseError.failedVerification
             } else {
                 DispatchQueue.main.async {
-                    self.errorMessage = "购买失败: \(error.localizedDescription)"
+                    self.errorMessage = L10n.purchaseFailedError(error.localizedDescription)
                     self.isLoading = false
                 }
                 print("❌ 购买失败: \(error)")
@@ -204,7 +247,7 @@ class PurchaseManager: ObservableObject {
 
         } catch {
             DispatchQueue.main.async {
-                self.errorMessage = "恢复购买失败: \(error.localizedDescription)"
+                self.errorMessage = L10n.restorePurchaseFailed(error.localizedDescription)
                 self.isLoading = false
             }
             print("❌ 恢复购买失败: \(error)")
@@ -288,7 +331,7 @@ class PurchaseManager: ObservableObject {
             if syncResult.success {
                 print("✅ 会员数据同步完成")
             } else {
-                print("❌ 会员数据同步失败: \(syncResult.errorMessage ?? "未知错误")")
+                print("❌ 会员数据同步失败: \(syncResult.errorMessage ?? L10n.somethingWentWrong)")
             }
         } else {
             print("📉 会员状态失效，停止云端同步")
@@ -400,24 +443,6 @@ class PurchaseManager: ObservableObject {
         print("🔄 手动刷新购买状态完成")
     }
 
-    /// 调试：打印当前购买状态详情
-    func debugPurchaseStatus() {
-        print("🔍 === 购买状态详情调试 ===")
-        print("📱 isPremiumUnlocked: \(isPremiumUnlocked)")
-        print("📦 purchasedProductIDs: \(purchasedProductIDs)")
-        print("💎 expected premium ID: \(ProductID.premium.rawValue)")
-
-        // 检查App Groups状态
-        if let sharedDefaults = UserDefaults(suiteName: "group.com.chenzhencong.HiCalendar") {
-            let widgetStatus = sharedDefaults.bool(forKey: "premium_unlocked")
-            let timestamp = sharedDefaults.double(forKey: "premium_status_updated_at")
-            print("📱 Widget status: \(widgetStatus)")
-            print("⏰ Last update: \(Date(timeIntervalSince1970: timestamp))")
-        } else {
-            print("❌ 无法访问App Groups!")
-        }
-        print("🔍 === 调试结束 ===")
-    }
 
     private func observeTransactionUpdates() -> Task<Void, Never> {
         Task(priority: .background) { [unowned self] in
@@ -459,9 +484,9 @@ enum PurchaseError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .failedVerification:
-            return "购买验证失败"
+            return L10n.verificationFailedMessage
         case .productNotFound:
-            return "产品未找到"
+            return L10n.productNotFoundMessage
         }
     }
 }

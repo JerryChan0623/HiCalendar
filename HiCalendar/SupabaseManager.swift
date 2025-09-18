@@ -104,11 +104,18 @@ class SupabaseManager: ObservableObject {
     func signInWithApple(idToken: String, nonce: String) async throws {
         isLoading = true
         errorMessage = nil
-        
+
+        // 追踪登录开始
+        let loginStartTime = Date()
+        MixpanelManager.shared.trackUserLoginStarted(
+            loginMethod: "apple_signin",
+            fromScreen: "settings" // 可以根据实际调用位置调整
+        )
+
         print("🍎 开始Apple登录流程...")
         print("🔑 ID Token: \(idToken.prefix(20))...")
         print("🔐 Nonce: \(nonce.prefix(10))...")
-        
+
         do {
             let session = try await client.auth.signInWithIdToken(
                 credentials: .init(
@@ -126,8 +133,24 @@ class SupabaseManager: ObservableObject {
             if let email = session.user.email {
                 UserDefaults.standard.set(email, forKey: "userEmail")
             }
+
+            // 设置会话开始时间
+            UserDefaults.standard.set(Date(), forKey: "SessionStartTime")
+            UserDefaults.standard.set(0, forKey: "EventsCreatedInSession")
             
             isLoading = false
+
+            // 设置Mixpanel用户身份
+            MixpanelManager.shared.identify(userId: session.user.id.uuidString)
+
+            // 追踪登录成功
+            let timeToComplete = Date().timeIntervalSince(loginStartTime)
+            MixpanelManager.shared.trackUserLoginCompleted(
+                loginMethod: "apple_signin",
+                success: true,
+                timeToComplete: timeToComplete
+            )
+
             print("✅ Apple登录成功: \(session.user.id)")
             print("✅ 用户邮箱: \(session.user.email ?? "无")")
 
@@ -139,6 +162,17 @@ class SupabaseManager: ObservableObject {
             }
         } catch {
             isLoading = false
+
+            // 追踪登录失败
+            let timeToComplete = Date().timeIntervalSince(loginStartTime)
+            let errorCode = (error as NSError).domain + ":\((error as NSError).code)"
+            MixpanelManager.shared.trackUserLoginCompleted(
+                loginMethod: "apple_signin",
+                success: false,
+                errorCode: errorCode,
+                timeToComplete: timeToComplete
+            )
+
             let translatedError = translateError(error)
             errorMessage = translatedError
             print("❌ Apple登录失败: \(error)")
@@ -151,15 +185,31 @@ class SupabaseManager: ObservableObject {
     // 登出
     @MainActor
     func signOut() async throws {
+        // 计算会话数据
+        let sessionStartTime = UserDefaults.standard.object(forKey: "SessionStartTime") as? Date ?? Date()
+        let sessionDuration = Date().timeIntervalSince(sessionStartTime)
+        let eventsCreated = UserDefaults.standard.integer(forKey: "EventsCreatedInSession")
+
         do {
+            // 追踪登出
+            MixpanelManager.shared.trackUserLogout(
+                sessionDuration: sessionDuration,
+                eventsCreatedInSession: eventsCreated
+            )
+
+            // 清除Mixpanel用户身份
+            MixpanelManager.shared.logout()
+
             try await client.auth.signOut()
             self.currentUser = nil
             self.isAuthenticated = false
-            
+
             // 清除本地状态
             UserDefaults.standard.set(false, forKey: "isLoggedIn")
             UserDefaults.standard.removeObject(forKey: "userEmail")
-            
+            UserDefaults.standard.removeObject(forKey: "SessionStartTime")
+            UserDefaults.standard.set(0, forKey: "EventsCreatedInSession")
+
             print("✅ 用户已登出")
         } catch {
             errorMessage = "登出失败: \(error.localizedDescription)"

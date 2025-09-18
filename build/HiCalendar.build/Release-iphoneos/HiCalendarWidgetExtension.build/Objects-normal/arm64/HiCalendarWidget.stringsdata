@@ -1,0 +1,256 @@
+{
+  "source": "/Users/jerry/Documents/Xcode Pro/HiCalendar/HiCalendarWidget/HiCalendarWidget.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "今天没有安排",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 322
+        }
+      },
+      {
+        "comment": "",
+        "key": "还有 %lld 个安排...",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 354
+        }
+      },
+      {
+        "comment": "",
+        "key": "今日安排",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 309
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 313
+        }
+      },
+      {
+        "comment": "",
+        "key": "全天",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 344
+        }
+      },
+      {
+        "comment": "",
+        "key": "无安排",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 403
+        }
+      },
+      {
+        "comment": "",
+        "key": "今天",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 391
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 395
+        }
+      },
+      {
+        "comment": "",
+        "key": "无安排",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 435
+        }
+      },
+      {
+        "comment": "",
+        "key": "明天",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 423
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 427
+        }
+      },
+      {
+        "comment": "",
+        "key": "本周全部安排",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 499
+        }
+      },
+      {
+        "comment": "",
+        "key": "本周暂无安排",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 504
+        }
+      },
+      {
+        "comment": "",
+        "key": "本周安排",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 475
+        }
+      },
+      {
+        "comment": "",
+        "key": "共 %lld 个安排",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 481
+        }
+      },
+      {
+        "comment": "",
+        "key": "还有 %lld 个安排...",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 514
+        }
+      },
+      {
+        "comment": "",
+        "key": "全天",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 558
+        }
+      },
+      {
+        "comment": "",
+        "key": "无安排",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 580
+        }
+      },
+      {
+        "comment": "",
+        "key": "还有 %lld 个...",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 588
+        }
+      },
+      {
+        "comment": "",
+        "key": "HiCalendar 任务预览",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 611
+        }
+      },
+      {
+        "comment": "",
+        "key": "查看今天、明天和本周的任务安排",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 612
+        }
+      },
+      {
+        "comment": "",
+        "key": "升级解锁",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 748
+        }
+      },
+      {
+        "comment": "",
+        "key": "点击升级到Pro\n查看日历内容",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 752
+        }
+      },
+      {
+        "comment": "",
+        "key": "Widget已锁定",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 782
+        }
+      },
+      {
+        "comment": "",
+        "key": "升级到 HiCalendar Pro",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 788
+        }
+      },
+      {
+        "comment": "",
+        "key": "• 桌面小组件\n• 云端同步备份\n• 多设备数据同步",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 792
+        }
+      },
+      {
+        "comment": "",
+        "key": "点击立即升级 →",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 797
+        }
+      },
+      {
+        "comment": "",
+        "key": "点击升级到 HiCalendar Pro",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 857
+        }
+      },
+      {
+        "comment": "",
+        "key": "Widget功能已锁定",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 830
+        }
+      },
+      {
+        "comment": "",
+        "key": "升级到Pro版本解锁完整功能",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 834
+        }
+      },
+      {
+        "comment": "",
+        "key": "Pro版本功能：",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 843
+        }
+      }
+    ]
+  },
+  "version": 1
+}

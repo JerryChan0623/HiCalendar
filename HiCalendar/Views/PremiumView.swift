@@ -11,10 +11,8 @@ import StoreKit
 struct PremiumView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var purchaseManager = PurchaseManager.shared
-    @StateObject private var syncManager = MemberDataSyncManager.shared
     @State private var showingAlert = false
     @State private var alertMessage = ""
-    @State private var showingBackupSheet = false
 
     var body: some View {
         NavigationStack {
@@ -46,10 +44,6 @@ struct PremiumView: View {
                         // 恢复购买
                         restoreSection
 
-                        // 会员数据管理（仅会员可见）
-                        if purchaseManager.isPremiumUnlocked {
-                            memberDataSection
-                        }
 
                         Spacer(minLength: BrandSpacing.xxl)
                     }
@@ -62,7 +56,7 @@ struct PremiumView: View {
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") {
+                    Button(L10n.done) {
                         dismiss()
                     }
                     .font(BrandFont.body(size: 16, weight: .medium))
@@ -75,12 +69,9 @@ struct PremiumView: View {
             await purchaseManager.updateCustomerProductStatus()
         }
         .alert("提示", isPresented: $showingAlert) {
-            Button("确定", role: .cancel) { }
+            Button(L10n.ok, role: .cancel) { }
         } message: {
             Text(alertMessage)
-        }
-        .sheet(isPresented: $showingBackupSheet) {
-            MemberDataBackupView()
         }
     }
 
@@ -126,14 +117,14 @@ struct PremiumView: View {
             VStack(spacing: BrandSpacing.md) {
                 FeatureCard(
                     icon: "☁️",
-                    title: "云端同步",
+                    title: L10n.cloudSync,
                     description: "多设备同步您的日历数据，永不丢失",
                     isUnlocked: purchaseManager.canSyncToCloud
                 )
 
                 FeatureCard(
                     icon: "📱",
-                    title: "桌面小组件",
+                    title: L10n.desktopWidgets,
                     description: "在主屏幕直接查看今日事项，一目了然",
                     isUnlocked: purchaseManager.canUseWidget
                 )
@@ -172,7 +163,7 @@ struct PremiumView: View {
                                     .font(BrandFont.body(size: 24, weight: .heavy))
                                     .foregroundColor(BrandColor.primaryBlue)
 
-                                Text("一次购买，终身使用")
+                                Text(L10n.lifetimeAccess)
                                     .font(BrandFont.body(size: 12, weight: .medium))
                                     .foregroundColor(BrandColor.onSurface.opacity(0.6))
                             }
@@ -193,14 +184,21 @@ struct PremiumView: View {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 20, weight: .bold))
-                        Text("已解锁 Pro 功能")
+                        Text(L10n.alreadyUnlockedPro)
                             .font(BrandFont.body(size: 18, weight: .bold))
                     }
                     .foregroundColor(BrandColor.onPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
-                    .background(BrandColor.success)
-                    .neobrutalStyle(cornerRadius: BrandRadius.lg, borderWidth: BrandBorder.thick)
+                    .background(
+                        RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                            .fill(BrandColor.success)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                            .stroke(BrandBorder.outline, lineWidth: BrandBorder.thick)
+                    )
                 }
                 .disabled(true)
 
@@ -221,20 +219,27 @@ struct PremiumView: View {
                                 .font(.system(size: 20, weight: .bold))
                         }
 
-                        Text(purchaseManager.isLoading ? "购买中..." : "解锁 Pro 功能")
+                        Text(purchaseManager.isLoading ? L10n.purchasing : L10n.unlockProFeatures)
                             .font(BrandFont.body(size: 18, weight: .bold))
                     }
                     .foregroundColor(BrandColor.onPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
                     .background(
-                        LinearGradient(
-                            colors: [BrandColor.primaryYellow, BrandColor.primaryBlue],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
+                        RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [BrandColor.primaryYellow, BrandColor.primaryBlue],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
                     )
-                    .neobrutalStyle(cornerRadius: BrandRadius.lg, borderWidth: BrandBorder.thick)
+                    .clipShape(RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                            .stroke(BrandBorder.outline, lineWidth: BrandBorder.thick)
+                    )
                 }
                 .disabled(purchaseManager.isLoading || purchaseManager.products.isEmpty)
             }
@@ -245,7 +250,7 @@ struct PremiumView: View {
     private var restoreSection: some View {
         VStack(spacing: BrandSpacing.sm) {
             if !purchaseManager.isPremiumUnlocked {
-                Button("恢复购买") {
+                Button(L10n.restorePurchase) {
                     Task {
                         await restorePurchases()
                     }
@@ -257,15 +262,15 @@ struct PremiumView: View {
 
             // 隐私和条款链接
             HStack(spacing: BrandSpacing.md) {
-                Button("隐私政策") {
-                    // TODO: 打开隐私政策链接
+                Button(L10n.privacyPolicy) {
+                    openPrivacyPolicy()
                 }
 
                 Text("•")
                     .foregroundColor(BrandColor.outline)
 
-                Button("使用条款") {
-                    // TODO: 打开使用条款链接
+                Button(L10n.termsTitle) {
+                    openTermsOfService()
                 }
             }
             .font(BrandFont.body(size: 14, weight: .medium))
@@ -306,159 +311,19 @@ struct PremiumView: View {
         showingAlert = true
     }
 
-    // MARK: - Member Data Section
-    private var memberDataSection: some View {
-        VStack(spacing: BrandSpacing.md) {
-            // 标题
-            HStack {
-                Text("🔒 会员数据管理")
-                    .font(BrandFont.headline(size: 20, weight: .bold))
-                    .foregroundColor(BrandColor.onSurface)
-                Spacer()
-            }
-
-            VStack(spacing: BrandSpacing.sm) {
-                // 同步状态卡片
-                syncStatusCard
-
-                // 数据备份按钮
-                Button(action: {
-                    showingBackupSheet = true
-                }) {
-                    HStack {
-                        Image(systemName: "icloud.and.arrow.up")
-                            .font(.system(size: 18, weight: .medium))
-                        Text("数据备份与恢复")
-                            .font(BrandFont.body(size: 16, weight: .medium))
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 14, weight: .medium))
-                    }
-                    .foregroundColor(BrandColor.primaryBlue)
-                    .padding(BrandSpacing.md)
-                    .background(BrandColor.primaryBlue.opacity(0.1))
-                    .neobrutalStyle(cornerRadius: BrandRadius.md, borderWidth: BrandBorder.thin)
-                }
-
-                // 同步控制按钮
-                HStack(spacing: BrandSpacing.sm) {
-                    Button("手动同步") {
-                        Task {
-                            let result = await syncManager.performIncrementalSync()
-                            if result.success {
-                                showAlert(message: "同步完成！上传\(result.eventsUploaded)个，下载\(result.eventsDownloaded)个事项")
-                            } else {
-                                showAlert(message: "同步失败：\(result.errorMessage ?? "未知错误")")
-                            }
-                        }
-                    }
-                    .font(BrandFont.body(size: 14, weight: .medium))
-                    .foregroundColor(BrandColor.onPrimary)
-                    .padding(.horizontal, BrandSpacing.md)
-                    .padding(.vertical, BrandSpacing.sm)
-                    .background(BrandColor.primaryBlue)
-                    .neobrutalStyle(cornerRadius: BrandRadius.sm, borderWidth: BrandBorder.thin)
-                    .disabled(syncManager.syncStatus == .syncing)
-
-                    Button("创建备份") {
-                        Task {
-                            let success = await syncManager.createBackup()
-                            if success {
-                                showAlert(message: "备份创建成功！")
-                            } else {
-                                showAlert(message: "备份创建失败，请稍后重试")
-                            }
-                        }
-                    }
-                    .font(BrandFont.body(size: 14, weight: .medium))
-                    .foregroundColor(BrandColor.primaryBlue)
-                    .padding(.horizontal, BrandSpacing.md)
-                    .padding(.vertical, BrandSpacing.sm)
-                    .background(BrandColor.background)
-                    .neobrutalStyle(cornerRadius: BrandRadius.sm, borderWidth: BrandBorder.thin)
-                }
-            }
+    // MARK: - 法律条款方法
+    private func openTermsOfService() {
+        if let url = URL(string: "https://github.com/chenzhencong/HiCalendar/blob/main/TERMS_OF_SERVICE.md") {
+            UIApplication.shared.open(url)
         }
     }
 
-    private var syncStatusCard: some View {
-        MD3Card(type: .outlined) {
-            VStack(spacing: BrandSpacing.sm) {
-                HStack {
-                    Text("同步状态")
-                        .font(BrandFont.body(size: 16, weight: .bold))
-                        .foregroundColor(BrandColor.onSurface)
-                    Spacer()
-                    syncStatusIndicator
-                }
-
-                let stats = syncManager.getSyncStats()
-                VStack(alignment: .leading, spacing: BrandSpacing.xs) {
-                    HStack {
-                        Text("本地事项:")
-                        Spacer()
-                        Text("\(stats.localEvents)个")
-                            .foregroundColor(BrandColor.primaryBlue)
-                    }
-                    .font(BrandFont.body(size: 14, weight: .medium))
-
-                    HStack {
-                        Text("上次同步:")
-                        Spacer()
-                        if let lastSync = stats.lastSync {
-                            Text(formatSyncDate(lastSync))
-                                .foregroundColor(stats.isUpToDate ? BrandColor.success : BrandColor.warning)
-                        } else {
-                            Text("从未同步")
-                                .foregroundColor(BrandColor.outline)
-                        }
-                    }
-                    .font(BrandFont.body(size: 14, weight: .medium))
-                }
-            }
-            .padding(BrandSpacing.md)
+    private func openPrivacyPolicy() {
+        if let url = URL(string: "https://github.com/chenzhencong/HiCalendar/blob/main/PRIVACY_POLICY.md") {
+            UIApplication.shared.open(url)
         }
     }
 
-    private var syncStatusIndicator: some View {
-        HStack(spacing: BrandSpacing.xs) {
-            switch syncManager.syncStatus {
-            case .idle:
-                Circle()
-                    .fill(BrandColor.outline)
-                    .frame(width: 8, height: 8)
-                Text("空闲")
-                    .font(BrandFont.body(size: 12, weight: .medium))
-                    .foregroundColor(BrandColor.outline)
-            case .syncing:
-                ProgressView()
-                    .scaleEffect(0.6)
-                Text("同步中")
-                    .font(BrandFont.body(size: 12, weight: .medium))
-                    .foregroundColor(BrandColor.primaryBlue)
-            case .completed:
-                Circle()
-                    .fill(BrandColor.success)
-                    .frame(width: 8, height: 8)
-                Text("完成")
-                    .font(BrandFont.body(size: 12, weight: .medium))
-                    .foregroundColor(BrandColor.success)
-            case .failed:
-                Circle()
-                    .fill(BrandColor.error)
-                    .frame(width: 8, height: 8)
-                Text("失败")
-                    .font(BrandFont.body(size: 12, weight: .medium))
-                    .foregroundColor(BrandColor.error)
-            }
-        }
-    }
-
-    private func formatSyncDate(_ date: Date) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: date, relativeTo: Date())
-    }
 }
 
 // MARK: - Feature Card Component

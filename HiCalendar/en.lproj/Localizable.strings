@@ -1,0 +1,255 @@
+/*
+  Localizable.strings (English)
+  HiCalendar
+
+  English localization with personality preserved
+*/
+
+// MARK: - Navigation & Basic UI
+"settings" = "Settings";
+"back" = "Back";
+"done" = "Done";
+"cancel" = "Cancel";
+"ok" = "OK";
+"save" = "Save";
+"delete" = "Delete";
+"edit" = "Edit";
+"add" = "Add";
+"confirm" = "Confirm";
+
+// MARK: - Tab Bar
+"calendar_tab" = "Calendar";
+"everything_tab" = "All Tasks";
+"ai_assistant" = "AI Assistant";
+
+// MARK: - Settings View
+"who_is_here" = "Look who's here 👀";
+"its_you" = "It's you~";
+"change_calendar_skin" = "Give your calendar a makeover 🎨";
+"current_look" = "Current look";
+"no_background_yet" = "Haven't changed outfits yet, natural beauty is pretty too ✨";
+"simple_beauty" = "Simple beauty";
+"dont_want_this" = "Don't want this one!";
+"i_think_again" = "Let me think again";
+"dont_want_it" = "Don't want it!";
+"leaving_already" = "Leaving already?";
+"really_leaving" = "Really leaving? Remember to come back 👋";
+"see_you_later" = "See you~";
+"choose_background" = "Choose background image";
+"update_background" = "Update background image";
+"background_tip" = "Pick a nice image to make your calendar pretty~ Remember to choose a clear one, or you won't be able to read the text and that would be awkward 😅";
+
+// MARK: - Login & Authentication
+"please_login" = "Come log in 🎪";
+"login_benefits" = "Log in to unlock cloud backup, mom won't worry about me losing data anymore ☁️";
+"login_error" = "Login error: %@";
+"apple_auth_error" = "Apple authentication error: %@";
+
+// MARK: - Premium Features
+"upgrade_hicalendar_pro" = "Upgrade to HiCalendar Pro";
+"hicalendar_member" = "HiCalendar Member";
+"unlock_features" = "Unlock: Cloud Sync • Widgets • Smart Push";
+"already_unlocked" = "Unlocked: Cloud Sync • Widgets • Smart Push";
+"cloud_sync" = "Cloud Sync";
+"desktop_widgets" = "Desktop Widgets";
+"smart_push" = "Smart Push";
+"upgrade_now" = "Upgrade Now";
+"restore_purchase" = "Restore Purchase";
+"already_unlocked_pro" = "Pro Features Unlocked";
+"unlock_pro_features" = "Unlock Pro Features";
+"purchasing" = "Purchasing...";
+"lifetime_access" = "One purchase, lifetime access";
+"unlock_full_features" = "Unlock full features for more efficient calendar management";
+
+// MARK: - Premium Features Details
+"cloud_sync_desc" = "Sync your calendar data across devices, never lose anything";
+"widget_desc" = "View today's events directly on your home screen, at a glance";
+"smart_push_desc" = "Smart cloud push notifications, sync push status across devices";
+
+// MARK: - Push Notifications
+"notification_settings" = "Notification Settings 🔔";
+"push_not_enabled" = "Push notifications not enabled";
+"enable_push_tip" = "Enable notifications to receive caring (sassy) reminders before events~";
+"enable_push" = "Enable Push Notifications";
+"day_before_reminder" = "1 day before reminder";
+"day_before_desc" = "Enabled by default, wake you up a day early";
+"week_before_reminder" = "1 week before reminder";
+"week_before_desc" = "Prepare a week in advance, calm and composed";
+
+// MARK: - Legal Information
+"legal_info" = "Legal Information";
+"terms_of_service" = "Terms of Service";
+"privacy_policy" = "Privacy Policy";
+"contact_us" = "Contact us: %@";
+"login_agreement" = "By logging in, you agree to our";
+"and" = "and";
+
+// MARK: - Login Benefits
+"unlock_more_settings" = "Log in to unlock more settings";
+"personalized_background" = "Personalized Background Settings";
+"personalized_background_desc" = "Customize calendar background images for a unique interface";
+"become_member_unlock" = "Become a member to unlock cloud features";
+"cloud_backup" = "Cloud Data Backup";
+"cloud_backup_desc" = "Multi-device data sync, never lose anything";
+"smart_push_notifications" = "Smart Push Notifications";
+"smart_push_desc" = "Cloud push notifications, multi-device status sync";
+"desktop_widget" = "Desktop Widget";
+"desktop_widget_desc" = "View today's events directly on home screen";
+"login_first_desc" = "Log in first for personalized settings, upgrade to member to unlock all cloud features";
+
+// MARK: - AI Personality Responses (Sarcastic but helpful)
+"ai_cant_understand" = "I can't quite get what you mean~ Could you be more specific? 🤔";
+"ai_created_event" = "Alright, I've added '%@' to your calendar. Don't forget again! 📝";
+"ai_no_events_today" = "You're surprisingly free today! Time to slack off? 😎";
+"ai_busy_day" = "Wow, you're packed today! Don't wear yourself out 💪";
+"ai_event_conflict" = "Hey, you've got a time conflict! Can't be in two places at once, can you? 🤨";
+"ai_event_updated" = "Updated '%@' for you. Happy now? ✨";
+"ai_event_deleted" = "Deleted '%@'. Hope you don't regret it later! 🗑️";
+"ai_good_morning" = "Good morning! Ready to conquer the day? ☀️";
+"ai_good_afternoon" = "Afternoon! How's the day treating you? 🌤️";
+"ai_good_evening" = "Evening! Time to wind down? 🌙";
+
+// MARK: - Event Management
+"event_title" = "Event Title";
+"event_details" = "Event Details";
+"start_time" = "Start Time";
+"end_time" = "End Time";
+"all_day" = "All Day";
+"no_time" = "No Time";
+"remind_before" = "Remind Before";
+"save_event" = "Save Event";
+"delete_event" = "Delete Event";
+
+// MARK: - Reminder Options
+"no_reminder" = "No Reminder";
+"at_event_time" = "At Event Time";
+"15_minutes_before" = "15 minutes before";
+"30_minutes_before" = "30 minutes before";
+"1_hour_before" = "1 hour before";
+"2_hours_before" = "2 hours before";
+"1_day_before" = "1 day before";
+"1_week_before" = "1 week before";
+
+// MARK: - Status & Messages
+"loading" = "Loading...";
+"syncing" = "Syncing...";
+"sync_completed" = "Sync Completed";
+"sync_failed" = "Sync Failed";
+"no_events" = "No events";
+"today" = "Today";
+"tomorrow" = "Tomorrow";
+"yesterday" = "Yesterday";
+
+// MARK: - Premium Purchase Messages
+"purchase_success" = "Purchase successful! Pro features unlocked 🎉";
+"purchase_failed" = "Purchase failed: %@";
+"purchase_restored" = "Purchase restored! Pro features unlocked 🎉";
+"no_previous_purchase" = "No previous purchase found";
+"product_not_found" = "Product not found, please try again later";
+
+// MARK: - Error Messages (with personality)
+"something_went_wrong" = "Oops, something went wrong~ Try again? 🤷‍♀️";
+"network_error" = "Network seems grumpy today, check your connection? 📶";
+"try_again_later" = "Server's taking a nap, try again later? 😴";
+
+// MARK: - Time Formats
+"time_format_12h" = "h:mm a";
+"time_format_24h" = "HH:mm";
+"date_format_short" = "M/d";
+"date_format_long" = "MMMM d, yyyy";
+
+// MARK: - Calendar View
+"this_month" = "This Month";
+"this_week" = "This Week";
+"month_view" = "Month";
+"week_view" = "Week";
+"day_view" = "Day";
+
+// MARK: - Voice & AI Features
+"voice_permission_needed" = "Voice permission needed for AI chat";
+"voice_permission_denied" = "Voice denied, switching to text chat";
+"recording" = "Recording...";
+"processing" = "Processing...";
+"speak_now" = "Speak now";
+"tap_to_type" = "Tap to type";
+"long_press_to_record" = "Long press to record";
+
+// MARK: - Alert Messages
+"really_dont_want" = "Really don't want it?";
+"sure_delete_image" = "Sure you don't want this beautiful image? Once deleted, it's gone forever 🥺";
+
+// MARK: - Missing Basic Strings
+"add" = "Add";
+"contact_us_title" = "Contact Us";
+"today" = "Today";
+"terms_title" = "Terms of Service";
+"member_center" = "Member Center";
+
+// MARK: - Onboarding Cards & Alerts
+"drag_pinch_adjust" = "Drag, pinch, adjust to the perfect angle ✨";
+"crop_background_image" = "Crop Background Image";
+"cancel_crop" = "Never mind";
+"confirm_crop" = "Perfect!";
+"enable_notifications" = "Enable";
+"maybe_later" = "Later";
+"notification_permission_message" = "To remind you of important events on time, HiCalendar needs push notification permission. Our push messages are quite fun~";
+"recording_voice" = "Recording";
+"processing_voice" = "Processing";
+
+// MARK: - Widget Strings
+"no_events_today" = "No events today";
+"more_events_count" = "%d more events...";
+"total_week_events" = "%d events total";
+"all_week_events" = "All Week Events";
+"no_events_this_week" = "No events this week";
+"upgrade_to_pro_widget" = "Tap to upgrade to Pro\nView calendar content";
+"widget_locked" = "Widget Locked";
+
+// MARK: - Purchase Manager Error Messages
+"unlock_cloud_sync_description" = "Unlock cloud sync and desktop widget features";
+"loading_products_failed" = "Failed to load products: %@";
+"unknown_purchase_result" = "Unknown purchase result";
+"purchase_verification_failed" = "Purchase verification failed";
+"purchase_failed_error" = "Purchase failed: %@";
+"restore_purchase_failed" = "Restore purchase failed: %@";
+"member_data_sync_failed" = "Member data sync failed: %@";
+"verification_failed_message" = "Purchase verification failed";
+"product_not_found_message" = "Product not found";
+"user_rejected_push" = "User denied push permission";
+"user_chose_later_push" = "User chose to enable push later";
+
+// MARK: - Login Guide
+"login_guide_title" = "Hey! Tap settings in the top right to login";
+"login_guide_subtitle" = "Unlock cloud sync, push notifications and more features";
+"login_button" = "Login";
+
+// MARK: - System Calendar Integration
+"system_calendar_sync" = "System Calendar Sync";
+"system_calendar_requires_premium" = "System calendar sync requires premium membership";
+"calendar_permission_required" = "Calendar permission required";
+"calendar_permission_denied" = "Calendar permission denied";
+"calendar_permission_error" = "Calendar permission error: %@";
+"import_only_calendar" = "Import Only";
+"export_only_calendar" = "Export Only";
+"bidirectional_sync" = "Bidirectional Sync";
+"import_only_description" = "Import events from system calendar to HiCalendar";
+"export_only_description" = "Export HiCalendar events to system calendar";
+"bidirectional_description" = "Bidirectional sync to keep data consistent";
+"manual_sync" = "Manual Sync";
+"hourly_sync" = "Hourly Sync";
+"daily_sync" = "Daily Sync";
+"realtime_sync" = "Real-time Sync";
+"no_calendar_selected" = "No calendar selected";
+"untitled_event" = "Untitled Event";
+"sync_error" = "Sync error: %@";
+"enable_calendar_sync" = "Enable Calendar Sync";
+"sync_direction_title" = "Sync Direction";
+"sync_frequency_title" = "Sync Frequency";
+"selected_calendars_title" = "Selected Calendars";
+"last_sync_time" = "Last Sync";
+"perform_manual_sync" = "Manual Sync";
+"sync_in_progress" = "Syncing...";
+
+// MARK: - App Information
+"app_version" = "Version %@";
+"build_number" = "Build %@";

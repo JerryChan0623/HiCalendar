@@ -104,8 +104,10 @@ class MemberDataSyncManager: ObservableObject {
             return SyncResult(success: true, eventsUploaded: 0, eventsDownloaded: 0, errorMessage: nil)
         }
 
-        // 只同步未同步的本地数据，过滤掉onboarding事项
-        let unsyncedEvents = eventManager.events.filter { !$0.isSynced && !$0.isOnboarding }
+        // 只同步未同步的本地数据，过滤掉onboarding事项和系统日历事项
+        let unsyncedEvents = eventManager.events.filter {
+            !$0.isSynced && !$0.isOnboarding && !$0.isFromSystemCalendar
+        }
 
         var uploadCount = 0
         for event in unsyncedEvents {
@@ -208,9 +210,12 @@ class MemberDataSyncManager: ObservableObject {
     private func uploadLocalDataToCloud() async -> Int {
         var uploadCount = 0
 
-        // 过滤掉onboarding事项，只同步真实的用户事项
-        let eventsToSync = eventManager.events.filter { !$0.isOnboarding }
-        print("📤 需要上传的事项数量: \(eventsToSync.count)（已过滤\(eventManager.events.count - eventsToSync.count)个onboarding事项）")
+        // 过滤掉onboarding事项和系统日历事项，只同步真实的用户创建事项
+        let eventsToSync = eventManager.events.filter {
+            !$0.isOnboarding && !$0.isFromSystemCalendar
+        }
+        let filteredCount = eventManager.events.count - eventsToSync.count
+        print("📤 需要上传的事项数量: \(eventsToSync.count)（已过滤\(filteredCount)个onboarding和系统日历事项）")
 
         for event in eventsToSync {
             let success = await syncEventToCloud(event)
@@ -234,13 +239,23 @@ class MemberDataSyncManager: ObservableObject {
 
         for cloudEvent in cloudEvents {
             // 检查本地是否已存在
-            let exists = eventManager.events.contains { $0.id == cloudEvent.id }
-            if !exists {
+            let existingEvent = eventManager.events.first { $0.id == cloudEvent.id }
+
+            if let existing = existingEvent {
+                // 如果本地事件是系统日历事件，则不覆盖
+                if existing.isFromSystemCalendar {
+                    print("⚠️ 跳过更新系统日历事件: \(existing.title)")
+                    continue
+                }
+
+                // 更新已存在的用户创建事件（以云端为准）
+                eventManager.updateEvent(cloudEvent)
+                print("🔄 已更新云端事件: \(cloudEvent.title)")
+            } else {
+                // 新增云端事件
                 eventManager.addEvent(cloudEvent)
                 downloadCount += 1
-            } else {
-                // 更新已存在的事件（以云端为准）
-                eventManager.updateEvent(cloudEvent)
+                print("📥 已下载新云端事件: \(cloudEvent.title)")
             }
         }
 

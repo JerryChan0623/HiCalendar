@@ -61,7 +61,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // 设置推送通知代理
         UNUserNotificationCenter.current().delegate = self
-        
+
         // 清除应用图标上的badge数字（iOS 17+使用新API）
         if #available(iOS 17.0, *) {
             UNUserNotificationCenter.current().setBadgeCount(0) { error in
@@ -72,11 +72,44 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         } else {
             UIApplication.shared.applicationIconBadgeNumber = 0
         }
-        
+
+        // 初始化Mixpanel并追踪应用启动
+        Task { @MainActor in
+            setupMixpanelTracking()
+        }
+
         // 不在启动时自动请求推送权限，延迟到用户交互时请求
         print("📱 App启动完成，推送权限将在适当时机请求")
-        
+
         return true
+    }
+
+    // MARK: - Mixpanel Setup
+    @MainActor
+    private func setupMixpanelTracking() {
+        // 检查是否首次启动
+        let isFirstLaunch = !UserDefaults.standard.bool(forKey: "HasLaunchedBefore")
+        if isFirstLaunch {
+            UserDefaults.standard.set(true, forKey: "HasLaunchedBefore")
+        }
+
+        // 追踪应用启动
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        let deviceType = UIDevice.current.model
+        let osVersion = UIDevice.current.systemVersion
+
+        MixpanelManager.shared.trackAppLaunched(
+            version: version,
+            deviceType: deviceType,
+            osVersion: osVersion,
+            isFirstLaunch: isFirstLaunch
+        )
+
+        // 如果用户已登录，设置用户身份
+        if SupabaseManager.shared.isAuthenticated,
+           let userId = SupabaseManager.shared.currentUser?.id.uuidString {
+            MixpanelManager.shared.identify(userId: userId)
+        }
     }
     
     // MARK: - APNs Registration
@@ -127,8 +160,37 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     // MARK: - 处理推送通知点击
     private func handlePushNotificationTap(userInfo: [AnyHashable: Any]) {
+        // 获取推送信息
+        let notificationType = userInfo["type"] as? String ?? "unknown"
+        let eventId = userInfo["event_id"] as? String ?? ""
+        let sentTime = userInfo["sent_time"] as? TimeInterval ?? 0
+        let timeToClick = Date().timeIntervalSince1970 - sentTime
+
+        // 确定应用状态
+        let appState: String
+        switch UIApplication.shared.applicationState {
+        case .active:
+            appState = "foreground"
+        case .inactive:
+            appState = "background"
+        case .background:
+            appState = "not_running"
+        @unknown default:
+            appState = "unknown"
+        }
+
+        // 追踪推送点击
+        Task { @MainActor in
+            MixpanelManager.shared.trackPushClicked(
+                notificationType: notificationType,
+                timeToClick: timeToClick,
+                appState: appState,
+                targetEventId: eventId
+            )
+        }
+
         // 如果包含event_id，可以导航到对应的事件详情
-        if let eventId = userInfo["event_id"] as? String {
+        if !eventId.isEmpty {
             print("🎯 导航到事件: \(eventId)")
             // TODO: 实现导航到事件详情的逻辑
         }

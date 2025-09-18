@@ -113,16 +113,54 @@ class EventStorageManager: ObservableObject {
     func addEvents(_ newEvents: [Event]) {
         events.append(contentsOf: newEvents)
         saveEvents()
-        
+
         print("📝 添加了\(newEvents.count)个事项")
-        
+
+        // 更新会话中创建的事件数
+        let currentCount = UserDefaults.standard.integer(forKey: "EventsCreatedInSession")
+        UserDefaults.standard.set(currentCount + newEvents.count, forKey: "EventsCreatedInSession")
+
         // 为每个事件调度本地通知和同步
         for event in newEvents {
+            // 追踪事件创建（非onboarding事件）
+            if !event.isOnboarding {
+                Task { @MainActor in
+                    trackEventCreated(event: event)
+                }
+            }
+
             scheduleLocalNotifications(for: event)
             Task {
                 await syncEventToSupabase(event)
             }
+
+            // 如果启用了双向同步且事件不是来自系统日历，则自动导出到系统日历
+            if !event.isFromSystemCalendar && !event.isOnboarding {
+                Task {
+                    await autoExportToSystemCalendar(event: event)
+                }
+            }
         }
+    }
+
+    // MARK: - Mixpanel Tracking Helper
+    @MainActor
+    private func trackEventCreated(event: Event) {
+        let reminderTypes = event.pushReminders.map { $0.rawValue }
+
+        MixpanelManager.shared.trackEventCreated(
+            creationMethod: "manual",
+            hasTime: event.startAt != nil,
+            hasDetails: event.details != nil && !event.details!.isEmpty,
+            reminderCount: event.pushReminders.count,
+            reminderTypes: reminderTypes,
+            isRecurring: event.isRecurrenceEvent,
+            recurrenceType: event.originalRecurrenceType?.rawValue,
+            recurrenceCount: event.recurrenceCount,
+            characterCountTitle: event.title.count,
+            characterCountDetails: event.details?.count ?? 0,
+            timeSpent: 0 // 这里可以在创建事件时传入实际时间
+        )
     }
     
     /// 添加重复事件 - 保留此方法以兼容旧代码
@@ -133,6 +171,13 @@ class EventStorageManager: ObservableObject {
     
     /// 删除事项
     func deleteEvent(_ event: Event) {
+        // 追踪事件删除（非onboarding事件）
+        if !event.isOnboarding {
+            Task { @MainActor in
+                trackEventDeleted(event: event, deletionMethod: "swipe") // 默认为swipe，可以在调用时传入具体方法
+            }
+        }
+
         // 取消本地通知
         cancelLocalNotifications(for: event)
 
@@ -153,6 +198,19 @@ class EventStorageManager: ObservableObject {
                 }
             }
         }
+    }
+
+    @MainActor
+    private func trackEventDeleted(event: Event, deletionMethod: String) {
+        let eventAgeDays = Calendar.current.dateComponents([.day], from: event.createdAt, to: Date()).day ?? 0
+
+        MixpanelManager.shared.trackEventDeleted(
+            eventAgeDays: eventAgeDays,
+            deletionMethod: deletionMethod,
+            isRecurringEvent: event.isRecurrenceEvent,
+            hadReminders: !event.pushReminders.isEmpty,
+            confirmationShown: false // 可以根据实际UI调整
+        )
     }
     
     /// 删除重复事件组
@@ -349,10 +407,53 @@ class EventStorageManager: ObservableObject {
         }
         
         // 调试信息（可以在发布时注释掉）
-        if filteredEvents.count > 0 {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .short
-            print("📅 获取\(formatter.string(from: date))的事项: 找到\(filteredEvents.count)个事项")
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        print("📅 获取\(formatter.string(from: date))的事项: 找到\(filteredEvents.count)个事项")
+
+        // 额外调试：显示所有相关的"缴纳电费"事件
+        let allPaymentEvents = events.filter { $0.title.contains("缴纳电费") }
+        if !allPaymentEvents.isEmpty {
+            print("🔍 所有'缴纳电费'事项 (总数: \(allPaymentEvents.count)):")
+            print("🕒 查询目标日期: \(formatter.string(from: date)) -> startOfDay: \(formatter.string(from: targetDay))")
+
+            // 按ID分组显示，检查是否有重复ID
+            let groupedById = Dictionary(grouping: allPaymentEvents) { $0.id }
+            print("📊 按ID分组: \(groupedById.count)个不同ID")
+
+            // 按系统日历ID分组显示，检查是否有重复的系统ID
+            let groupedBySystemId = Dictionary(grouping: allPaymentEvents) { $0.systemCalendarEventID ?? "nil" }
+            print("📊 按系统ID分组: \(groupedBySystemId.count)个不同系统ID")
+            for (systemId, events) in groupedBySystemId {
+                print("  系统ID \(systemId): \(events.count)个事件")
+            }
+
+            for (index, event) in allPaymentEvents.enumerated() {
+                print("  [\(index + 1)] ID: \(event.id)")
+                print("      系统ID: \(event.systemCalendarEventID ?? "nil")")
+                print("      创建时间: \(formatter.string(from: event.createdAt))")
+
+                if let startAt = event.startAt {
+                    let eventDay = calendar.startOfDay(for: startAt)
+                    let isMatch = calendar.isDate(eventDay, inSameDayAs: targetDay)
+                    print("      \(event.title): \(formatter.string(from: startAt)) (有时间) -> eventDay: \(formatter.string(from: eventDay)), 匹配: \(isMatch)")
+                } else if let intendedDate = event.intendedDate {
+                    let eventDay = calendar.startOfDay(for: intendedDate)
+                    let isMatch = calendar.isDate(eventDay, inSameDayAs: targetDay)
+                    print("      \(event.title): \(formatter.string(from: intendedDate)) (无时间-intendedDate) -> eventDay: \(formatter.string(from: eventDay)), 匹配: \(isMatch)")
+
+                    // 详细的日期组件调试
+                    let intendedComponents = calendar.dateComponents([.year, .month, .day], from: intendedDate)
+                    let targetComponents = calendar.dateComponents([.year, .month, .day], from: targetDay)
+                    print("      详细对比: intended(\(intendedComponents.year ?? 0)-\(intendedComponents.month ?? 0)-\(intendedComponents.day ?? 0)) vs target(\(targetComponents.year ?? 0)-\(targetComponents.month ?? 0)-\(targetComponents.day ?? 0))")
+                } else {
+                    let referenceDate = event.createdAt
+                    let eventDay = calendar.startOfDay(for: referenceDate)
+                    let isMatch = calendar.isDate(eventDay, inSameDayAs: targetDay)
+                    print("      \(event.title): \(formatter.string(from: referenceDate)) (无时间-createdAt) -> eventDay: \(formatter.string(from: eventDay)), 匹配: \(isMatch)")
+                }
+            }
         }
         
         return filteredEvents
@@ -506,19 +607,19 @@ class EventStorageManager: ObservableObject {
         }
     }
     
-    /// 清空所有数据（用于测试）
-    func clearAllEvents() {
-        events.removeAll()
-        saveEvents()
-    }
     
     // MARK: - Supabase Sync Methods
     
     /// 同步事项到Supabase数据库
     private func syncEventToSupabase(_ event: Event) async {
-        // 检查是否为onboarding事项（不同步到云端）
+        // 检查是否为onboarding事项或系统日历事项（不同步到云端）
         if event.isOnboarding {
             print("📚 Onboarding事项不同步到云端，跳过：\(event.title)")
+            return
+        }
+
+        if event.isFromSystemCalendar {
+            print("📅 系统日历事项不同步到云端，跳过：\(event.title)")
             return
         }
 
@@ -709,6 +810,36 @@ class EventStorageManager: ObservableObject {
         }
     }
     
+    // MARK: - System Calendar Integration
+
+    /// 自动导出新创建的事件到系统日历（实时同步）
+    private func autoExportToSystemCalendar(event: Event) async {
+        print("🔄 开始自动导出新事件到系统日历: \(event.title)")
+        print("📋 事件详情: startAt=\(event.startAt?.description ?? "nil"), intendedDate=\(event.intendedDate?.description ?? "nil")")
+
+        // 延迟执行避免与事件创建过程冲突
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1秒延迟
+
+        await MainActor.run {
+            let syncManager = SystemCalendarManager.shared
+            print("🔍 系统日历同步状态检查:")
+            print("  - syncEnabled: \(syncManager.syncEnabled)")
+            print("  - hasCalendarAccess: \(syncManager.hasCalendarAccess)")
+            print("  - syncDirection: \(syncManager.syncDirection)")
+            print("  - isPremium: \(PurchaseManager.shared.isPremiumUnlocked)")
+
+            Task {
+                let success = await syncManager.exportEventToSystemCalendar(event)
+
+                if success {
+                    print("✅ 成功自动导出事件到系统日历: \(event.title)")
+                } else {
+                    print("❌ 自动导出事件失败: \(event.title)")
+                }
+            }
+        }
+    }
+
     // MARK: - Local Notifications
     
     /// 为事件调度本地通知（仅支持短期提醒）
