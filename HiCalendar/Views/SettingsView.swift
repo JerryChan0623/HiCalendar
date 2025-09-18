@@ -14,6 +14,7 @@ struct SettingsView: View {
     @StateObject private var supabaseManager = SupabaseManager.shared
     @StateObject private var pushManager = PushNotificationManager.shared
     @StateObject private var purchaseManager = PurchaseManager.shared
+    @StateObject private var systemCalendarManager = SystemCalendarManager.shared
     @State private var showingPhotoPicker = false
     @State private var selectedImage: UIImage?
     @State private var showingRemoveAlert = false
@@ -29,10 +30,9 @@ struct SettingsView: View {
             if supabaseManager.isAuthenticated {
                 // 已登录：显示完整设置
                 userSection
-                premiumSection
-                systemCalendarSection
-                pushNotificationSection
                 backgroundSection
+                systemCalendarToggleSection
+                pushNotificationSection
                 signOutSection
                 legalSection
             } else {
@@ -164,19 +164,36 @@ struct SettingsView: View {
                     Text(L10n.whoIsHere)
                         .font(BrandFont.body(size: 18, weight: .bold))
                         .foregroundColor(BrandColor.neutral900)
-                    
+
                     Spacer()
-                    
-                    Image(systemName: "person.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(BrandColor.primaryBlue)
+
+                    // 会员状态图标按钮
+                    Button(action: { showingPremiumView = true }) {
+                        HStack(spacing: BrandSpacing.xs) {
+                            Image(systemName: purchaseManager.isPremiumUnlocked ? "crown.fill" : "crown")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(purchaseManager.isPremiumUnlocked ? .yellow : BrandColor.neutral500)
+
+                            Text(purchaseManager.isPremiumUnlocked ? "会员" : "升级")
+                                .font(BrandFont.body(size: 12, weight: .bold))
+                                .foregroundColor(purchaseManager.isPremiumUnlocked ? BrandColor.success : BrandColor.primaryBlue)
+                        }
+                        .padding(.horizontal, BrandSpacing.sm)
+                        .padding(.vertical, BrandSpacing.xs)
+                        .background(
+                            RoundedRectangle(cornerRadius: BrandRadius.sm)
+                                .fill(purchaseManager.isPremiumUnlocked ? BrandColor.success.opacity(0.1) : BrandColor.primaryBlue.opacity(0.1))
+                                .stroke(purchaseManager.isPremiumUnlocked ? BrandColor.success.opacity(0.3) : BrandColor.primaryBlue.opacity(0.3), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
-                
+
                 VStack(alignment: .leading, spacing: BrandSpacing.sm) {
                     Text(L10n.itsYou)
                         .font(BrandFont.body(size: 14, weight: .medium))
                         .foregroundColor(BrandColor.neutral500)
-                    
+
                     Text(supabaseManager.currentUser?.email ?? "Supabase用户")
                         .font(BrandFont.body(size: 16, weight: .bold))
                         .foregroundColor(BrandColor.neutral900)
@@ -213,19 +230,26 @@ struct SettingsView: View {
     // MARK: - 背景设置区域
     private var backgroundSection: some View {
         MD3Card(type: .elevated) {
-            VStack(alignment: .leading, spacing: BrandSpacing.lg) {
-                // 标题
-                HStack {
-                    Text(L10n.changeCalendarSkin)
-                        .font(BrandFont.body(size: 18, weight: .bold))
-                        .foregroundColor(BrandColor.neutral900)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "photo.on.rectangle")
-                        .font(.title2)
-                        .foregroundColor(BrandColor.primaryBlue)
-                }
+            backgroundSectionContent
+        }
+    }
+
+
+    // MARK: - 背景设置内容
+    private var backgroundSectionContent: some View {
+        VStack(alignment: .leading, spacing: BrandSpacing.lg) {
+            // 标题
+            HStack {
+                Text(L10n.changeCalendarSkin)
+                    .font(BrandFont.body(size: 16, weight: .bold))
+                    .foregroundColor(BrandColor.neutral900)
+
+                Spacer()
+
+                Image(systemName: "photo.on.rectangle")
+                    .font(.system(size: 16))
+                    .foregroundColor(BrandColor.primaryBlue)
+            }
                 
                 // 当前背景预览
                 if backgroundManager.hasCustomBackground, let image = backgroundManager.backgroundImage {
@@ -302,12 +326,11 @@ struct SettingsView: View {
                     )
                 }
                 
-                // 说明文字
-                Text(L10n.backgroundTip)
-                    .font(BrandFont.bodySmall)
-                    .foregroundColor(BrandColor.neutral500)
-                    .multilineTextAlignment(.leading)
-            }
+            // 说明文字
+            Text(L10n.backgroundTip)
+                .font(BrandFont.bodySmall)
+                .foregroundColor(BrandColor.neutral500)
+                .multilineTextAlignment(.leading)
         }
     }
     
@@ -320,9 +343,26 @@ struct SettingsView: View {
                     Text(L10n.notificationSettings)
                         .font(BrandFont.body(size: 18, weight: .bold))
                         .foregroundColor(BrandColor.neutral900)
-                    
+
                     Spacer()
-                    
+
+                    // 会员功能标识（云端推送）
+                    HStack(spacing: 4) {
+                        Image(systemName: purchaseManager.isPremiumUnlocked ? "crown.fill" : "crown")
+                            .font(.caption)
+                            .foregroundColor(purchaseManager.isPremiumUnlocked ? .yellow : BrandColor.neutral500)
+                        Text(purchaseManager.isPremiumUnlocked ? "云推送" : "会员")
+                            .font(BrandFont.body(size: 12, weight: .bold))
+                            .foregroundColor(purchaseManager.isPremiumUnlocked ? BrandColor.success : .orange)
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(purchaseManager.isPremiumUnlocked ? BrandColor.success.opacity(0.1) : .orange.opacity(0.1))
+                            .stroke(purchaseManager.isPremiumUnlocked ? BrandColor.success.opacity(0.3) : .orange.opacity(0.3), lineWidth: 1)
+                    )
+
                     // 权限状态指示器
                     Circle()
                         .fill(pushManager.isPermissionGranted ? BrandColor.success : BrandColor.danger)
@@ -510,21 +550,12 @@ struct SettingsView: View {
                             statusTag(text: "小组件 已激活", color: BrandColor.success)
                             statusTag(text: "推送 已激活", color: BrandColor.success)
                         }
-                        HStack(spacing: BrandSpacing.sm) {
-                            Button(action: {
-                                Task { await purchaseManager.manualRefreshStatus() }
-                            }) {
-                                Label("刷新会员状态", systemImage: "arrow.clockwise")
-                                    .font(BrandFont.body(size: 14, weight: .medium))
-                            }
-                            .buttonStyle(MD3ButtonStyle(type: .outlined))
-
-                            Button(action: { showingPremiumView = true }) {
-                                Label("打开会员中心", systemImage: "star")
-                                    .font(BrandFont.body(size: 14, weight: .medium))
-                            }
-                            .buttonStyle(MD3ButtonStyle(type: .filled))
+                        // 生产版本简化：只保留打开会员中心按钮
+                        Button(action: { showingPremiumView = true }) {
+                            Label("管理会员", systemImage: "star")
+                                .font(BrandFont.body(size: 14, weight: .medium))
                         }
+                        .buttonStyle(MD3ButtonStyle(type: .outlined))
                     }
                 }
             }
@@ -771,64 +802,11 @@ struct SettingsView: View {
         AppleAuthManager.shared.startSignInWithApple()
     }
 
-    // MARK: - 法律条款区域
-    private var legalSection: some View {
-        MD3Card(type: .outlined) {
-            VStack(alignment: .leading, spacing: BrandSpacing.md) {
-                HStack {
-                    Text("📄")
-                        .font(.system(size: 20))
-                    Text(L10n.legalInfo)
-                        .font(BrandFont.body(size: 16, weight: .bold))
-                        .foregroundColor(BrandColor.onSurface)
-                    Spacer()
-                }
-
-                VStack(spacing: BrandSpacing.sm) {
-                    Button(action: openTermsOfService) {
-                        HStack {
-                            Text(L10n.termsOfService)
-                                .font(BrandFont.body(size: 15, weight: .medium))
-                                .foregroundColor(BrandColor.onSurface)
-                            Spacer()
-                            Image(systemName: "arrow.up.right.square")
-                                .font(.system(size: 14))
-                                .foregroundColor(BrandColor.neutral500)
-                        }
-                        .padding(.vertical, BrandSpacing.xs)
-                    }
-
-                    Divider()
-                        .background(BrandColor.onSurface.opacity(0.1))
-
-                    Button(action: openPrivacyPolicy) {
-                        HStack {
-                            Text(L10n.privacyPolicy)
-                                .font(BrandFont.body(size: 15, weight: .medium))
-                                .foregroundColor(BrandColor.onSurface)
-                            Spacer()
-                            Image(systemName: "arrow.up.right.square")
-                                .font(.system(size: 14))
-                                .foregroundColor(BrandColor.neutral500)
-                        }
-                        .padding(.vertical, BrandSpacing.xs)
-                    }
-                }
-
-                Text("联系我们：iamtotalchan@gmail.com")
-                    .font(BrandFont.body(size: 12, weight: .medium))
-                    .foregroundColor(BrandColor.neutral500)
-                    .padding(.top, BrandSpacing.xs)
-            }
-            .padding(BrandSpacing.lg)
-        }
-    }
-
-    // MARK: - 系统日历同步区域
-    private var systemCalendarSection: some View {
+    // MARK: - 系统日历同步开关区域（一级页面）
+    private var systemCalendarToggleSection: some View {
         MD3Card(type: .elevated) {
             VStack(alignment: .leading, spacing: BrandSpacing.lg) {
-                // 标题和图标
+                // 主标题行
                 HStack {
                     Text(L10n.systemCalendarSync)
                         .font(BrandFont.body(size: 18, weight: .bold))
@@ -836,87 +814,124 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    Image(systemName: "calendar.badge.plus")
-                        .font(.title2)
-                        .foregroundColor(BrandColor.primaryBlue)
+                    // 会员功能标识
+                    HStack(spacing: 4) {
+                        Image(systemName: purchaseManager.isPremiumUnlocked ? "crown.fill" : "crown")
+                            .font(.caption)
+                            .foregroundColor(purchaseManager.isPremiumUnlocked ? .yellow : BrandColor.neutral500)
+                        Text(purchaseManager.isPremiumUnlocked ? "已解锁" : "会员")
+                            .font(BrandFont.body(size: 12, weight: .bold))
+                            .foregroundColor(purchaseManager.isPremiumUnlocked ? BrandColor.success : .orange)
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(purchaseManager.isPremiumUnlocked ? BrandColor.success.opacity(0.1) : .orange.opacity(0.1))
+                            .stroke(purchaseManager.isPremiumUnlocked ? BrandColor.success.opacity(0.3) : .orange.opacity(0.3), lineWidth: 1)
+                    )
                 }
 
-                // 功能描述
-                Text("与系统日历双向同步，永不丢失重要事项")
-                    .font(BrandFont.body(size: 14, weight: .medium))
-                    .foregroundColor(BrandColor.neutral700)
-
-                // 会员标识和功能状态
+                // 描述和开关行
                 HStack {
-                    // 会员专享标签
-                    HStack(spacing: 4) {
-                        Image(systemName: "crown.fill")
-                            .font(.caption)
-                            .foregroundColor(.yellow)
-                        Text("会员专享")
-                            .font(BrandFont.body(size: 12, weight: .bold))
-                            .foregroundColor(.orange)
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.orange.opacity(0.1))
-                            .stroke(.orange.opacity(0.3), lineWidth: 1)
-                    )
+                    Text("与系统日历双向同步")
+                        .font(BrandFont.body(size: 14, weight: .medium))
+                        .foregroundColor(BrandColor.neutral700)
 
                     Spacer()
 
-                    // 功能状态
-                    if purchaseManager.isPremiumUnlocked {
-                        HStack(spacing: 4) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.caption)
-                                .foregroundColor(.green)
-                            Text("可用")
-                                .font(BrandFont.body(size: 12, weight: .medium))
-                                .foregroundColor(.green)
+                    // 同步开关
+                    Toggle("", isOn: Binding(
+                        get: {
+                            systemCalendarManager.syncEnabled &&
+                            systemCalendarManager.hasCalendarAccess &&
+                            purchaseManager.isPremiumUnlocked
+                        },
+                        set: { isEnabled in
+                            if !purchaseManager.isPremiumUnlocked {
+                                showingPremiumView = true
+                                return
+                            }
+
+                            Task {
+                                if isEnabled {
+                                    let hasPermission = await systemCalendarManager.requestCalendarPermission()
+                                    if hasPermission {
+                                        await systemCalendarManager.enableSync()
+                                    }
+                                } else {
+                                    systemCalendarManager.disableSync()
+                                }
+                            }
                         }
-                    } else {
-                        HStack(spacing: 4) {
-                            Image(systemName: "lock.fill")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            Text("未解锁")
-                                .font(BrandFont.body(size: 12, weight: .medium))
-                                .foregroundColor(.gray)
-                        }
-                    }
+                    ))
+                    .toggleStyle(SwitchToggleStyle(tint: BrandColor.primary))
+                    .disabled(!purchaseManager.isPremiumUnlocked)
                 }
 
-                // 操作按钮
-                NavigationLink(destination: SystemCalendarSyncView()) {
-                    HStack {
-                        Text(purchaseManager.isPremiumUnlocked ? "打开同步设置" : "了解更多")
-                            .font(BrandFont.body(size: 16, weight: .bold))
-                            .foregroundColor(purchaseManager.isPremiumUnlocked ? BrandColor.onPrimary : BrandColor.primaryBlue)
+                // 详细设置入口
+                if systemCalendarManager.syncEnabled && purchaseManager.isPremiumUnlocked {
+                    NavigationLink(destination: SystemCalendarSyncView()) {
+                        HStack {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 14))
+                                .foregroundColor(BrandColor.primaryBlue)
 
-                        Spacer()
+                            Text("详细同步设置")
+                                .font(BrandFont.body(size: 14, weight: .medium))
+                                .foregroundColor(BrandColor.primaryBlue)
 
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(purchaseManager.isPremiumUnlocked ? BrandColor.onPrimary : BrandColor.primaryBlue)
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(BrandColor.neutral500)
+                        }
+                        .padding(.top, BrandSpacing.sm)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, BrandSpacing.md)
-                    .padding(.horizontal, BrandSpacing.lg)
-                    .background(
-                        RoundedRectangle(cornerRadius: BrandRadius.md)
-                            .fill(purchaseManager.isPremiumUnlocked ? BrandColor.primaryBlue : BrandColor.primaryBlue.opacity(0.1))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: BrandRadius.md)
-                            .stroke(BrandColor.primaryBlue, lineWidth: purchaseManager.isPremiumUnlocked ? 0 : BrandBorder.thin)
-                    )
                 }
-                .disabled(!purchaseManager.isPremiumUnlocked)
             }
         }
+    }
+
+    // MARK: - 法律条款区域（缩小版本）
+    private var legalSection: some View {
+        VStack(alignment: .leading, spacing: BrandSpacing.sm) {
+            HStack {
+                Text("📄")
+                    .font(.system(size: 14))
+                Text(L10n.legalInfo)
+                    .font(BrandFont.body(size: 14, weight: .bold))
+                    .foregroundColor(BrandColor.neutral700)
+                Spacer()
+            }
+
+            HStack(spacing: BrandSpacing.lg) {
+                Button(action: openTermsOfService) {
+                    Text(L10n.termsOfService)
+                        .font(BrandFont.body(size: 13, weight: .medium))
+                        .foregroundColor(BrandColor.primaryBlue)
+                }
+
+                Button(action: openPrivacyPolicy) {
+                    Text(L10n.privacyPolicy)
+                        .font(BrandFont.body(size: 13, weight: .medium))
+                        .foregroundColor(BrandColor.primaryBlue)
+                }
+
+                Spacer()
+            }
+
+            Text("联系我们：iamtotalchan@gmail.com")
+                .font(BrandFont.body(size: 11, weight: .medium))
+                .foregroundColor(BrandColor.neutral500)
+                .padding(.top, 2)
+        }
+        .padding(BrandSpacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: BrandRadius.sm)
+                .fill(BrandColor.neutral100.opacity(0.5))
+        )
     }
 
     // MARK: - 法律条款方法

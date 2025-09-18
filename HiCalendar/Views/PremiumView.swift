@@ -135,6 +135,13 @@ struct PremiumView: View {
                     description: "云端智能推送提醒，多设备同步推送状态",
                     isUnlocked: purchaseManager.canUsePushNotifications
                 )
+
+                FeatureCard(
+                    icon: "📅",
+                    title: "系统日历同步",
+                    description: "与iPhone系统日历双向同步，HiCalendar事件自动出现在系统日历中，永不遗漏重要安排",
+                    isUnlocked: purchaseManager.isPremiumUnlocked
+                )
             }
         }
     }

@@ -489,8 +489,7 @@ extension Date {
     }
 }
 
-// MARK: - Sample Data (开发用)
-#if DEBUG
+// MARK: - Sample Data (引导数据)
 extension Event {
     // MARK: - Onboarding Sample Events (引导用户掌握核心功能)
     static let sampleEvents: [Event] = [
@@ -569,6 +568,8 @@ extension Event {
     ]
 }
 
+// MARK: - Sample Data (开发用)
+#if DEBUG
 extension User {
     static let sampleUser = User(
         email: "test@example.com",
