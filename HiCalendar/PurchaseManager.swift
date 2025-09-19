@@ -86,12 +86,14 @@ class PurchaseManager: ObservableObject {
     func loadProducts() async {
         guard !productsLoaded else { return }
 
+        print("🔍 开始加载产品...")
         isLoading = true
         errorMessage = nil
 
         do {
             // Load products from the App Store
             let productIDs = ProductID.allCases.map { $0.rawValue }
+            print("🔍 产品ID列表: \(productIDs)")
             let storeProducts = try await Product.products(for: productIDs)
 
             DispatchQueue.main.async {
@@ -101,6 +103,9 @@ class PurchaseManager: ObservableObject {
             }
 
             print("✅ 已加载 \(storeProducts.count) 个产品")
+            for product in storeProducts {
+                print("📦 产品: \(product.id) - \(product.displayName) - \(product.displayPrice)")
+            }
 
         } catch {
             DispatchQueue.main.async {
@@ -113,6 +118,10 @@ class PurchaseManager: ObservableObject {
 
     /// 购买产品
     func purchase(_ product: Product) async throws -> StoreKit.Transaction? {
+        print("🛒 开始购买流程 - 产品: \(product.id)")
+        print("🛒 产品可购买: \(product.type == .nonConsumable)")
+        print("🛒 当前环境: \(Bundle.main.bundleIdentifier ?? "unknown")")
+
         isLoading = true
         errorMessage = nil
 
@@ -127,7 +136,9 @@ class PurchaseManager: ObservableObject {
         )
 
         do {
+            print("🛒 调用 product.purchase()...")
             let result = try await product.purchase()
+            print("🛒 购买结果: \(result)")
 
             switch result {
             case .success(let verification):
