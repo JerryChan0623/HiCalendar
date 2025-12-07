@@ -55,10 +55,13 @@
 "smart_push" = "Smart Push";
 "upgrade_now" = "Upgrade Now";
 "restore_purchase" = "Restore Purchase";
+"redeem_code" = "Redeem Code";
+"redeem_success" = "Redemption successful! Pro features activated";
+"redeem_failed" = "Redemption failed: %@";
 "already_unlocked_pro" = "Pro Features Unlocked";
 "unlock_pro_features" = "Unlock Pro Features";
 "purchasing" = "Purchasing...";
-"lifetime_access" = "One purchase, lifetime access";
+"lifetime_access" = "Monthly subscription";
 "unlock_full_features" = "Unlock full features for more efficient calendar management";
 
 // MARK: - Premium Features Details
@@ -157,6 +160,7 @@
 "time_format_24h" = "HH:mm";
 "date_format_short" = "M/d";
 "date_format_long" = "MMMM d, yyyy";
+"date_format_year_month" = "MMMM yyyy";
 
 // MARK: - Calendar View
 "this_month" = "This Month";
@@ -164,6 +168,8 @@
 "month_view" = "Month";
 "week_view" = "Week";
 "day_view" = "Day";
+"select_month" = "Select Month";
+"quick_add_placeholder" = "Add new event...";
 
 // MARK: - Voice & AI Features
 "voice_permission_needed" = "Voice permission needed for AI chat";
@@ -196,6 +202,36 @@
 "recording_voice" = "Recording";
 "processing_voice" = "Processing";
 
+// MARK: - Empty State Messages
+"empty_calendar_message" = "This day is empty, want to add something? 🎯";
+"no_events_message" = "No plans for now, enjoy this rare free time! ✨";
+"all_completed_message" = "Wow! All tasks completed today, you're amazing! 🎉";
+"loading_message" = "Syncing data...";
+"no_connection_message" = "Network seems to have issues, please check connection";
+
+// MARK: - Push Notification Messages
+"notification_title" = "HiCalendar Reminder";
+"notification_15min_prefix" = "In 15 minutes";
+"notification_30min_prefix" = "In 30 minutes";
+"notification_1hour_prefix" = "In 1 hour";
+"notification_2hours_prefix" = "In 2 hours";
+"notification_attime_suffix" = "Time's up";
+"notification_later_suffix" = "";
+
+// Push notification message templates (with personality)
+"notification_message_1" = "%@「%@」%@, don't tell me you forgot!";
+"notification_message_2" = "%@「%@」%@, ready for this?";
+"notification_message_3" = "%@「%@」%@, let's go!";
+"notification_default" = "%@「%@」reminder";
+
+// Cloud push messages (1 day / 1 week before)
+"push_1day_single" = "Tomorrow「%@」, don't make excuses about forgetting!";
+"push_1week_single" = "Next week「%@」, start preparing or you'll panic later!";
+"push_1day_multiple" = "Tomorrow %@ and %d more things waiting, busy day ahead!";
+"push_1week_multiple" = "Next week %@ and %d more events, don't say you're not ready!";
+"push_1day_notime" = "Don't forget「%@」, it's been waiting long enough!";
+"push_1week_notime" = "「%@」has been pending for a week, time to get it done!";
+
 // MARK: - Widget Strings
 "no_events_today" = "No events today";
 "more_events_count" = "%d more events...";
@@ -222,6 +258,7 @@
 "login_guide_title" = "Hey! Tap settings in the top right to login";
 "login_guide_subtitle" = "Unlock cloud sync, push notifications and more features";
 "login_button" = "Login";
+"sign_in_with_apple" = "Sign in with Apple 🍎";
 
 // MARK: - System Calendar Integration
 "system_calendar_sync" = "System Calendar Sync";
@@ -250,6 +287,122 @@
 "perform_manual_sync" = "Manual Sync";
 "sync_in_progress" = "Syncing...";
 
+// MARK: - Premium View - Missing Translations
+"pro_features" = "Pro Features";
+"cloud_sync_feature_desc" = "Sync your calendar data across devices, never lose anything";
+"widget_feature_desc" = "View today's events directly on your home screen, at a glance";
+"smart_push_feature_title" = "Smart Push Notifications";
+"smart_push_feature_desc" = "Smart cloud push notifications, sync push status across devices";
+"system_calendar_feature_title" = "System Calendar Sync";
+"system_calendar_feature_desc" = "Bidirectional sync with iPhone system calendar, HiCalendar events automatically appear in system calendar, never miss important appointments";
+
+// MARK: - Missing UI Translations
+"member" = "Member";
+"upgrade" = "Upgrade";
+"upgrade_to_pro" = "Upgrade to Pro";
+"bidirectional_sync_with_system_calendar" = "Bidirectional sync with system calendar";
+"cloud_push" = "Cloud Push";
+"unlocked" = "Unlocked";
+"contact_us_footer" = "Contact Us";
+"manage_membership" = "Manage Membership";
+"detailed_sync_settings" = "Detailed Sync Settings";
+
+// MARK: - Event Edit View
+"recurring_event_sync_modify" = "Recurring Event Sync Modification";
+"modify_event_will_update_all" = "Modifying this event will simultaneously update all other events in this recurring group";
+"whats_this_called" = "What's this called?";
+"placeholder_meeting_fish" = "For example: Slacking off meeting 🐟";
+"which_day" = "Which day?";
+"what_time_start" = "What time to start?";
+"all_day_event" = "All day event";
+"change_time" = "Change time";
+"any_additional_details" = "Any additional details?";
+"where_what_to_bring" = "Where? What to bring? What to wear? You can write anything here~";
+"when_to_remind_you" = "When to remind you?";
+"no_reminder_emoji" = "No reminder 🔕";
+"recurrence_frequency" = "Recurrence frequency";
+"recurrence_settings" = "Recurrence settings";
+"start_date" = "Start date";
+"end_date" = "End date";
+"after_7_days" = "After 7 days";
+"recurrence_count" = "Recurrence count";
+"end_date_already_set" = "End date already set";
+"times_suffix" = "times";
+
+// MARK: - Event Edit Navigation & Buttons
+"new_event_title" = "New Event 📝";
+"edit_event_title" = "Edit Event";
+"done_button" = "Done!";
+"sync_save_button" = "Sync Save";
+"create_button" = "Create";
+
+// MARK: - Recurrence Options
+"no_repeat" = "No Repeat";
+"daily_repeat" = "Daily";
+"weekly_repeat" = "Weekly";
+"monthly_repeat" = "Monthly";
+"yearly_repeat" = "Yearly";
+
+// MARK: - Event Drawer
+"events_waiting_for_you" = "%d events waiting for you";
+"event_waiting_for_you" = "%d event waiting for you";
+
+// MARK: - All Tasks View
+"search_events_placeholder" = "Search events...";
+"urgent_events" = "🔥 Urgent";
+"upcoming_events" = "📅 Upcoming";
+"later_events" = "📌 Later";
+"expired_events" = "⏰ Expired 💀";
+"collapse" = "Collapse";
+"view_all" = "View All";
+"more_items_hidden" = "Still %d more items hidden";
+"no_matching_events" = "No matching events found, try other keywords";
+
+// MARK: - Delete Confirmation
+"delete_recurrence_group_title" = "Delete Entire Recurring Group";
+"delete_single_event_title" = "Not Doing This Anymore";
+"delete_recurrence_group_message" = "This will delete all events in the recurring group, including past and future ones. Are you sure you want to delete them all?";
+"delete_single_event_message" = "Really not doing it? Once deleted, it's gone forever, and there's no remedy pill to buy 💊";
+"delete_all_button" = "Delete All";
+"delete_event_button" = "Delete It";
+
+// MARK: - Login Benefits Details
+"personalized_background_desc_detail" = "Customize calendar background images for a unique interface";
+"cloud_backup_title" = "Cloud Data Backup";
+"cloud_backup_desc_detail" = "Multi-device data sync, never lose anything";
+"smart_push_title" = "Smart Push Notifications";
+"smart_push_desc_detail" = "Cloud push notifications, multi-device status sync";
+"desktop_widget_desc_detail" = "View today's events directly on home screen";
+"system_calendar_sync_title" = "Local Calendar Sync";
+"system_calendar_sync_desc_detail" = "Bidirectional sync with system calendar, never miss important appointments";
+
 // MARK: - App Information
 "app_version" = "Version %@";
 "build_number" = "Build %@";
+
+// MARK: - Time Reminder Labels
+"expired_event" = "Expired 💀";
+"event_today" = "Today!";
+"event_tomorrow" = "Tomorrow";
+"event_day_after_tomorrow" = "Day after tomorrow";
+"event_days_later" = "%d days later";
+"event_weeks_later" = "%d weeks later";
+"event_very_far_future" = "Far future 🌙";
+
+// MARK: - Apple Sign In Error Messages
+"apple_signin_credential_invalid" = "Invalid Apple sign-in credentials";
+"apple_signin_data_incomplete" = "Incomplete Apple sign-in data";
+"supabase_signin_failed" = "Supabase sign-in failed: %@";
+"signin_canceled" = "Sign-in canceled 😤";
+"signin_failed" = "Sign-in failed, please try again";
+"signin_invalid_response" = "Invalid response";
+"signin_not_handled" = "Request not handled";
+"signin_unknown_error" = "Unknown error";
+"signin_not_interactive" = "User interaction required";
+"signin_credential_excluded" = "Credential excluded";
+"signin_credential_import_failed" = "Credential import failed";
+"signin_credential_export_failed" = "Credential export failed";
+"signin_general_error" = "Sign-in error";
+// MARK: - Push Settings Tips
+"week_before_push_requires_member" = "1 week push requires membership";
+"free_user_local_notification_tip" = "Free users use local notifications · Upgrade to Pro for cloud push";

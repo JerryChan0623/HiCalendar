@@ -55,10 +55,13 @@
 "smart_push" = "智能推送";
 "upgrade_now" = "立即升级";
 "restore_purchase" = "恢复购买";
+"redeem_code" = "兑换码";
+"redeem_success" = "兑换成功！会员已激活";
+"redeem_failed" = "兑换失败: %@";
 "already_unlocked_pro" = "已解锁 Pro 功能";
 "unlock_pro_features" = "解锁 Pro 功能";
 "purchasing" = "购买中...";
-"lifetime_access" = "一次购买，终身使用";
+"lifetime_access" = "包月订阅";
 "unlock_full_features" = "解锁完整功能，让日历管理更高效";
 
 // MARK: - 会员功能详情
@@ -157,6 +160,7 @@
 "time_format_24h" = "HH:mm";
 "date_format_short" = "M月d日";
 "date_format_long" = "yyyy年M月d日";
+"date_format_year_month" = "yyyy年M月";
 
 // MARK: - 日历视图
 "this_month" = "本月";
@@ -164,6 +168,8 @@
 "month_view" = "月视图";
 "week_view" = "周视图";
 "day_view" = "日视图";
+"select_month" = "选择月份";
+"quick_add_placeholder" = "添加新事项...";
 
 // MARK: - 语音和AI功能
 "voice_permission_needed" = "AI聊天需要语音权限";
@@ -196,6 +202,36 @@
 "recording_voice" = "录音中";
 "processing_voice" = "处理中";
 
+// MARK: - 空状态消息
+"empty_calendar_message" = "这天空空的，要不要加点料？ 🎯";
+"no_events_message" = "暂时没有安排，享受这难得的自由时光吧！ ✨";
+"all_completed_message" = "哇！今天的任务都完成了，你真棒！🎉";
+"loading_message" = "正在同步数据...";
+"no_connection_message" = "网络似乎有点问题，请检查网络连接";
+
+// MARK: - 推送通知消息
+"notification_title" = "HiCalendar提醒";
+"notification_15min_prefix" = "15分钟后";
+"notification_30min_prefix" = "30分钟后";
+"notification_1hour_prefix" = "1小时后";
+"notification_2hours_prefix" = "2小时后";
+"notification_attime_suffix" = "时间到了";
+"notification_later_suffix" = "";
+
+// 推送通知消息模板（带个性）
+"notification_message_1" = "%@「%@」%@，别又说忘了！";
+"notification_message_2" = "%@「%@」%@，准备好了吗？";
+"notification_message_3" = "%@「%@」%@，赶紧的！";
+"notification_default" = "%@「%@」提醒";
+
+// 云端推送消息（1天前/1周前）
+"push_1day_single" = "明天「%@」，别又临时找借口说忘了！";
+"push_1week_single" = "一周后「%@」，现在不准备待会儿又手忙脚乱？";
+"push_1day_multiple" = "明天%@等%d件事等着，忙死你了吧？";
+"push_1week_multiple" = "下周%@等%d个安排，别到时候又说没时间！";
+"push_1day_notime" = "别忘了「%@」这事儿，拖了这么久该动手了吧？";
+"push_1week_notime" = "「%@」都一周了还没搞，再不动手就凉了！";
+
 // MARK: - Widget小组件字符串
 "no_events_today" = "今天没有安排";
 "more_events_count" = "还有 %d 个安排...";
@@ -222,6 +258,7 @@
 "login_guide_title" = "嘿！点击右上角设置登录";
 "login_guide_subtitle" = "解锁云同步、推送等更多功能";
 "login_button" = "登录";
+"sign_in_with_apple" = "用 Apple 账号进来 🍎";
 
 // MARK: - 系统日历集成
 "system_calendar_sync" = "系统日历同步";
@@ -250,6 +287,122 @@
 "perform_manual_sync" = "手动同步";
 "sync_in_progress" = "正在同步...";
 
+// MARK: - Premium View - 补充缺失翻译
+"pro_features" = "Pro 功能";
+"cloud_sync_feature_desc" = "多设备同步您的日历数据，永不丢失";
+"widget_feature_desc" = "在主屏幕直接查看今日事项，一目了然";
+"smart_push_feature_title" = "智能推送通知";
+"smart_push_feature_desc" = "云端智能推送提醒，多设备同步推送状态";
+"system_calendar_feature_title" = "系统日历同步";
+"system_calendar_feature_desc" = "与iPhone系统日历双向同步，HiCalendar事件自动出现在系统日历中，永不遗漏重要安排";
+
+// MARK: - 缺失的UI翻译
+"member" = "会员";
+"upgrade" = "升级";
+"upgrade_to_pro" = "升级到 Pro";
+"bidirectional_sync_with_system_calendar" = "与系统日历双向同步";
+"cloud_push" = "云推送";
+"unlocked" = "已解锁";
+"contact_us_footer" = "联系我们";
+"manage_membership" = "管理会员";
+"detailed_sync_settings" = "详细同步设置";
+
+// MARK: - Event Edit View
+"recurring_event_sync_modify" = "重复事件同步修改";
+"modify_event_will_update_all" = "修改此事件会同时更新该重复组中的所有其他事件";
+"whats_this_called" = "这事儿叫啥？";
+"placeholder_meeting_fish" = "比如：摸鱼大会 🐟";
+"which_day" = "哪天的事儿？";
+"what_time_start" = "几点开搞？";
+"all_day_event" = "一整天都是这事儿";
+"change_time" = "改个时间";
+"any_additional_details" = "还有啥要补充的？";
+"where_what_to_bring" = "在哪儿？带啥？穿啥？都可以写这儿～";
+"when_to_remind_you" = "啥时候提醒你？";
+"no_reminder_emoji" = "不提醒 🔕";
+"recurrence_frequency" = "重复频率";
+"recurrence_settings" = "重复设置";
+"start_date" = "开始日期";
+"end_date" = "结束日期";
+"after_7_days" = "7天后";
+"recurrence_count" = "重复次数";
+"end_date_already_set" = "已设置结束日期";
+"times_suffix" = "次";
+
+// MARK: - Event Edit Navigation & Buttons
+"new_event_title" = "又有新安排啦 📝";
+"edit_event_title" = "改改这个安排";
+"done_button" = "搞定！";
+"sync_save_button" = "同步保存";
+"create_button" = "创建";
+
+// MARK: - Recurrence Options
+"no_repeat" = "不重复";
+"daily_repeat" = "每天";
+"weekly_repeat" = "每周";
+"monthly_repeat" = "每月";
+"yearly_repeat" = "每年";
+
+// MARK: - Event Drawer
+"events_waiting_for_you" = "%d件事儿等着你";
+"event_waiting_for_you" = "%d件事儿等着你";
+
+// MARK: - All Tasks View
+"search_events_placeholder" = "搜索事项...";
+"urgent_events" = "🔥 紧急事项";
+"upcoming_events" = "📅 即将到来";
+"later_events" = "📌 稍后事项";
+"expired_events" = "⏰ 过期啦 💀";
+"collapse" = "收起";
+"view_all" = "查看全部";
+"more_items_hidden" = "还有 %d 项未显示";
+"no_matching_events" = "未找到匹配的事项，尝试其他搜索关键词";
+
+// MARK: - Delete Confirmation
+"delete_recurrence_group_title" = "删除整个重复事件组";
+"delete_single_event_title" = "不干这事儿了";
+"delete_recurrence_group_message" = "这会删除该重复组中的所有事件，包括过去和未来的。确定要全部删除吗？";
+"delete_single_event_message" = "真的不干了？删了就真没了，后悔药可没地儿买 💊";
+"delete_all_button" = "全部删除";
+"delete_event_button" = "删掉删掉";
+
+// MARK: - Login Benefits Details
+"personalized_background_desc_detail" = "自定义日历背景图片，让界面独一无二";
+"cloud_backup_title" = "数据云端备份";
+"cloud_backup_desc_detail" = "多设备数据同步，永不丢失";
+"smart_push_title" = "智能推送提醒";
+"smart_push_desc_detail" = "云端推送通知，多设备同步状态";
+"desktop_widget_desc_detail" = "主屏幕直接查看今日事项";
+"system_calendar_sync_title" = "本地日历同步";
+"system_calendar_sync_desc_detail" = "与系统日历双向同步，不遗漏任何重要安排";
+
 // MARK: - 应用信息
 "app_version" = "版本 %@";
 "build_number" = "构建 %@";
+
+// MARK: - 时间提醒标签
+"expired_event" = "过期啦 💀";
+"event_today" = "就是今天！";
+"event_tomorrow" = "明儿见";
+"event_day_after_tomorrow" = "后天啦";
+"event_days_later" = "%d 天后";
+"event_weeks_later" = "%d 周后";
+"event_very_far_future" = "遥遥无期 🌙";
+
+// MARK: - Apple登录错误消息
+"apple_signin_credential_invalid" = "Apple登录凭证无效";
+"apple_signin_data_incomplete" = "Apple登录数据不完整";
+"supabase_signin_failed" = "Supabase登录失败: %@";
+"signin_canceled" = "不登就不登嘛 😤";
+"signin_failed" = "登录失败，请重试";
+"signin_invalid_response" = "无效的响应";
+"signin_not_handled" = "请求未处理";
+"signin_unknown_error" = "未知错误";
+"signin_not_interactive" = "需要用户交互";
+"signin_credential_excluded" = "凭证被排除";
+"signin_credential_import_failed" = "凭证导入失败";
+"signin_credential_export_failed" = "凭证导出失败";
+"signin_general_error" = "登录出错";
+// MARK: - 推送设置提示
+"week_before_push_requires_member" = "1周前推送需要会员";
+"free_user_local_notification_tip" = "免费用户使用本地通知 · 升级会员享受云端推送";

@@ -13,6 +13,9 @@ struct PremiumView: View {
     @StateObject private var purchaseManager = PurchaseManager.shared
     @State private var showingAlert = false
     @State private var alertMessage = ""
+    @State private var showingPrivacyPolicy = false
+    @State private var showingTermsOfService = false
+    @State private var selectedProductID: String = PurchaseManager.ProductID.monthlySubscription.rawValue // 默认选中月度会员
 
     var body: some View {
         NavigationStack {
@@ -50,7 +53,7 @@ struct PremiumView: View {
                     .padding(BrandSpacing.lg)
                 }
             }
-            .navigationTitle("升级到 Pro")
+            .navigationTitle(L10n.upgradeToPro)
             .navigationBarTitleDisplayMode(.large)
             .toolbarBackground(BrandColor.background.opacity(0.9), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
@@ -65,13 +68,35 @@ struct PremiumView: View {
             }
         }
         .task {
+            print("📱 PremiumView.task 开始执行")
+            print("📱 环境信息:")
+            print("   - Bundle ID: \(Bundle.main.bundleIdentifier ?? "unknown")")
+            print("   - 是否TestFlight: \(Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt")")
+            print("   - 产品数量(加载前): \(purchaseManager.products.count)")
+
             await purchaseManager.loadProducts()
+
+            print("📱 产品加载完成:")
+            print("   - 产品数量: \(purchaseManager.products.count)")
+            print("   - 产品列表: \(purchaseManager.products.map { "\($0.id) - \($0.displayName)" })")
+            print("   - 按钮禁用状态: \(purchaseManager.products.isEmpty)")
+
             await purchaseManager.updateCustomerProductStatus()
+
+            print("📱 购买状态更新完成:")
+            print("   - isPremiumUnlocked: \(purchaseManager.isPremiumUnlocked)")
+            print("   - purchasedProductIDs: \(purchaseManager.purchasedProductIDs)")
         }
         .alert("提示", isPresented: $showingAlert) {
             Button(L10n.ok, role: .cancel) { }
         } message: {
             Text(alertMessage)
+        }
+        .sheet(isPresented: $showingPrivacyPolicy) {
+            PrivacyPolicyView()
+        }
+        .sheet(isPresented: $showingTermsOfService) {
+            TermsOfServiceView()
         }
     }
 
@@ -99,7 +124,7 @@ struct PremiumView: View {
                 .font(BrandFont.body(size: 28, weight: .heavy))
                 .foregroundColor(BrandColor.onSurface)
 
-            Text("解锁完整功能，让日历管理更高效")
+            Text(L10n.unlockFullFeatures)
                 .font(BrandFont.body(size: 16, weight: .medium))
                 .foregroundColor(BrandColor.onSurface.opacity(0.7))
                 .multilineTextAlignment(.center)
@@ -109,7 +134,7 @@ struct PremiumView: View {
     // MARK: - Features Section
     private var featuresSection: some View {
         VStack(spacing: BrandSpacing.lg) {
-            Text("Pro 功能")
+            Text(L10n.proFeatures)
                 .font(BrandFont.body(size: 20, weight: .bold))
                 .foregroundColor(BrandColor.onSurface)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -118,28 +143,28 @@ struct PremiumView: View {
                 FeatureCard(
                     icon: "☁️",
                     title: L10n.cloudSync,
-                    description: "多设备同步您的日历数据，永不丢失",
+                    description: L10n.cloudSyncFeatureDesc,
                     isUnlocked: purchaseManager.canSyncToCloud
                 )
 
                 FeatureCard(
                     icon: "📱",
                     title: L10n.desktopWidgets,
-                    description: "在主屏幕直接查看今日事项，一目了然",
+                    description: L10n.widgetFeatureDesc,
                     isUnlocked: purchaseManager.canUseWidget
                 )
 
                 FeatureCard(
                     icon: "🔔",
-                    title: "智能推送通知",
-                    description: "云端智能推送提醒，多设备同步推送状态",
+                    title: L10n.smartPushFeatureTitle,
+                    description: L10n.smartPushFeatureDesc,
                     isUnlocked: purchaseManager.canUsePushNotifications
                 )
 
                 FeatureCard(
                     icon: "📅",
-                    title: "系统日历同步",
-                    description: "与iPhone系统日历双向同步，HiCalendar事件自动出现在系统日历中，永不遗漏重要安排",
+                    title: L10n.systemCalendarFeatureTitle,
+                    description: L10n.systemCalendarFeatureDesc,
                     isUnlocked: purchaseManager.isPremiumUnlocked
                 )
             }
@@ -149,42 +174,45 @@ struct PremiumView: View {
     // MARK: - Product Section
     private var productSection: some View {
         VStack(spacing: BrandSpacing.md) {
-            if let premiumProduct = purchaseManager.products.first(where: { $0.id == PurchaseManager.ProductID.premium.rawValue }) {
-                MD3Card(type: .elevated) {
-                    VStack(spacing: BrandSpacing.md) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: BrandSpacing.xs) {
-                                Text(premiumProduct.displayName)
-                                    .font(BrandFont.body(size: 18, weight: .bold))
-                                    .foregroundColor(BrandColor.onSurface)
+            Text("选择订阅方案")
+                .font(BrandFont.body(size: 20, weight: .bold))
+                .foregroundColor(BrandColor.onSurface)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                                Text(premiumProduct.description)
-                                    .font(BrandFont.body(size: 14, weight: .medium))
-                                    .foregroundColor(BrandColor.onSurface.opacity(0.7))
-                            }
-
-                            Spacer()
-
-                            VStack(alignment: .trailing) {
-                                Text(premiumProduct.displayPrice)
-                                    .font(BrandFont.body(size: 24, weight: .heavy))
-                                    .foregroundColor(BrandColor.primaryBlue)
-
-                                Text(L10n.lifetimeAccess)
-                                    .font(BrandFont.body(size: 12, weight: .medium))
-                                    .foregroundColor(BrandColor.onSurface.opacity(0.6))
-                            }
-                        }
+            // 月度订阅（放在上面，默认选中）
+            if let monthlyProduct = purchaseManager.products.first(where: { $0.id == PurchaseManager.ProductID.monthlySubscription.rawValue }) {
+                SubscriptionCard(
+                    product: monthlyProduct,
+                    isRecommended: false,
+                    savingsText: nil,
+                    isSelected: selectedProductID == monthlyProduct.id,
+                    onSelect: {
+                        selectedProductID = monthlyProduct.id
                     }
-                    .padding(BrandSpacing.lg)
-                }
+                )
             }
+
+            // 暂时注释掉年度订阅，等App Store Connect配置完成后再启用
+            /*
+            // 年度订阅
+            if let yearlyProduct = purchaseManager.products.first(where: { $0.id == PurchaseManager.ProductID.yearlySubscription.rawValue }) {
+                SubscriptionCard(
+                    product: yearlyProduct,
+                    isRecommended: true,
+                    savingsText: "相比月度订阅每年节省¥148",
+                    isSelected: selectedProductID == yearlyProduct.id,
+                    onSelect: {
+                        selectedProductID = yearlyProduct.id
+                    }
+                )
+            }
+            */
         }
     }
 
     // MARK: - Purchase Section
     private var purchaseSection: some View {
-        VStack(spacing: BrandSpacing.md) {
+        VStack(spacing: BrandSpacing.sm) {
             if purchaseManager.isPremiumUnlocked {
                 // 已购买状态
                 Button(action: {}) {
@@ -210,45 +238,77 @@ struct PremiumView: View {
                 .disabled(true)
 
             } else {
-                // 购买按钮
-                Button(action: {
-                    Task {
-                        await purchaseProduct()
-                    }
-                }) {
-                    HStack {
-                        if purchaseManager.isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: BrandColor.onPrimary))
-                                .scaleEffect(0.8)
-                        } else {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 20, weight: .bold))
-                        }
+                        // 购买按钮
+                        Button(action: {
+                            Task {
+                                await purchaseProduct()
+                            }
+                        }) {
+                            VStack(spacing: 6) {
+                                if purchaseManager.isLoading {
+                                    HStack(spacing: BrandSpacing.sm) {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: BrandColor.onPrimary))
+                                            .scaleEffect(0.8)
+                                        Text(L10n.purchasing)
+                                            .font(BrandFont.body(size: 18, weight: .bold))
+                                    }
+                                } else if purchaseManager.products.isEmpty {
+                                    // 临时调试信息 - 显示为什么按钮被禁用
+                                    VStack(spacing: 4) {
+                                        Text("⚠️ 产品加载失败")
+                                            .font(BrandFont.body(size: 16, weight: .bold))
+                                        Text("产品数量: \(purchaseManager.products.count)")
+                                            .font(BrandFont.body(size: 12, weight: .medium))
+                                        Text("请检查App Store Connect配置")
+                                            .font(BrandFont.body(size: 12, weight: .medium))
+                                    }
+                                } else {
+                                    // 主要文案
+                                    HStack(spacing: BrandSpacing.xs) {
+                                        Image(systemName: "star.fill")
+                                            .font(.system(size: 18, weight: .bold))
+                                        Text(L10n.unlockProFeatures)
+                                            .font(BrandFont.body(size: 18, weight: .bold))
+                                    }
 
-                        Text(purchaseManager.isLoading ? L10n.purchasing : L10n.unlockProFeatures)
-                            .font(BrandFont.body(size: 18, weight: .bold))
-                    }
-                    .foregroundColor(BrandColor.onPrimary)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(
-                        RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
-                            .fill(
-                                LinearGradient(
-                                    colors: [BrandColor.primaryYellow, BrandColor.primaryBlue],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
+                                    // 试用提示 - 更醒目
+                                    Text("🎁 前7天免费体验")
+                                        .font(BrandFont.body(size: 16, weight: .heavy))
+                                        .foregroundColor(BrandColor.primaryYellow)
+                                }
+                            }
+                            .foregroundColor(BrandColor.onPrimary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [BrandColor.primaryBlue, BrandColor.primaryBlue.opacity(0.8)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
                             )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
-                            .stroke(BrandBorder.outline, lineWidth: BrandBorder.thick)
-                    )
+                            .clipShape(RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                                    .stroke(BrandBorder.outline, lineWidth: BrandBorder.thick)
+                            )
+                        }
+                        .disabled(purchaseManager.isLoading || purchaseManager.products.isEmpty)
+                        .opacity((purchaseManager.isLoading || purchaseManager.products.isEmpty) ? 0.6 : 1.0)
+
+                // Hint 说明文字
+                VStack(spacing: 4) {
+                    Text("• 可随时取消，试用期内不扣费")
+                    Text("• 取消后服务持续到当前周期结束")
                 }
-                .disabled(purchaseManager.isLoading || purchaseManager.products.isEmpty)
+                .font(BrandFont.body(size: 12, weight: .medium))
+                .foregroundColor(BrandColor.onSurface.opacity(0.6))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 4)
             }
         }
     }
@@ -257,14 +317,35 @@ struct PremiumView: View {
     private var restoreSection: some View {
         VStack(spacing: BrandSpacing.sm) {
             if !purchaseManager.isPremiumUnlocked {
-                Button(L10n.restorePurchase) {
-                    Task {
-                        await restorePurchases()
+                // 恢复购买和兑换码按钮
+                HStack(spacing: BrandSpacing.lg) {
+                    Button(L10n.restorePurchase) {
+                        Task {
+                            await restorePurchases()
+                        }
                     }
+                    .font(BrandFont.body(size: 16, weight: .medium))
+                    .foregroundColor(BrandColor.primaryBlue)
+                    .disabled(purchaseManager.isLoading)
+
+                    Text("•")
+                        .foregroundColor(BrandColor.outline)
+
+                    // 兑换码按钮
+                    Button(L10n.redeemCode) {
+                        redeemOfferCode()
+                    }
+                    .font(BrandFont.body(size: 16, weight: .medium))
+                    .foregroundColor(BrandColor.primaryBlue)
+                    .disabled(purchaseManager.isLoading)
+                }
+            } else {
+                // 已订阅用户显示管理订阅按钮
+                Button("管理订阅") {
+                    manageSubscription()
                 }
                 .font(BrandFont.body(size: 16, weight: .medium))
                 .foregroundColor(BrandColor.primaryBlue)
-                .disabled(purchaseManager.isLoading)
             }
 
             // 隐私和条款链接
@@ -286,19 +367,91 @@ struct PremiumView: View {
     }
 
     // MARK: - Helper Methods
+    private func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+
     private func purchaseProduct() async {
-        guard let product = purchaseManager.products.first(where: { $0.id == PurchaseManager.ProductID.premium.rawValue }) else {
-            showAlert(message: "产品未找到，请稍后再试")
+        print("🛒 purchaseProduct() 被调用")
+        print("🛒 选中产品ID: \(selectedProductID)")
+        print("🛒 产品列表数量: \(purchaseManager.products.count)")
+        print("🛒 产品列表: \(purchaseManager.products.map { $0.id })")
+        print("🛒 isLoading: \(purchaseManager.isLoading)")
+        print("🛒 isPremiumUnlocked: \(purchaseManager.isPremiumUnlocked)")
+
+        // 使用当前选中的产品
+        guard let product = purchaseManager.products.first(where: { $0.id == selectedProductID }) else {
+            print("❌ 没有找到选中的产品")
+            showAlert(message: "未选择产品，请选择一个订阅方案")
             return
         }
 
+        print("✅ 找到产品: \(product.id) - \(product.displayName)")
+
+        do {
+            print("🛒 开始购买流程...")
+            let transaction = try await purchaseManager.purchase(product)
+            if transaction != nil {
+                print("✅ 购买成功")
+                showAlert(message: "订阅成功！7天免费试用已激活")
+            } else {
+                print("⚠️ 购买返回nil（可能用户取消）")
+            }
+        } catch {
+            print("❌ 购买失败: \(error)")
+            showAlert(message: "购买失败\n\n错误信息：\n\(error.localizedDescription)")
+        }
+    }
+
+    private func purchaseSpecificProduct(_ product: Product) async {
         do {
             let transaction = try await purchaseManager.purchase(product)
             if transaction != nil {
-                showAlert(message: "购买成功！Pro 功能已解锁 🎉")
+                showAlert(message: "订阅成功！7天免费试用已激活")
             }
         } catch {
-            showAlert(message: "购买失败: \(error.localizedDescription)")
+            showAlert(message: L10n.purchaseFailedError(error.localizedDescription))
+        }
+    }
+
+    private func manageSubscription() {
+        // 跳转到系统设置的订阅管理页面
+        if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    /// 兑换优惠码 - 显示App Store兑换码输入界面
+    private func redeemOfferCode() {
+        Task {
+            do {
+                // 获取当前的 UIWindowScene
+                guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                    print("❌ 无法获取 WindowScene")
+                    showAlert(message: L10n.redeemFailed("无法打开兑换界面"))
+                    return
+                }
+
+                // iOS 16+ 支持的兑换码界面
+                try await AppStore.presentOfferCodeRedeemSheet(in: windowScene)
+                print("✅ 兑换码界面已显示")
+
+                // 兑换成功后刷新购买状态
+                await purchaseManager.updateCustomerProductStatus()
+
+                if purchaseManager.isPremiumUnlocked {
+                    showAlert(message: L10n.redeemSuccess)
+                }
+            } catch {
+                print("❌ 兑换码界面错误: \(error)")
+                // 用户取消不显示错误
+                if (error as NSError).code != 2 { // SKError.paymentCancelled
+                    showAlert(message: L10n.redeemFailed(error.localizedDescription))
+                }
+            }
         }
     }
 
@@ -307,9 +460,9 @@ struct PremiumView: View {
         if let errorMessage = purchaseManager.errorMessage {
             showAlert(message: errorMessage)
         } else if purchaseManager.isPremiumUnlocked {
-            showAlert(message: "购买已恢复！Pro 功能已解锁 🎉")
+            showAlert(message: L10n.purchaseRestored)
         } else {
-            showAlert(message: "未找到之前的购买记录")
+            showAlert(message: L10n.noPreviousPurchase)
         }
     }
 
@@ -320,17 +473,100 @@ struct PremiumView: View {
 
     // MARK: - 法律条款方法
     private func openTermsOfService() {
-        if let url = URL(string: "https://github.com/chenzhencong/HiCalendar/blob/main/TERMS_OF_SERVICE.md") {
-            UIApplication.shared.open(url)
-        }
+        showingTermsOfService = true
     }
 
     private func openPrivacyPolicy() {
-        if let url = URL(string: "https://github.com/chenzhencong/HiCalendar/blob/main/PRIVACY_POLICY.md") {
-            UIApplication.shared.open(url)
-        }
+        showingPrivacyPolicy = true
     }
 
+}
+
+// MARK: - Subscription Card Component
+struct SubscriptionCard: View {
+    let product: Product
+    let isRecommended: Bool
+    let savingsText: String?
+    let isSelected: Bool
+    let onSelect: () -> Void
+
+    var body: some View {
+        Button(action: {
+            onSelect() // 只触发选择，不触发购买
+        }) {
+            VStack(alignment: .leading, spacing: BrandSpacing.md) {
+                // 推荐标签和选中状态
+                HStack {
+                    if isRecommended {
+                        Text("🌟 推荐")
+                            .font(BrandFont.body(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, BrandSpacing.sm)
+                            .padding(.vertical, 4)
+                            .background(
+                                LinearGradient(
+                                    colors: [BrandColor.primaryYellow, BrandColor.primaryBlue],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .cornerRadius(BrandRadius.sm)
+                    }
+
+                    Spacer()
+
+                    // 选中指示器
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(BrandColor.primaryBlue)
+                    } else {
+                        Image(systemName: "circle")
+                            .font(.system(size: 20, weight: .regular))
+                            .foregroundColor(BrandColor.outline)
+                    }
+                }
+
+                // 产品名称和价格
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: BrandSpacing.xs) {
+                        Text(product.displayName)
+                            .font(BrandFont.body(size: 18, weight: .bold))
+                            .foregroundColor(BrandColor.onSurface)
+
+                        if let savingsText = savingsText {
+                            Text(savingsText)
+                                .font(BrandFont.body(size: 12, weight: .medium))
+                                .foregroundColor(BrandColor.success)
+                        }
+                    }
+
+                    Spacer()
+
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text(product.displayPrice)
+                            .font(BrandFont.body(size: 24, weight: .heavy))
+                            .foregroundColor(BrandColor.primaryBlue)
+
+                        Text(product.subscription?.subscriptionPeriod.unit == .month ? "/月" : "/年")
+                            .font(BrandFont.body(size: 12, weight: .medium))
+                            .foregroundColor(BrandColor.onSurface.opacity(0.7))
+                    }
+                }
+            }
+            .padding(BrandSpacing.lg)
+            .background(
+                RoundedRectangle(cornerRadius: BrandRadius.lg, style: .continuous)
+                    .fill(isSelected ? BrandColor.primaryBlue.opacity(0.08) : BrandColor.surface)
+                    .neobrutalStyle(
+                        cornerRadius: BrandRadius.lg,
+                        borderWidth: isSelected ? BrandBorder.thick : BrandBorder.regular,
+                        borderColor: isSelected ? BrandColor.primaryBlue : BrandBorder.outline
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
 }
 
 // MARK: - Feature Card Component
@@ -355,23 +591,9 @@ struct FeatureCard: View {
 
                 // 内容
                 VStack(alignment: .leading, spacing: BrandSpacing.xs) {
-                    HStack {
-                        Text(title)
-                            .font(BrandFont.body(size: 16, weight: .bold))
-                            .foregroundColor(BrandColor.onSurface)
-
-                        Spacer()
-
-                        if isUnlocked {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(BrandColor.success)
-                        } else {
-                            Image(systemName: "lock.circle.fill")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(BrandColor.outline)
-                        }
-                    }
+                    Text(title)
+                        .font(BrandFont.body(size: 16, weight: .bold))
+                        .foregroundColor(BrandColor.onSurface)
 
                     Text(description)
                         .font(BrandFont.body(size: 14, weight: .medium))
@@ -380,6 +602,17 @@ struct FeatureCard: View {
                 }
 
                 Spacer()
+
+                // 锁定/解锁图标 - 右侧垂直居中
+                if isUnlocked {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(BrandColor.success)
+                } else {
+                    Image(systemName: "lock.circle.fill")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(BrandColor.outline)
+                }
             }
             .padding(BrandSpacing.md)
         }

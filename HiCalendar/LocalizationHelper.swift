@@ -64,6 +64,11 @@ struct L10n {
     static let smartPush = NSLocalizedString("smart_push", comment: "")
     static let upgradeNow = NSLocalizedString("upgrade_now", comment: "")
     static let restorePurchase = NSLocalizedString("restore_purchase", comment: "")
+    static let redeemCode = NSLocalizedString("redeem_code", comment: "")
+    static let redeemSuccess = NSLocalizedString("redeem_success", comment: "")
+    static func redeemFailed(_ error: String) -> String {
+        return String(format: NSLocalizedString("redeem_failed", comment: ""), error)
+    }
     static let alreadyUnlockedPro = NSLocalizedString("already_unlocked_pro", comment: "")
     static let unlockProFeatures = NSLocalizedString("unlock_pro_features", comment: "")
     static let purchasing = NSLocalizedString("purchasing", comment: "")
@@ -71,9 +76,16 @@ struct L10n {
     static let unlockFullFeatures = NSLocalizedString("unlock_full_features", comment: "")
 
     // MARK: - Premium Features Details
+    static let proFeatures = NSLocalizedString("pro_features", comment: "")
     static let cloudSyncDesc = NSLocalizedString("cloud_sync_desc", comment: "")
     static let widgetDesc = NSLocalizedString("widget_desc", comment: "")
     static let smartPushDesc = NSLocalizedString("smart_push_desc", comment: "")
+    static let cloudSyncFeatureDesc = NSLocalizedString("cloud_sync_feature_desc", comment: "")
+    static let widgetFeatureDesc = NSLocalizedString("widget_feature_desc", comment: "")
+    static let smartPushFeatureTitle = NSLocalizedString("smart_push_feature_title", comment: "")
+    static let smartPushFeatureDesc = NSLocalizedString("smart_push_feature_desc", comment: "")
+    static let systemCalendarFeatureTitle = NSLocalizedString("system_calendar_feature_title", comment: "")
+    static let systemCalendarFeatureDesc = NSLocalizedString("system_calendar_feature_desc", comment: "")
 
     // MARK: - Push Notifications
     static let notificationSettings = NSLocalizedString("notification_settings", comment: "")
@@ -84,6 +96,8 @@ struct L10n {
     static let dayBeforeDesc = NSLocalizedString("day_before_desc", comment: "")
     static let weekBeforeReminder = NSLocalizedString("week_before_reminder", comment: "")
     static let weekBeforeDesc = NSLocalizedString("week_before_desc", comment: "")
+    static let weekBeforePushRequiresMember = NSLocalizedString("week_before_push_requires_member", comment: "")
+    static let freeUserLocalNotificationTip = NSLocalizedString("free_user_local_notification_tip", comment: "")
 
     // MARK: - Legal Information
     static let legalInfo = NSLocalizedString("legal_info", comment: "")
@@ -175,6 +189,7 @@ struct L10n {
     static let timeFormat24h = NSLocalizedString("time_format_24h", comment: "")
     static let dateFormatShort = NSLocalizedString("date_format_short", comment: "")
     static let dateFormatLong = NSLocalizedString("date_format_long", comment: "")
+    static let dateFormatYearMonth = NSLocalizedString("date_format_year_month", comment: "")
 
     // MARK: - Calendar View
     static let thisMonth = NSLocalizedString("this_month", comment: "")
@@ -182,6 +197,8 @@ struct L10n {
     static let monthView = NSLocalizedString("month_view", comment: "")
     static let weekView = NSLocalizedString("week_view", comment: "")
     static let dayView = NSLocalizedString("day_view", comment: "")
+    static let selectMonth = NSLocalizedString("select_month", comment: "")
+    static let quickAddPlaceholder = NSLocalizedString("quick_add_placeholder", comment: "")
 
     // MARK: - Voice & AI Features
     static let voicePermissionNeeded = NSLocalizedString("voice_permission_needed", comment: "")
@@ -289,4 +306,150 @@ struct L10n {
     static let loginGuideTitle = NSLocalizedString("login_guide_title", comment: "")
     static let loginGuideSubtitle = NSLocalizedString("login_guide_subtitle", comment: "")
     static let loginButton = NSLocalizedString("login_button", comment: "")
+    static let signInWithApple = NSLocalizedString("sign_in_with_apple", comment: "")
+
+    // MARK: - Empty State Messages
+    static let emptyCalendarMessage = NSLocalizedString("empty_calendar_message", comment: "")
+    static let noEventsMessage = NSLocalizedString("no_events_message", comment: "")
+    static let allCompletedMessage = NSLocalizedString("all_completed_message", comment: "")
+    static let loadingMessage = NSLocalizedString("loading_message", comment: "")
+    static let noConnectionMessage = NSLocalizedString("no_connection_message", comment: "")
+
+    // MARK: - Push Notification Messages
+    static let notificationTitle = NSLocalizedString("notification_title", comment: "")
+    static let notification15MinPrefix = NSLocalizedString("notification_15min_prefix", comment: "")
+    static let notification30MinPrefix = NSLocalizedString("notification_30min_prefix", comment: "")
+    static let notification1HourPrefix = NSLocalizedString("notification_1hour_prefix", comment: "")
+    static let notification2HoursPrefix = NSLocalizedString("notification_2hours_prefix", comment: "")
+    static let notificationAtTimeSuffix = NSLocalizedString("notification_attime_suffix", comment: "")
+    static let notificationLaterSuffix = NSLocalizedString("notification_later_suffix", comment: "")
+    static let notificationMessage1 = NSLocalizedString("notification_message_1", comment: "")
+    static let notificationMessage2 = NSLocalizedString("notification_message_2", comment: "")
+    static let notificationMessage3 = NSLocalizedString("notification_message_3", comment: "")
+    static let notificationDefault = NSLocalizedString("notification_default", comment: "")
+
+    // Cloud push messages
+    static let push1DaySingle = NSLocalizedString("push_1day_single", comment: "")
+    static let push1WeekSingle = NSLocalizedString("push_1week_single", comment: "")
+    static let push1DayMultiple = NSLocalizedString("push_1day_multiple", comment: "")
+    static let push1WeekMultiple = NSLocalizedString("push_1week_multiple", comment: "")
+    static let push1DayNoTime = NSLocalizedString("push_1day_notime", comment: "")
+    static let push1WeekNoTime = NSLocalizedString("push_1week_notime", comment: "")
+
+    // MARK: - Missing UI Translations
+    static let member = NSLocalizedString("member", comment: "")
+    static let upgrade = NSLocalizedString("upgrade", comment: "")
+    static let upgradeToPro = NSLocalizedString("upgrade_to_pro", comment: "")
+    static let bidirectionalSyncWithSystemCalendar = NSLocalizedString("bidirectional_sync_with_system_calendar", comment: "")
+    static let cloudPush = NSLocalizedString("cloud_push", comment: "")
+    static let unlocked = NSLocalizedString("unlocked", comment: "")
+    static let contactUsFooter = NSLocalizedString("contact_us_footer", comment: "")
+    static let manageMembership = NSLocalizedString("manage_membership", comment: "")
+    static let detailedSyncSettings = NSLocalizedString("detailed_sync_settings", comment: "")
+
+    // MARK: - Event Edit View
+    static let recurringEventSyncModify = NSLocalizedString("recurring_event_sync_modify", comment: "")
+    static let modifyEventWillUpdateAll = NSLocalizedString("modify_event_will_update_all", comment: "")
+    static let whatsThisCalled = NSLocalizedString("whats_this_called", comment: "")
+    static let placeholderMeetingFish = NSLocalizedString("placeholder_meeting_fish", comment: "")
+    static let whichDay = NSLocalizedString("which_day", comment: "")
+    static let whatTimeStart = NSLocalizedString("what_time_start", comment: "")
+    static let allDayEvent = NSLocalizedString("all_day_event", comment: "")
+    static let changeTime = NSLocalizedString("change_time", comment: "")
+    static let anyAdditionalDetails = NSLocalizedString("any_additional_details", comment: "")
+    static let whereWhatToBring = NSLocalizedString("where_what_to_bring", comment: "")
+    static let whenToRemindYou = NSLocalizedString("when_to_remind_you", comment: "")
+    static let noReminderEmoji = NSLocalizedString("no_reminder_emoji", comment: "")
+    static let recurrenceFrequency = NSLocalizedString("recurrence_frequency", comment: "")
+    static let recurrenceSettings = NSLocalizedString("recurrence_settings", comment: "")
+    static let startDate = NSLocalizedString("start_date", comment: "")
+    static let endDate = NSLocalizedString("end_date", comment: "")
+    static let after7Days = NSLocalizedString("after_7_days", comment: "")
+    static let recurrenceCount = NSLocalizedString("recurrence_count", comment: "")
+    static let endDateAlreadySet = NSLocalizedString("end_date_already_set", comment: "")
+    static let timesSuffix = NSLocalizedString("times_suffix", comment: "")
+
+    // MARK: - Event Edit Navigation & Buttons
+    static let newEventTitle = NSLocalizedString("new_event_title", comment: "")
+    static let editEventTitle = NSLocalizedString("edit_event_title", comment: "")
+    static let doneButton = NSLocalizedString("done_button", comment: "")
+    static let syncSaveButton = NSLocalizedString("sync_save_button", comment: "")
+    static let createButton = NSLocalizedString("create_button", comment: "")
+
+    // MARK: - Recurrence Options
+    static let noRepeat = NSLocalizedString("no_repeat", comment: "")
+    static let dailyRepeat = NSLocalizedString("daily_repeat", comment: "")
+    static let weeklyRepeat = NSLocalizedString("weekly_repeat", comment: "")
+    static let monthlyRepeat = NSLocalizedString("monthly_repeat", comment: "")
+    static let yearlyRepeat = NSLocalizedString("yearly_repeat", comment: "")
+
+    // MARK: - Event Drawer
+    static func eventsWaitingForYou(_ count: Int) -> String {
+        if count == 1 {
+            return String(format: NSLocalizedString("event_waiting_for_you", comment: ""), count)
+        } else {
+            return String(format: NSLocalizedString("events_waiting_for_you", comment: ""), count)
+        }
+    }
+
+    // MARK: - All Tasks View
+    static let searchEventsPlaceholder = NSLocalizedString("search_events_placeholder", comment: "")
+    static let urgentEvents = NSLocalizedString("urgent_events", comment: "")
+    static let upcomingEvents = NSLocalizedString("upcoming_events", comment: "")
+    static let laterEvents = NSLocalizedString("later_events", comment: "")
+    static let expiredEvents = NSLocalizedString("expired_events", comment: "")
+    static let collapse = NSLocalizedString("collapse", comment: "")
+    static let viewAll = NSLocalizedString("view_all", comment: "")
+    static func moreItemsHidden(_ count: Int) -> String {
+        return String(format: NSLocalizedString("more_items_hidden", comment: ""), count)
+    }
+    static let noMatchingEvents = NSLocalizedString("no_matching_events", comment: "")
+
+    // MARK: - Delete Confirmation
+    static let deleteRecurrenceGroupTitle = NSLocalizedString("delete_recurrence_group_title", comment: "")
+    static let deleteSingleEventTitle = NSLocalizedString("delete_single_event_title", comment: "")
+    static let deleteRecurrenceGroupMessage = NSLocalizedString("delete_recurrence_group_message", comment: "")
+    static let deleteSingleEventMessage = NSLocalizedString("delete_single_event_message", comment: "")
+    static let deleteAllButton = NSLocalizedString("delete_all_button", comment: "")
+    static let deleteEventButton = NSLocalizedString("delete_event_button", comment: "")
+
+    // MARK: - Login Benefits Details
+    static let personalizedBackgroundDescDetail = NSLocalizedString("personalized_background_desc_detail", comment: "")
+    static let cloudBackupTitle = NSLocalizedString("cloud_backup_title", comment: "")
+    static let cloudBackupDescDetail = NSLocalizedString("cloud_backup_desc_detail", comment: "")
+    static let smartPushTitle = NSLocalizedString("smart_push_title", comment: "")
+    static let smartPushDescDetail = NSLocalizedString("smart_push_desc_detail", comment: "")
+    static let desktopWidgetDescDetail = NSLocalizedString("desktop_widget_desc_detail", comment: "")
+    static let systemCalendarSyncTitle = NSLocalizedString("system_calendar_sync_title", comment: "")
+    static let systemCalendarSyncDescDetail = NSLocalizedString("system_calendar_sync_desc_detail", comment: "")
+
+    // MARK: - Time Reminder Labels
+    static let expiredEvent = NSLocalizedString("expired_event", comment: "")
+    static let eventToday = NSLocalizedString("event_today", comment: "")
+    static let eventTomorrow = NSLocalizedString("event_tomorrow", comment: "")
+    static let eventDayAfterTomorrow = NSLocalizedString("event_day_after_tomorrow", comment: "")
+    static func eventDaysLater(_ days: Int) -> String {
+        return String(format: NSLocalizedString("event_days_later", comment: ""), days)
+    }
+    static func eventWeeksLater(_ weeks: Int) -> String {
+        return String(format: NSLocalizedString("event_weeks_later", comment: ""), weeks)
+    }
+    static let eventVeryFarFuture = NSLocalizedString("event_very_far_future", comment: "")
+
+    // MARK: - Apple Sign In Error Messages
+    static let appleSigninCredentialInvalid = NSLocalizedString("apple_signin_credential_invalid", comment: "")
+    static let appleSigninDataIncomplete = NSLocalizedString("apple_signin_data_incomplete", comment: "")
+    static func supabaseSigninFailed(_ error: String) -> String {
+        return String(format: NSLocalizedString("supabase_signin_failed", comment: ""), error)
+    }
+    static let signinCanceled = NSLocalizedString("signin_canceled", comment: "")
+    static let signinFailed = NSLocalizedString("signin_failed", comment: "")
+    static let signinInvalidResponse = NSLocalizedString("signin_invalid_response", comment: "")
+    static let signinNotHandled = NSLocalizedString("signin_not_handled", comment: "")
+    static let signinUnknownError = NSLocalizedString("signin_unknown_error", comment: "")
+    static let signinNotInteractive = NSLocalizedString("signin_not_interactive", comment: "")
+    static let signinCredentialExcluded = NSLocalizedString("signin_credential_excluded", comment: "")
+    static let signinCredentialImportFailed = NSLocalizedString("signin_credential_import_failed", comment: "")
+    static let signinCredentialExportFailed = NSLocalizedString("signin_credential_export_failed", comment: "")
+    static let signinGeneralError = NSLocalizedString("signin_general_error", comment: "")
 }

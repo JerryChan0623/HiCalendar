@@ -397,42 +397,45 @@ struct CalendarDayCell: View {
     }
     
     var body: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 1) {
             // 日期数字
             Text("\(day)")
                 .font(BrandFont.bodyMedium)
                 .fontWeight(isToday ? .medium : .regular)
                 .foregroundColor(textColor)
-            
-            // 事项文本列表
+
+            // 事项指示（高度缩小后改为1个事项+点状提示）
             if !events.isEmpty {
                 VStack(spacing: 1) {
-                    ForEach(Array(events.prefix(2).enumerated()), id: \.offset) { index, event in
-                        Text(event.title)
-                            .font(.system(size: 8, weight: .medium))
-                            .foregroundColor(eventTextColor)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                            .padding(.horizontal, 2)
-                            .padding(.vertical, 1)
-                            .background(
-                                RoundedRectangle(cornerRadius: 3, style: .continuous)
-                                    .fill(eventBackgroundColor(for: index))
-                            )
-                    }
-                    
-                    // 如果超过2个事项，显示省略提示
-                    if events.count > 2 {
-                        Text("+\(events.count - 2)")
-                            .font(.system(size: 7, weight: .bold))
-                            .foregroundColor(eventTextColor.opacity(0.7))
+                    // 只显示第一个事项
+                    Text(events[0].title)
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(eventTextColor)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .padding(.horizontal, 2)
+                        .padding(.vertical, 1)
+                        .background(
+                            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                                .fill(eventBackgroundColor(for: 0))
+                        )
+
+                    // 如果超过1个事项，显示点状指示
+                    if events.count > 1 {
+                        HStack(spacing: 2) {
+                            ForEach(0..<min(events.count - 1, 3), id: \.self) { _ in
+                                Circle()
+                                    .fill(BrandColor.outline.opacity(0.5))
+                                    .frame(width: 3, height: 3)
+                            }
+                        }
                     }
                 }
             }
-            
+
             Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, minHeight: 56)
+        .frame(maxWidth: .infinity, minHeight: 44)
         .padding(2)
         .background(backgroundView)
         .clipShape(RoundedRectangle(cornerRadius: BrandRadius.md, style: .continuous))
